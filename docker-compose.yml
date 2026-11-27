@@ -1,0 +1,22 @@
+# Ambiente LOCAL: sobe os dois apps com nginx, como em produção.
+# A API (repositório canal-denuncias-api) roda em http://localhost:3000, com CORS liberado para 4200 e 4300.
+#
+#   docker compose up -d --build
+name: canal-denuncias-web
+
+services:
+  portal:
+    build: { context: ., args: { APP: portal } }
+    ports: ['4200:8080']
+    environment:
+      APP_CSP_CONNECT_SRC: "'self' http://localhost:3000"
+    volumes:
+      - ./docker/config/portal.json:/usr/share/nginx/html/config.json:ro
+
+  backoffice:
+    build: { context: ., args: { APP: backoffice } }
+    ports: ['4300:8080']
+    environment:
+      APP_CSP_CONNECT_SRC: "'self' http://localhost:3000"
+    volumes:
+      - ./docker/config/backoffice.json:/usr/share/nginx/html/config.json:ro

@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Caches e artefatos locais que não vão para o repositório"
+paths = ['''(^|/)\.angular/''', '''(^|/)node_modules/''', '''(^|/)dist/''']

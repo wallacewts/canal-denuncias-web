@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 26
+  NG_CLI_ANALYTICS: 'false'
+
+jobs:
+  quality:
+    name: Lint, testes e build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - name: Nenhuma referência a CDN, fonte externa ou analytics no build
+        run: |
+          if grep -rlE "fonts\.googleapis|fonts\.gstatic|googletagmanager|google-analytics|cdn\.jsdelivr|unpkg\.com|cdnjs" dist/; then
+            echo "Referência externa encontrada no build"; exit 1
+          fi
+      - name: Vulnerabilidades nas dependências
+        run: npm audit --audit-level=high
+
+  docker:
+    name: Imagens Docker e varredura
+    needs: quality
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [portal, backoffice]
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build --build-arg APP=${{ matrix.app }} -t canal-denuncias-web-${{ matrix.app }}:ci .
+      - name: Trivy (falha com vulnerabilidade HIGH/CRITICAL corrigível)
+        run: >-
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:0.76.2
+          image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed canal-denuncias-web-${{ matrix.app }}:ci
+      - name: Cabeçalhos de segurança
+        run: |
+          docker run -d --name app -p 8080:8080 canal-denuncias-web-${{ matrix.app }}:ci
+          for i in $(seq 1 20); do curl -fs localhost:8080/healthz && break; sleep 1; done
+          headers=$(curl -s -D - -o /dev/null localhost:8080/)
+          echo "$headers"
+          for h in "Content-Security-Policy: default-src 'none'" "Strict-Transport-Security" "X-Frame-Options: DENY" "Referrer-Policy: no-referrer" "X-Content-Type-Options: nosniff"; do
+            echo "$headers" | grep -qi "$h" || { echo "Faltando: $h"; exit 1; }
+          done
+
+  secrets:
+    name: Segredos no histórico
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - run: docker run --rm -v "$PWD":/repo zricethezav/gitleaks:v8.30.1 git /repo --config /repo/.gitleaks.toml --redact --verbose

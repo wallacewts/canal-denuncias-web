@@ -1,0 +1,49 @@
+# Portal público (denunciante anônimo).
+server {
+    listen 8080;
+    server_name _;
+    root /usr/share/nginx/html;
+    server_tokens off;
+    charset utf-8;
+    # Anonimato: o portal público não registra IP, user-agent nem URL acessada.
+    access_log off;
+    error_log /dev/stderr crit;
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+
+    # Health check do container (sem log).
+    location = /healthz {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok";
+    }
+
+    # index.html: nonce novo a cada requisição e nunca em cache.
+    location = /index.html {
+        sub_filter_once off;
+        sub_filter_types text/html;
+        sub_filter '__CSP_NONCE__' $request_id;
+        add_header Cache-Control "no-store" always;
+        include /etc/nginx/conf.d/security-headers.inc;
+    }
+
+    # Configuração em tempo de execução, montada no container.
+    location = /config.json {
+        add_header Cache-Control "no-store" always;
+        include /etc/nginx/conf.d/security-headers.inc;
+    }
+
+    # Arquivos com hash no nome: cache longo.
+    location ~ ^/(?:chunk-|main-|polyfills-|styles-|media/) {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        include /etc/nginx/conf.d/security-headers.inc;
+    }
+
+    # Fallback de SPA: qualquer outra rota cai no index.html.
+    location / {
+        try_files $uri /index.html;
+        include /etc/nginx/conf.d/security-headers.inc;
+    }
+}
