@@ -17,3 +17,7 @@ gera em vez de assumir APIs antigas (zoneless e componentes standalone são o pa
   registrar uma decisão.
 - Chamadas à API usam o prefixo `api:` (`http.get('api:/public/v1/...')`), tratado por `apiInterceptor`.
 - Textos de interface em português; nomes de código em inglês.
+
+## Princípios
+
+A constituição do projeto, em `.specify/memory/constitution.md`, prevalece sobre qualquer outra orientação. Todo plano do Spec Kit precisa passar pela checagem dela.
