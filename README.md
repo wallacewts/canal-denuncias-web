@@ -11,6 +11,11 @@ Front-end do Canal de Denúncias de Vazamento de Dados. Um workspace Angular com
 Os dois apps são buildados e publicados separadamente: o código do backoffice nunca vai no bundle público, e o
 backoffice pode ficar restrito à rede interna. A API fica no repositório `canal-denuncias-api`.
 
+## Backlog
+
+As tarefas para implementar as telas estão em [`docs/tarefas/`](docs/tarefas/README.md), com as dependências em
+relação ao backlog da API.
+
 ## Stack
 
 Angular 22 (standalone, signals, zoneless, lazy loading), Angular Material 22, Vitest, ESLint (angular-eslint) e
