@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { type AfterViewInit, Component, inject, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -104,8 +104,9 @@ const TOTP = /^\d{6}$/;
     }
   `,
 })
-export class MfaChallengePage {
+export class MfaChallengePage implements AfterViewInit {
   private readonly api = inject(AuthApi);
+  private readonly header = viewChild.required(PageHeader);
   private readonly flow = inject(SignInFlow);
   private readonly session = inject(StaffSession);
 
@@ -118,6 +119,11 @@ export class MfaChallengePage {
       validators: [Validators.required, Validators.pattern(TOTP)],
     }),
   });
+
+  /** Foco no título ao chegar na etapa, para o leitor de tela anunciar onde a pessoa está (FR-028). */
+  ngAfterViewInit(): void {
+    this.header().focus();
+  }
 
   protected toggleRecovery(): void {
     this.recovery.update((r) => !r);

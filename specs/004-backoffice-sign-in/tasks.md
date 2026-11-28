@@ -144,24 +144,24 @@ painel; segredo e códigos não aparecem em URL, armazenamento ou console e não
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T026 [P] [US2] Unitário de `AUTH/password-change-form.spec.ts`: política exibida; tamanho mínimo e confirmação
+- [x] T026 [P] [US2] Unitário de `AUTH/password-change-form.spec.ts`: política exibida; tamanho mínimo e confirmação
       validados antes do envio (senha de 1 e de 11 caracteres); 422 com motivo (`PASSWORD_COMMON`, `PASSWORD_TOO_SHORT`); 422 `CURRENT_PASSWORD_INVALID` como erro no campo da senha atual, sem encerrar a sessão (401 só
       encerra quando a sessão expirou); 429 depois de 5 erros encerra pela `StaffSession`; campos limpos depois de cada envio
-- [ ] T027 [P] [US2] Unitário de `AUTH/mfa-enrollment-page.spec.ts`: QR code só PNG embutido no `<img>` (SVG recusado),
+- [x] T027 [P] [US2] Unitário de `AUTH/mfa-enrollment-page.spec.ts`: QR code só PNG embutido no `<img>` (SVG recusado),
       segredo em blocos de 4, código inválido não ativa, código válido leva aos códigos; estado apagado ao destruir
-- [ ] T028 [P] [US2] Unitário de `AUTH/recovery-codes-page.spec.ts`: 10 códigos, "Continuar" só depois de "Guardei",
+- [x] T028 [P] [US2] Unitário de `AUTH/recovery-codes-page.spec.ts`: 10 códigos, "Continuar" só depois de "Guardei",
       copiar com fallback, arquivo com nome fixo; ao destruir, códigos apagados; recarga mostra "já exibidos"
-- [ ] T029 [P] [US2] E2E em `e2e/backoffice/first-access.spec.ts`: fluxo completo; senha curta e comum; código
+- [x] T029 [P] [US2] E2E em `e2e/backoffice/first-access.spec.ts`: fluxo completo; senha curta e comum; código
       inválido; download do arquivo nos dois navegadores; voltar e recarregar não reexibem segredo nem códigos; nada em
       URL/armazenamento/console
 
 ### Implementação
 
-- [ ] T030 [P] [US2] `AUTH/password-change-form.ts` (formulário reaproveitado no perfil, US5)
-- [ ] T031 [US2] `AUTH/password-change-page.ts` (`/primeiro-acesso/senha`) e o componente-pai `/primeiro-acesso` com o
+- [x] T030 [P] [US2] `AUTH/password-change-form.ts` (formulário reaproveitado no perfil, US5)
+- [x] T031 [US2] `AUTH/password-change-page.ts` (`/primeiro-acesso/senha`) e o componente-pai `/primeiro-acesso` com o
       `SignInFlow`
-- [ ] T032 [US2] `AUTH/mfa-enrollment-page.ts` (`/primeiro-acesso/autenticador`) com `ScreenState`
-- [ ] T033 [US2] `AUTH/recovery-codes-page.ts` (`/primeiro-acesso/codigos`) usando `@canal/shared/files`
+- [x] T032 [US2] `AUTH/mfa-enrollment-page.ts` (`/primeiro-acesso/autenticador`) com `ScreenState`
+- [x] T033 [US2] `AUTH/recovery-codes-page.ts` (`/primeiro-acesso/codigos`) usando `@canal/shared/files`
 
 **Checkpoint**: contas novas, inclusive a do primeiro administrador, conseguem entrar.
 

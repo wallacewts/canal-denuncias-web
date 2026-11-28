@@ -23,6 +23,33 @@ export const routes: Routes = [
       import('./features/auth/mfa-challenge-page').then((m) => m.MfaChallengePage),
   },
   {
+    path: 'primeiro-acesso',
+    loadComponent: () =>
+      import('./features/auth/first-access-layout').then((m) => m.FirstAccessLayout),
+    children: [
+      {
+        path: 'senha',
+        title: 'Trocar senha' + suffix,
+        canActivate: [stepGuard('PASSWORD_CHANGE_REQUIRED')],
+        loadComponent: () =>
+          import('./features/auth/password-change-page').then((m) => m.PasswordChangePage),
+      },
+      {
+        path: 'autenticador',
+        title: 'Cadastrar aplicativo autenticador' + suffix,
+        canActivate: [stepGuard('MFA_ENROLLMENT_REQUIRED')],
+        loadComponent: () =>
+          import('./features/auth/mfa-enrollment-page').then((m) => m.MfaEnrollmentPage),
+      },
+      {
+        path: 'codigos',
+        title: 'Códigos de recuperação' + suffix,
+        loadComponent: () =>
+          import('./features/auth/recovery-codes-page').then((m) => m.RecoveryCodesPage),
+      },
+    ],
+  },
+  {
     path: '',
     loadComponent: () => import('./layout/shell').then((m) => m.Shell),
     canActivate: [authGuard],
