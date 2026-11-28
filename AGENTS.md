@@ -30,8 +30,9 @@ gera em vez de assumir APIs antigas (zoneless e componentes standalone são o pa
   `e2e/` (o lint reprova), e o `check:build` reprova sentinelas do simulador (`DV-SIMUL`, `SIMULADA`, `__mock`) no build.
 - O envio de denúncia usa tipos provisórios (`report-submission.types.ts`) até CAT-01 e REP-02 saírem no contrato da API;
   a troca pelo cliente gerado é a T048 da feature 002. O acompanhamento usa a mesma exceção provisória em
-  `features/tracking/tracking.types.ts` (até PUB-01, PUB-03, MSG-01 e MSG-02; remoção na T037 da feature 003). Não crie
-  outros tipos de resposta da API escritos à mão.
+  `features/tracking/tracking.types.ts` (até PUB-01, PUB-03, MSG-01 e MSG-02; remoção na T037 da feature 003). O acesso
+  da equipe usa `projects/backoffice/src/app/features/auth/auth.types.ts` (até AUTH-01 a AUTH-05 e USERS-07; remoção na
+  T046 da feature 004). Não crie outros tipos de resposta da API escritos à mão.
 - O bundle inicial do portal tem aviso em 440 kB (D52). Código de tela novo vai em rota com `loadComponent`.
 - Em código carregado sob demanda, nunca importe do barril `@canal/shared` um símbolo que já está no bundle inicial
   (interceptors, políticas, tokens de HTTP): o build levaria a lib inteira para o bundle inicial (+100 kB na feature

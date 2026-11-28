@@ -58,41 +58,41 @@ no contrato da API (`../canal-denuncias-api/openapi/admin.json`). Até lá, fica
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T005 [P] Unitário de `AUTH/auth.types.spec.ts`: validação em tempo de execução de cada resposta do contrato
+- [x] T005 [P] Unitário de `AUTH/auth.types.spec.ts`: validação em tempo de execução de cada resposta do contrato
       (próxima etapa, horários ISO, `CurrentUser`, cadastro com QR code só em `data:image/png;base64`, 10 códigos);
       SVG embutido e campos extras recusados
-- [ ] T006 [P] Unitário de `AUTH/staff-session.spec.ts`: restaurar por `/me`; `end(reason)` idempotente limpa usuário,
+- [x] T006 [P] Unitário de `AUTH/staff-session.spec.ts`: restaurar por `/me`; `end(reason)` idempotente limpa usuário,
       permissões, horários e retorno; avisa outras abas exceto em `other-tab`; ignora respostas depois do encerramento;
       janela de inatividade derivada da resposta (sem 15 min fixo); margem de 60 s; correção pelo cabeçalho `Date`
-- [ ] T007 [P] Unitário de `AUTH/auth.guards.spec.ts`: sem sessão → `/login` com retorno em memória (nunca na URL);
+- [x] T007 [P] Unitário de `AUTH/auth.guards.spec.ts`: sem sessão → `/login` com retorno em memória (nunca na URL);
       retorno só interno (`//x`, `https://...`, `/login` recusados); sessão restaurada por `/me`; `permissionGuard`
       nega sem a `ability` e libera com ela; rota sem `ability` só exige sessão;
       com etapa pendente em memória (sem recarga), rota interna leva à etapa; depois de recarregar (`/me` 401 da sessão
       pendente), vai ao login (FR-012)
-- [ ] T008 [P] Unitário de `AUTH/activity.interceptor.spec.ts`: só respostas 2xx de `/api/admin` marcam atividade;
+- [x] T008 [P] Unitário de `AUTH/activity.interceptor.spec.ts`: só respostas 2xx de `/api/admin` marcam atividade;
       erro e chamada pública não marcam
-- [ ] T009 [P] Unitário de `projects/backoffice/src/app/api-policy.spec.ts`: 401 silencioso chama
+- [x] T009 [P] Unitário de `projects/backoffice/src/app/api-policy.spec.ts`: 401 silencioso chama
       `StaffSession.end('unauthenticated')`, sem mensagem padrão do `errorInterceptor`
 
 ### Implementação
 
-- [ ] T010 [P] Tipos provisórios e validação em `AUTH/auth.types.ts` (exceção do Complexity Tracking; linha no
+- [x] T010 [P] Tipos provisórios e validação em `AUTH/auth.types.ts` (exceção do Complexity Tracking; linha no
       `AGENTS.md` junto com esta tarefa)
-- [ ] T011 [P] Chamadas das rotas de autenticação e de `/me` em `AUTH/auth.api.ts`, com `API_CALLER_HANDLES` por tela
+- [x] T011 [P] Chamadas das rotas de autenticação e de `/me` em `AUTH/auth.api.ts`, com `API_CALLER_HANDLES` por tela
       (importado de `@canal/shared/http`)
-- [ ] T012 `AUTH/staff-session.ts`: estado em memória, horários, temporizadores de aviso, `end(reason)`,
+- [x] T012 `AUTH/staff-session.ts`: estado em memória, horários, temporizadores de aviso, `end(reason)`,
       `BroadcastChannel('canal-backoffice-session')` com eventos `activity` e `ended` (research R1 a R3)
-- [ ] T013 `AUTH/auth.guards.ts` (`authGuard` com `canActivate`/`canActivateChild` e `permissionGuard`) e
+- [x] T013 `AUTH/auth.guards.ts` (`authGuard` com `canActivate`/`canActivateChild` e `permissionGuard`) e
       `AUTH/access-denied.ts`
-- [ ] T014 [P] `AUTH/activity.interceptor.ts` registrado em `projects/backoffice/src/app/app.config.ts`
-- [ ] T015 Política do backoffice em `projects/backoffice/src/app/api-policy.ts`: `silentUnauthenticated: true` e
+- [x] T014 [P] `AUTH/activity.interceptor.ts` registrado em `projects/backoffice/src/app/app.config.ts`
+- [x] T015 Política do backoffice em `projects/backoffice/src/app/api-policy.ts`: `silentUnauthenticated: true` e
       `onUnauthenticated` → `StaffSession.end('unauthenticated')`
-- [ ] T016 Rotas em `projects/backoffice/src/app/app.routes.ts`: fluxo de entrada fora do `Shell`, `authGuard` no
+- [x] T016 Rotas em `projects/backoffice/src/app/app.routes.ts`: fluxo de entrada fora do `Shell`, `authGuard` no
       `Shell` (resolve o TODO da feature 001) e `data.ability` conforme `contracts/auth-routes.md`
-- [ ] T017 Atualizar `e2e/backoffice/routes.spec.ts` e `e2e/backoffice/routes.ts`: com o guard, as rotas internas
+- [x] T017 Atualizar `e2e/backoffice/routes.spec.ts` e `e2e/backoffice/routes.ts`: com o guard, as rotas internas
       exigem sessão; o teste entra pelo simulador (conta `pronta`) antes de visitar cada rota interna e mantém `/login`
       aberta, para os e2e da feature 001 continuarem verdes
-- [ ] T018 [P] Extrair a geração do arquivo `.txt` para `projects/shared/src/lib/files/text-file.ts` com a entrada
+- [x] T018 [P] Extrair a geração do arquivo `.txt` para `projects/shared/src/lib/files/text-file.ts` com a entrada
       secundária `projects/shared/src/files.ts` (`@canal/shared/files`, path no `tsconfig.json`), mover os testes de
       `projects/portal/src/app/features/new-report/receipt-file.spec.ts` e fazer o portal importar de lá, sem mudança de
       comportamento (research R7)

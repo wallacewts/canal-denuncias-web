@@ -15,6 +15,7 @@
       "@canal/shared": ["./projects/shared/src/public-api.ts"],
       "@canal/shared/api/public": ["./projects/shared/src/api/public.ts"],
       "@canal/shared/http": ["./projects/shared/src/http.ts"],
+      "@canal/shared/files": ["./projects/shared/src/files.ts"],
       "@canal/shared/api/admin": ["./projects/shared/src/api/admin.ts"]
     },
     "target": "ES2022",

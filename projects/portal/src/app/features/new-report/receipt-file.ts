@@ -1,10 +1,9 @@
 import { formatAppDate } from '@canal/shared';
+import { downloadTextFile } from '@canal/shared/files';
 import type { ProvisionalReportReceipt } from './report-submission.types';
 
 /** Nome fixo: nunca leva protocolo nem chave (FR-035). */
 export const RECEIPT_FILE_NAME = 'comprovante-denuncia.txt';
-
-const REVOKE_DELAY_MS = 1_000;
 
 export function buildReceiptText(receipt: ProvisionalReportReceipt): string {
   return [
@@ -20,17 +19,7 @@ export function buildReceiptText(receipt: ProvisionalReportReceipt): string {
   ].join('\n');
 }
 
-/**
- * Gera o arquivo no próprio navegador, sem chamada ao servidor (research.md R7). `Blob` e âncora com `download`: não
- * usa nenhum sink de Trusted Types nem precisa mudar a CSP. A URL é liberada um instante depois do clique: liberar na
- * hora pode cancelar o download em alguns navegadores (Firefox).
- */
+/** Baixa o comprovante gerado no próprio navegador, com o nome fixo (FR-035). */
 export function downloadReceipt(receipt: ProvisionalReportReceipt, doc: Document = document): void {
-  const blob = new Blob([buildReceiptText(receipt)], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const link = doc.createElement('a');
-  link.href = url;
-  link.download = RECEIPT_FILE_NAME;
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
+  downloadTextFile(RECEIPT_FILE_NAME, buildReceiptText(receipt), doc);
 }

@@ -9,6 +9,7 @@ import {
 } from '@canal/shared';
 import { provideAdminApiConfiguration } from '@canal/shared/api/admin';
 import { BACKOFFICE_API_POLICY } from './api-policy';
+import { activityInterceptor } from './features/auth/activity.interceptor';
 import { routes } from './app.routes';
 
 export function buildAppConfig(config: AppConfig): ApplicationConfig {
@@ -22,7 +23,7 @@ export function buildAppConfig(config: AppConfig): ApplicationConfig {
         withComponentInputBinding(),
         withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
       ),
-      provideApi(config, BACKOFFICE_API_POLICY),
+      provideApi(config, BACKOFFICE_API_POLICY, [activityInterceptor]),
       provideAdminApiConfiguration(API_PREFIX),
     ],
   };

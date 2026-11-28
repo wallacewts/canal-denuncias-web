@@ -1,4 +1,5 @@
 import {
+  type HttpInterceptorFn,
   provideHttpClient,
   withFetch,
   withInterceptors,
@@ -14,12 +15,14 @@ import { errorInterceptor } from './error.interceptor';
 
 /**
  * HttpClient configurado para a API do canal, com a política de credenciais do app.
- * O token CSRF é lido pelo próprio Angular do cookie XSRF-TOKEN e reenviado no cabeçalho X-XSRF-TOKEN
- * (só funciona com a API no mesmo domínio, que é o desenho de produção).
+ * A API protege a área administrativa contra escrita de outra origem pela verificação de origem (AUTH-07); o
+ * withXsrfConfiguration fica inerte enquanto a API não emitir o cookie XSRF-TOKEN (feature 004, research R9).
  */
 export function provideApi(
   config: AppConfig,
   policy: ApiPolicy,
+  /** Interceptors do app que precisam ler o prefixo api: (ex.: atividade da sessão no backoffice). */
+  extraInterceptors: readonly HttpInterceptorFn[] = [],
 ): (Provider | EnvironmentProviders)[] {
   return [
     { provide: APP_CONFIG, useValue: config },
@@ -29,7 +32,12 @@ export function provideApi(
     provideHttpClient(
       withFetch(),
       // Ordem importa: credenciais e erros leem o prefixo api:, então rodam antes da troca do prefixo pela URL base.
-      withInterceptors([credentialsInterceptor, errorInterceptor, apiInterceptor]),
+      withInterceptors([
+        credentialsInterceptor,
+        errorInterceptor,
+        ...extraInterceptors,
+        apiInterceptor,
+      ]),
       withXsrfConfiguration({ cookieName: 'XSRF-TOKEN', headerName: 'X-XSRF-TOKEN' }),
     ),
   ];
