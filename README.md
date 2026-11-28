@@ -75,12 +75,16 @@ de produção. Tudo fica no mesmo endereço, sem CORS, e o cookie de sessão da 
 `npm run e2e` sobe os dois apps (imagens nginx de produção), o servidor simulado no lugar da API (`tools/mock-api`,
 com cenários e contador separados por teste pelo cabeçalho `x-mock-session`) e roda o Playwright na imagem oficial
 `mcr.microsoft.com/playwright:v1.65.1-noble`, com Chromium (canal `chromium`, que trata as origens de teste como
-seguras) e Firefox. O host não precisa suportar o
-Playwright. Pré-requisito: `npm ci`.
+seguras). O host não precisa suportar o Playwright. Pré-requisito: `npm ci`.
+
+**Firefox desativado temporariamente (2026-11-28).** O Firefox continua configurado, mas fica fora da execução padrão
+(local e CI). A variável `E2E_BROWSERS` escolhe os navegadores (padrão `chromium`); para incluir o Firefox:
+`E2E_BROWSERS=chromium,firefox npm run e2e`. Motivo, lacunas de cobertura e o que é preciso para reativar:
+`docs/validacoes/navegadores-e2e.md`.
 
 ```text
 e2e/
-├── playwright.config.ts      # projetos fixture, portal e backoffice × Chromium e Firefox (sem bypassCSP)
+├── playwright.config.ts      # projetos fixture, portal e backoffice × navegadores de E2E_BROWSERS (sem bypassCSP)
 ├── fixtures/privacy-guards.ts # guardas automáticas: rede, URL, CSP/Trusted Types, armazenamento e console
 ├── support/                   # utilitários de layout e de chamada à API (o servidor simulado fica em tools/mock-api)
 ├── portal/                    # rotas, acessibilidade (axe), proxy /api, envio de denúncia, página inicial, COOP

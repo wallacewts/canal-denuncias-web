@@ -89,8 +89,10 @@ o código da proteção nativa contra escrita de outra origem em `@nestjs/core/s
   a etapa certa, como o `NewReportFlow` da feature 002). `DONE` carrega o `/me` e vai para o caminho de retorno.
 - **Ordem do primeiro acesso:** a API decide (`nextStep`); o front só navega. O esperado é troca de senha → cadastro do
   segundo fator → códigos de recuperação → `DONE`.
-- **Recarregar no meio:** a sessão pendente não é restaurável pelo `/me` (exige MFA verificado), então volta para
-  `/login` com a mensagem de sessão encerrada. Aceito (caso de borda da spec).
+- **Recarregar no meio:** a sessão pendente antes do segundo fator não é restaurável pelo `/me` (exige MFA verificado),
+  então volta para `/login` com a mensagem de sessão encerrada. Aceito (caso de borda da spec). A troca de senha
+  exigida depois do segundo fator é restaurada: o `/me` responde com `passwordChangeRequired: true`, e os guards levam
+  de volta à troca (decisão do backend, feature 006).
 - **Senhas e códigos:** campos limpos depois de cada envio, com o `SensitiveInput` da lib (`autocomplete` adequado:
   `username`, `current-password`, `new-password`, `one-time-code`).
 

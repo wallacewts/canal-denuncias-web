@@ -257,6 +257,8 @@ da API.
 - **FR-041**: O fluxo completo (início, wizard, revisão, protocolo) MUST ter teste de ponta a ponta com as guardas de
   privacidade da base transversal (nenhuma requisição externa, nada na URL, no armazenamento ou no console, nenhuma
   violação da política de segurança de conteúdo), nos dois navegadores usados pelo projeto.
+  > Nota (2026-11-28): o e2e roda por enquanto só no Chromium; o Firefox está desativado temporariamente
+  > (`docs/validacoes/navegadores-e2e.md`).
 - **FR-042**: Todas as telas desta feature MUST passar na verificação automática de acessibilidade, inclusive com zoom
   de 200% e largura de 320 px.
 
@@ -301,6 +303,8 @@ da API.
   de 5 minutos, sem ajuda.
 - **SC-002**: Em 100% dos testes de ponta a ponta do fluxo, nos dois navegadores, nenhum trecho do relato, protocolo ou
   chave aparece na URL, no título, no console, no armazenamento do navegador ou em requisição para fora do portal.
+  > Nota (2026-11-28): o e2e roda por enquanto só no Chromium; o Firefox está desativado temporariamente
+  > (`docs/validacoes/navegadores-e2e.md`).
 - **SC-003**: Em 100% das falhas de envio simuladas (sem conexão, erro do servidor, validação recusada), o rascunho
   continua idêntico ao que a pessoa preencheu.
 - **SC-004**: Um clique duplo ou repetido no botão de enviar gera exatamente um envio.

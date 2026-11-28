@@ -43,6 +43,9 @@ andamento em cada status (incluindo desfecho e "Aguardando sua resposta"); infor
 mensagem genérica; recarregar e verificar que o acesso foi encerrado. Tudo com as guardas de privacidade do e2e ativas
 nos dois navegadores.
 
+> Nota (2026-11-28): o e2e roda por enquanto só no Chromium; o Firefox está desativado temporariamente
+> (`docs/validacoes/navegadores-e2e.md`).
+
 **Acceptance Scenarios**:
 
 1. **Given** a tela de consulta, **When** a pessoa informa protocolo e chave válidos e confirma, **Then** o acesso é
@@ -274,6 +277,8 @@ que nada da denúncia aparece.
 - **SC-005**: O aviso de expiração aparece em 100% dos casos ao menos 2 minutos antes do fim do acesso.
 - **SC-006**: As telas de consulta e acompanhamento não têm nenhuma violação no teste automatizado de acessibilidade, em
   320 px e com zoom de 200%, nos dois navegadores.
+  > Nota (2026-11-28): o e2e roda por enquanto só no Chromium; o Firefox está desativado temporariamente
+  > (`docs/validacoes/navegadores-e2e.md`).
 - **SC-007**: O fluxo inteiro (consultar, ler, responder e sair) pode ser feito só com o teclado.
 
 ## Assumptions

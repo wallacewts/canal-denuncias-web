@@ -30,6 +30,17 @@ const browsers = {
   firefox: devices['Desktop Firefox'],
 } as const;
 
+/**
+ * Navegadores da execução, separados por vírgula. Padrão: só `chromium` (decisão temporária de 2026-11-28, ver
+ * docs/validacoes/navegadores-e2e.md). O Firefox continua configurado: `E2E_BROWSERS=chromium,firefox npm run e2e`.
+ */
+const enabledBrowsers = (process.env['E2E_BROWSERS'] ?? 'chromium')
+  .split(',')
+  .map((name) => name.trim())
+  .filter((name): name is keyof typeof browsers => name in browsers);
+if (enabledBrowsers.length === 0)
+  throw new Error('E2E_BROWSERS sem navegador conhecido (chromium, firefox)');
+
 export default defineConfig({
   outputDir: './test-results',
   forbidOnly: !!process.env['CI'],
@@ -41,10 +52,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: Object.entries(areas).flatMap(([area, { testDir, baseURL }]) =>
-    Object.entries(browsers).map(([browser, device]) => ({
+    enabledBrowsers.map((browser) => ({
       name: `${area}-${browser}`,
       testDir,
-      use: { ...device, baseURL },
+      use: { ...browsers[browser], baseURL },
     })),
   ),
 });

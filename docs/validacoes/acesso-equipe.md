@@ -38,6 +38,9 @@ nginx, CSP com nonce e Trusted Types, contra o servidor simulado (`tools/mock-ap
 - **Causa**: cada etapa leva o foco ao título quando abre. O teste apertava Tab antes disso; o foco voltava ao título e
   o Space não marcava "Guardei".
 - **Correção**: em cada etapa, o teste espera o título estar com foco antes do Tab e confere que a caixa foi marcada.
+  Depois apareceu uma segunda causa, no Chromium: com "Continuar" ainda desabilitado, o Tab passava do fim da página,
+  o foco caía no `body` (cujo texto contém "Continuar") e o utilitário achava que tinha chegado ao botão. O utilitário
+  passou a ignorar o `body`, e o teste espera o botão habilitar antes do Tab.
   Depois: 100 de 100 execuções (Chromium e Firefox, 25 vezes cada).
 
 ## Firefox derruba a página durante o axe (não corrigido, registrado)

@@ -75,6 +75,17 @@ describe('RecoveryCodesPage (BAUTH-03)', () => {
     );
   });
 
+  it('sem área de transferência (navigator.clipboard ausente) orienta a copiar manualmente ou baixar', async () => {
+    vi.stubGlobal('navigator', { ...navigator, clipboard: undefined });
+    const { el, harness, button } = await render();
+    button('Copiar').click();
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+    expect(el.querySelector('[data-testid="copy-status"]')?.textContent).toContain(
+      'baixe o arquivo',
+    );
+  });
+
   it('recarregar (sem códigos em memória) informa que já foram exibidos', async () => {
     const { el } = await render(null);
     expect(el.querySelectorAll('[data-testid="code"]').length).toBe(0);

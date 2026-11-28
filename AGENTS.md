@@ -25,7 +25,8 @@ gera em vez de assumir APIs antigas (zoneless e componentes standalone são o pa
   componente de rota.
 - O proxy `/api` do portal remove IP e cookies; não mude isso sem registrar decisão.
 - Testes de ponta a ponta: `npm run e2e` (Playwright no container oficial). Todo teste usa a fixture `privacyGuards` de
-  `e2e/fixtures/privacy-guards.ts`. Nunca use `bypassCSP`.
+  `e2e/fixtures/privacy-guards.ts`. Nunca use `bypassCSP`. Por enquanto só no Chromium (`E2E_BROWSERS`, padrão
+  `chromium`; o Firefox está desativado temporariamente, ver `docs/validacoes/navegadores-e2e.md`).
 - O servidor simulado da API fica em `tools/mock-api` (e2e e `npm run dev:mock-api`). Os apps nunca importam `tools/` nem
   `e2e/` (o lint reprova), e o `check:build` reprova sentinelas do simulador (`DV-SIMUL`, `SIMULADA`, `__mock`) no build.
 - O envio de denúncia usa tipos provisórios (`report-submission.types.ts`) até CAT-01 e REP-02 saírem no contrato da API;

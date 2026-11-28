@@ -12,7 +12,12 @@
 | Telas do `Shell`                | Painel, caixa, detalhe etc.      | `authGuard` + `permissionGuard` (`data.ability`) | (sem mudança)                     |
 | `/perfil`                       | Meu perfil e troca de senha      | sessão válida (sem `ability`)                    | Meu perfil                        |
 
-Sem a etapa certa em memória, as rotas do fluxo fazem `replaceUrl` para `/login`. Nenhuma rota leva e-mail, código,
+Sem a etapa certa em memória, as rotas do fluxo tentam o `/me`: a troca de senha exigida depois do segundo fator volta
+por ele; sem isso, fazem `replaceUrl` para `/login`.
+
+Respostas 403 com código, tratadas pela política do backoffice (`onForbidden`), sem a tela de acesso negado e sem
+encerrar a sessão: `PASSWORD_CHANGE_REQUIRED` leva a `/primeiro-acesso/senha`; `STEP_NOT_ALLOWED` leva à etapa
+certa (ou ao painel, se tudo já foi concluído). Nenhuma rota leva e-mail, código,
 caminho de retorno ou qualquer dado na URL.
 
 ## Permissão exigida por tela (códigos `recurso.ação` do USERS-07; nomes exatos conferidos na integração, T047)

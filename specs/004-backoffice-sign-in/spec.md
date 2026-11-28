@@ -238,8 +238,9 @@ outras sessões dela foram encerradas.
 - **FR-011**: Toda tela interna DEVE exigir sessão válida com segundo fator verificado; sem ela, a pessoa vai para o
   login e o caminho que tentou abrir é guardado só em memória, para depois do login.
 - **FR-012**: Sessão com troca de senha ou segundo fator pendente DEVE ser levada à etapa que falta, sem acesso às
-  telas internas, enquanto a etapa estiver em memória; depois de recarregar a página, a sessão pendente não é
-  restaurável e a pessoa vai para o login.
+  telas internas, enquanto a etapa estiver em memória; depois de recarregar a página, a sessão pendente antes do
+  segundo fator não é restaurável e a pessoa vai para o login. A troca de senha exigida depois do segundo fator volta
+  pelo `/me` (`passwordChangeRequired: true`) e a pessoa continua na troca.
 - **FR-013**: O menu e o acesso às rotas DEVEM ser decididos pelas permissões efetivas devolvidas pela API no perfil do
   usuário (`GET /me`); cada rota declara a permissão que exige, e o front não copia a matriz de perfis × telas da API.
 - **FR-014**: A API continua sendo a autoridade: uma tela aberta pelo endereço sem permissão e qualquer 403 DEVEM

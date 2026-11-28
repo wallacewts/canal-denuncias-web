@@ -37,7 +37,7 @@ npm test
 npm run test:scripts
 npm run build && npm run check:build   # sem sentinelas do simulador; regra do barril no portal
 npm run api:check
-npm run e2e                            # guardas de privacidade em todos os testes; Chromium e Firefox
+npm run e2e                            # guardas de privacidade em todos os testes; Chromium (Firefox: E2E_BROWSERS=chromium,firefox)
 ```
 
 Esperado: tudo verde; e2e de entrada, primeiro acesso, menu por permissão, expiração (relógio controlado), abas,

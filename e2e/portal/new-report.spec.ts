@@ -15,6 +15,24 @@ test.describe('envio de denúncia', () => {
     privacyGuards.trackSensitive('CPFs');
   });
 
+  test('cópia sem área de transferência (navigator.clipboard ausente): caminho de seleção manual', async ({
+    page,
+    request,
+  }) => {
+    // Antes coberto só pelo Firefox (sem área de transferência fora de HTTPS). Com o Firefox fora da execução padrão,
+    // o Chromium exercita o mesmo caminho removendo a API antes de a página carregar.
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+    });
+    await useMockSession(page, request);
+    await fillMinimalReport(page);
+    await page.getByRole('button', { name: 'Enviar denúncia' }).click();
+    await expect(page.locator('h1')).toHaveText('Protocolo gerado');
+    await page.getByRole('button', { name: 'Copiar chave' }).click();
+    await expect(page.getByRole('status')).toContainText('selecione o texto e copie');
+    await expect(page.getByTestId('access-key')).toHaveCSS('user-select', 'all');
+  });
+
   test('fluxo completo: relato, revisão, protocolo, cópia, download e conclusão', async ({
     page,
     request,

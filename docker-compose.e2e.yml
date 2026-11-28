@@ -45,6 +45,8 @@ services:
     environment:
       HOME: /tmp
       CI: ${CI:-}
+      # Navegadores do Playwright (padrão chromium; docs/validacoes/navegadores-e2e.md).
+      E2E_BROWSERS: ${E2E_BROWSERS:-chromium}
       npm_config_update_notifier: 'false'
     volumes:
       - .:/work

@@ -71,7 +71,8 @@ async function tabTo(page: Page, name: RegExp) {
     await page.keyboard.press('Tab');
     const label = await page.evaluate(() => {
       const el = document.activeElement as HTMLElement | null;
-      if (!el) return '';
+      // Foco fora da página (Tab passou do último elemento) cai no body, cujo texto contém tudo: não conta.
+      if (!el || el === document.body) return '';
       const labelled = el.id ? document.querySelector(`label[for="${el.id}"]`)?.textContent : '';
       return `${labelled ?? ''} ${el.getAttribute('aria-label') ?? ''} ${el.textContent ?? ''}`;
     });
@@ -132,6 +133,7 @@ test('primeiro acesso só com teclado: senha, autenticador, códigos e painel', 
   await tabTo(page, /Guardei os códigos/);
   await page.keyboard.press('Space');
   await expect(page.getByLabel('Guardei os códigos de recuperação')).toBeChecked();
+  await expect(page.getByRole('button', { name: 'Continuar' })).toBeEnabled();
   await tabTo(page, /Continuar/);
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/painel$/);
