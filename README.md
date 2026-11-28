@@ -23,8 +23,9 @@ Prettier. Imagens servidas por `nginxinc/nginx-unprivileged`.
 
 ## Rodando localmente
 
-Pré-requisitos: Node.js 26 e Docker. Os testes de ponta a ponta (`npm run e2e`) rodam no container do Playwright e
-usam um servidor de eco no lugar da API.
+Pré-requisitos: Node.js 26 e Docker. A versão exata do Node fica em `.tool-versions` (`asdf install` instala). Os testes
+de ponta a ponta (`npm run e2e`) rodam no container do Playwright e usam o servidor simulado da API
+(`tools/mock-api/server.mjs`).
 
 ```bash
 npm ci
@@ -75,7 +76,7 @@ Playwright. Pré-requisito: `npm ci`.
 e2e/
 ├── playwright.config.ts      # projetos fixture, portal e backoffice × Chromium e Firefox (sem bypassCSP)
 ├── fixtures/privacy-guards.ts # guardas automáticas: rede, URL, CSP/Trusted Types, armazenamento e console
-├── support/                   # servidor de eco (echo-api.mjs) e utilitários de layout e de chamada à API
+├── support/                   # utilitários de layout e de chamada à API (o servidor simulado fica em tools/mock-api)
 ├── portal/                    # rotas, acessibilidade (axe), proxy /api
 └── backoffice/                # rotas, layout em telas estreitas, proxy /api
 ```

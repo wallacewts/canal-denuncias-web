@@ -1,8 +1,11 @@
-// Servidor de eco usado só nos testes e2e (serviço e2e-api do docker-compose.e2e.yml).
+// Servidor simulado da API, usado SÓ nos testes e2e (serviço e2e-api do docker-compose.e2e.yml) e no desenvolvimento
+// local (npm run dev:mock-api). Nunca é importado pelos apps (regra de lint) e nada dele pode aparecer no build
+// (scripts/check-build-output.mjs). Contrato: specs/002-report-submission-wizard/contracts/mock-api.md.
 // - /fixture/*: páginas que violam cada guarda de privacidade, para testar a própria fixture.
 // - qualquer outra rota: devolve método, caminho, cabeçalhos e cookies recebidos (testes do proxy /api)
 //   e emite um cookie XSRF-TOKEN de teste.
 import { createServer } from 'node:http';
+import { pathToFileURL } from 'node:url';
 
 const html = (title, body, script) =>
   `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${title}</title></head>` +
@@ -43,7 +46,7 @@ function parseCookies(header = '') {
   );
 }
 
-createServer((req, res) => {
+function handle(req, res) {
   const url = new URL(req.url ?? '/', 'http://e2e-api');
   const fixture = url.pathname.match(/^\/fixture\/(\w+)(\.js)?$/);
 
@@ -74,4 +77,14 @@ createServer((req, res) => {
       cookies: parseCookies(req.headers.cookie),
     }),
   );
-}).listen(3000, '0.0.0.0');
+}
+
+/** Cria o servidor sem começar a escutar (os testes escolhem a porta). */
+export function createMockApi() {
+  return createServer(handle);
+}
+
+// Executado diretamente (node server.mjs): escuta na porta 3000, a do proxy.conf.json e do upstream dos e2e.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  createMockApi().listen(Number(process.env.PORT ?? 3000), '0.0.0.0');
+}

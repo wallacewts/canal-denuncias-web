@@ -3,11 +3,11 @@
 services:
   portal:
     ports: !reset []
-    # O nginx resolve o endereço da API ao subir: o servidor de eco precisa existir antes.
+    # O nginx resolve o endereço da API ao subir: o servidor simulado precisa existir antes.
     depends_on:
       e2e-api: { condition: service_healthy }
     environment:
-      # Endereço da API atrás do proxy /api. Nos e2e, o servidor de eco.
+      # Endereço da API atrás do proxy /api. Nos e2e, o servidor simulado (tools/mock-api).
       APP_API_UPSTREAM: http://e2e-api:3000
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1']
@@ -29,8 +29,8 @@ services:
     image: node:26-alpine
     working_dir: /work
     volumes:
-      - ./e2e/support:/work:ro
-    command: ['node', 'echo-api.mjs']
+      - ./tools/mock-api:/work:ro
+    command: ['node', 'server.mjs']
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3000/fixture/clean >/dev/null || exit 1']
       interval: 2s

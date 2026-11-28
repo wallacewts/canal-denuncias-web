@@ -2,7 +2,7 @@ import { expect, test } from './privacy-guards';
 
 /**
  * Testes da própria fixture: cada guarda precisa reprovar o comportamento que ela vigia.
- * As páginas /fixture/* são servidas pelo e2e-api (e2e/support/echo-api.mjs), que é a "origem do app" neste projeto.
+ * As páginas /fixture/* são servidas pelo e2e-api (tools/mock-api/server.mjs), que é a "origem do app" neste projeto.
  * Cada teste confere a violação esperada e a consome com takeViolations(), para a checagem final da fixture passar.
  */
 

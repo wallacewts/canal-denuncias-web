@@ -11,6 +11,7 @@ docker/config
 .husky
 # Não fazem parte da imagem dos apps
 e2e
+tools
 specs
 openapi
 scripts

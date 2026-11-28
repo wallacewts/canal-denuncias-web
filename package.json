@@ -19,7 +19,8 @@
     "api:sync": "node scripts/api-sync.mjs",
     "api:generate": "ng-openapi-gen -c ng-openapi-gen.public.json && ng-openapi-gen -c ng-openapi-gen.admin.json",
     "api:check": "node scripts/api-check.mjs",
-    "test:scripts": "node --test scripts/*.test.mjs"
+    "test:scripts": "node --test scripts/*.test.mjs",
+    "dev:mock-api": "node tools/mock-api/server.mjs"
   },
   "private": true,
   "dependencies": {

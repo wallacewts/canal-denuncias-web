@@ -61,6 +61,25 @@ const cases = [
     rule: 'no-restricted-imports',
     expect: false,
   },
+  // Os apps nunca importam o servidor simulado nem o código dos testes e2e (feature 002, research R1).
+  {
+    file: 'projects/portal/src/app/probe.ts',
+    code: "import { x } from '../../../../tools/mock-api/server.mjs';\nexport const y = x;",
+    rule: 'no-restricted-imports',
+    expect: true,
+  },
+  {
+    file: 'projects/shared/src/lib/probe.ts',
+    code: "import { x } from '../../../../e2e/support/echo';\nexport const y = x;",
+    rule: 'no-restricted-imports',
+    expect: true,
+  },
+  {
+    file: 'projects/backoffice/src/app/probe.ts',
+    code: "import { x } from '../../../../tools/mock-api/server.mjs';\nexport const y = x;",
+    rule: 'no-restricted-imports',
+    expect: true,
+  },
 ];
 
 let failures = 0;

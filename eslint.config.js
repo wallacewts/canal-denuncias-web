@@ -4,6 +4,11 @@ const { defineConfig } = require('eslint/config');
 const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
 
+const NO_TEST_TOOLS = {
+  group: ['**/tools/**', '**/e2e/**'],
+  message: 'Os apps não importam o servidor simulado nem o código dos testes e2e.',
+};
+
 module.exports = defineConfig([
   {
     ignores: [
@@ -62,7 +67,16 @@ module.exports = defineConfig([
     ignores: ['**/*.spec.ts'],
     rules: { 'no-console': 'error' },
   },
-  // O portal nunca importa o cliente administrativo (constituição, princípio V).
+  // Os apps e a lib nunca importam o servidor simulado nem o código dos testes e2e (feature 002, research R1):
+  // respostas simuladas não podem chegar ao build de produção.
+  {
+    files: ['projects/**/*.ts'],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: [NO_TEST_TOOLS] }],
+    },
+  },
+  // O portal nunca importa o cliente administrativo (constituição, princípio V). A regra repete o padrão acima porque
+  // a configuração do portal substitui a anterior.
   {
     files: ['projects/portal/**/*.ts'],
     rules: {
@@ -75,6 +89,7 @@ module.exports = defineConfig([
               message: 'O portal não pode importar o cliente administrativo da API.',
             },
           ],
+          patterns: [NO_TEST_TOOLS],
         },
       ],
     },
