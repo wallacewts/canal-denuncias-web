@@ -28,6 +28,18 @@ server {
         include /etc/nginx/conf.d/security-headers.inc;
     }
 
+    # Proxy da API (FTRV-04). Anonimato: o IP e os cookies do denunciante nunca chegam à API, nem cabeçalhos de IP
+    # forjados pelo cliente. Cookies emitidos pela API também não chegam ao navegador. Sem log (access_log off acima).
+    location /api/ {
+        proxy_pass ${APP_API_UPSTREAM};
+        proxy_http_version 1.1;
+        proxy_set_header X-Forwarded-For "";
+        proxy_set_header X-Real-IP "";
+        proxy_set_header Forwarded "";
+        proxy_set_header Cookie "";
+        proxy_hide_header Set-Cookie;
+    }
+
     # Configuração em tempo de execução, montada no container.
     location = /config.json {
         add_header Cache-Control "no-store" always;

@@ -176,18 +176,18 @@ com o IP repassado.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T056 [P] [US4] E2E do proxy do portal em `e2e/portal/proxy.spec.ts`: uma chamada a `/api/public/v1/eco` pelo portal chega ao `e2e-api` sem `X-Forwarded-For`, `X-Real-IP`, `Forwarded` e `Cookie`; a CSP da página traz `connect-src 'self'`
-- [ ] T057 [P] [US4] E2E do proxy do backoffice em `e2e/backoffice/proxy.spec.ts`: a chamada chega com `X-Forwarded-For` preenchido e com o cookie emitido pelo `e2e-api`
+- [x] T056 [P] [US4] E2E do proxy do portal em `e2e/portal/proxy.spec.ts`: uma chamada a `/api/public/v1/eco` pelo portal chega ao `e2e-api` sem `X-Forwarded-For`, `X-Real-IP`, `Forwarded` e `Cookie`; a CSP da página traz `connect-src 'self'`
+- [x] T057 [P] [US4] E2E do proxy do backoffice em `e2e/backoffice/proxy.spec.ts`: a chamada chega com `X-Forwarded-For` preenchido e com o cookie emitido pelo `e2e-api`
 - [ ] T058 [US4] ⛔ Bloqueada: AUTH-07 e a primeira ação administrativa do backoffice (BAUTH-01). E2E em `e2e/backoffice/xsrf.spec.ts`: um `POST` administrativo feito pela interface leva o cabeçalho `X-XSRF-TOKEN` igual ao cookie `XSRF-TOKEN` e é aceito pela API
 
 ### Implementation for User Story 4
 
-- [ ] T059 [P] [US4] Adicionar `location /api/` em `docker/nginx/portal.conf.template`, com `proxy_pass ${APP_API_UPSTREAM}`, `proxy_set_header` vazio para `X-Forwarded-For`, `X-Real-IP` e `Forwarded`, sem repassar `Cookie` e mantendo `access_log off`
-- [ ] T060 [P] [US4] Adicionar `location /api/` em `docker/nginx/backoffice.conf.template`, com `proxy_pass ${APP_API_UPSTREAM}` e `X-Forwarded-For`, `X-Real-IP` e `X-Forwarded-Proto` repassados
-- [ ] T061 [US4] Fixar `connect-src 'self'` em `docker/nginx/security-headers.inc.template`, remover `APP_CSP_CONNECT_SRC` e manter no `Dockerfile` o `NGINX_ENVSUBST_FILTER=APP_` (o `envsubst` só substitui variáveis `APP_*`, como `APP_API_UPSTREAM`), preservando `$request_id` e as variáveis do nginx
-- [ ] T062 [P] [US4] Trocar `apiBaseUrl` para `"/api"` em `docker/config/portal.json`, `docker/config/backoffice.json`, `projects/portal/public/config.json` e `projects/backoffice/public/config.json`, e conferir que `proxy.conf.json` repassa `/api` para `http://localhost:3000` no `ng serve`
-- [ ] T063 [US4] Em `docker-compose.yml`, trocar `APP_CSP_CONNECT_SRC` por `APP_API_UPSTREAM: http://host.docker.internal:3000` nos dois serviços e adicionar `extra_hosts: ["host.docker.internal:host-gateway"]`
-- [ ] T064 [US4] Atualizar a seção do ambiente local em `README.md`: proxy `/api`, `APP_API_UPSTREAM`, remoção do CORS entre domínios e o que o proxy do portal remove
+- [x] T059 [P] [US4] Adicionar `location /api/` em `docker/nginx/portal.conf.template`, com `proxy_pass ${APP_API_UPSTREAM}`, `proxy_set_header` vazio para `X-Forwarded-For`, `X-Real-IP` e `Forwarded`, sem repassar `Cookie` e mantendo `access_log off`
+- [x] T060 [P] [US4] Adicionar `location /api/` em `docker/nginx/backoffice.conf.template`, com `proxy_pass ${APP_API_UPSTREAM}` e `X-Forwarded-For`, `X-Real-IP` e `X-Forwarded-Proto` repassados
+- [x] T061 [US4] Fixar `connect-src 'self'` em `docker/nginx/security-headers.inc.template`, remover `APP_CSP_CONNECT_SRC` e manter no `Dockerfile` o `NGINX_ENVSUBST_FILTER=APP_` (o `envsubst` só substitui variáveis `APP_*`, como `APP_API_UPSTREAM`), preservando `$request_id` e as variáveis do nginx
+- [x] T062 [P] [US4] Trocar `apiBaseUrl` para `"/api"` em `docker/config/portal.json`, `docker/config/backoffice.json`, `projects/portal/public/config.json` e `projects/backoffice/public/config.json`, e conferir que `proxy.conf.json` repassa `/api` para `http://localhost:3000` no `ng serve`
+- [x] T063 [US4] Em `docker-compose.yml`, trocar `APP_CSP_CONNECT_SRC` por `APP_API_UPSTREAM: http://host.docker.internal:3000` nos dois serviços e adicionar `extra_hosts: ["host.docker.internal:host-gateway"]`
+- [x] T064 [US4] Atualizar a seção do ambiente local em `README.md`: proxy `/api`, `APP_API_UPSTREAM`, remoção do CORS entre domínios e o que o proxy do portal remove
 
 **Checkpoint**: o compose local se comporta como produção. O teste do XSRF fica pendente até o AUTH-07.
 

@@ -25,8 +25,10 @@ COPY docker/nginx/security-headers.inc.template /etc/nginx/templates/security-he
 COPY docker/nginx/${APP}.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist/${APP}/browser /usr/share/nginx/html
 USER 101
-# Só variáveis APP_* são substituídas nos templates. connect-src padrão: só o próprio domínio (API em /api).
+# Só variáveis APP_* são substituídas nos templates (o $request_id e as variáveis do nginx ficam intactos).
+# APP_API_UPSTREAM: endereço da API atrás do proxy /api. O padrão sempre resolve, para o nginx subir mesmo sem a API
+# configurada (as chamadas a /api respondem 502 até o endereço real ser informado).
 ENV NGINX_ENVSUBST_FILTER=APP_ \
-    APP_CSP_CONNECT_SRC="'self'"
+    APP_API_UPSTREAM=http://127.0.0.1:3000
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1

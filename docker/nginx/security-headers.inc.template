@@ -2,8 +2,9 @@
 # (no nginx, um add_header dentro de location descarta os herdados do server).
 #
 # CSP: scripts e estilos só do próprio domínio ou com o nonce da requisição (o Angular repassa o nonce
-# para os <style> que cria). Nada de CDN, fonte externa ou analytics.
-add_header Content-Security-Policy "default-src 'none'; script-src 'self' 'nonce-$request_id'; style-src 'self' 'nonce-$request_id'; img-src 'self' data:; font-src 'self'; connect-src ${APP_CSP_CONNECT_SRC}; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; require-trusted-types-for 'script'; trusted-types angular angular#bundler" always;
+# para os <style> que cria). Nada de CDN, fonte externa ou analytics. A API fica atrás do proxy /api no
+# mesmo endereço, então connect-src é sempre 'self'.
+add_header Content-Security-Policy "default-src 'none'; script-src 'self' 'nonce-$request_id'; style-src 'self' 'nonce-$request_id'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; require-trusted-types-for 'script'; trusted-types angular angular#bundler" always;
 add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 add_header X-Frame-Options "DENY" always;
 add_header X-Content-Type-Options "nosniff" always;

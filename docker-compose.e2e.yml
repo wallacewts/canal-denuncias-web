@@ -3,8 +3,11 @@
 services:
   portal:
     ports: !reset []
+    # O nginx resolve o endereço da API ao subir: o servidor de eco precisa existir antes.
+    depends_on:
+      e2e-api: { condition: service_healthy }
     environment:
-      # Endereço da API atrás do proxy /api (usado a partir da US4). Nos e2e, o servidor de eco.
+      # Endereço da API atrás do proxy /api. Nos e2e, o servidor de eco.
       APP_API_UPSTREAM: http://e2e-api:3000
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1']
@@ -13,6 +16,8 @@ services:
 
   backoffice:
     ports: !reset []
+    depends_on:
+      e2e-api: { condition: service_healthy }
     environment:
       APP_API_UPSTREAM: http://e2e-api:3000
     healthcheck:
