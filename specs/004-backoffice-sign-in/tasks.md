@@ -176,16 +176,16 @@ Painel e Meu perfil; rota proibida pelo endereço mostra acesso negado; 403 for�
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T034 [P] [US3] Unitário de `projects/backoffice/src/app/layout/shell.spec.ts`: menu derivado das declarações de
+- [x] T034 [P] [US3] Unitário de `projects/backoffice/src/app/layout/shell.spec.ts`: menu derivado das declarações de
       rota e do conjunto de permissões; sem permissão, item ausente
-- [ ] T035 [P] [US3] E2E em `e2e/backoffice/guards.spec.ts`: todas as rotas do `Shell` sem sessão vão ao login (nenhuma
+- [x] T035 [P] [US3] E2E em `e2e/backoffice/guards.spec.ts`: todas as rotas do `Shell` sem sessão vão ao login (nenhuma
       com dados); retorno depois do login; retorno externo ignorado; menu por permissão; acesso negado pelo endereço;
       403 da API com sessão mantida; recarregar uma tela interna restaura pelo `/me`
 
 ### Implementação
 
-- [ ] T036 [US3] Menu por permissão em `projects/backoffice/src/app/layout/shell.ts`, lendo `data.ability` das rotas
-- [ ] T037 [US3] Página de acesso negado ligada ao `permissionGuard` e ao tratamento do 403
+- [x] T036 [US3] Menu por permissão em `projects/backoffice/src/app/layout/shell.ts`, lendo `data.ability` das rotas
+- [x] T037 [US3] Página de acesso negado ligada ao `permissionGuard` e ao tratamento do 403
 
 **Checkpoint**: nenhuma tela interna fica aberta sem sessão válida.
 

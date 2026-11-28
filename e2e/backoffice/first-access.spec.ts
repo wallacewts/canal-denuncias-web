@@ -85,6 +85,8 @@ test('códigos de recuperação: arquivo baixado com nome fixo, e não reaparece
   expect(download.suggestedFilename()).toBe('codigos-de-recuperacao.txt');
   const content = await readFile((await download.path()) as string, 'utf8');
   expect(content).toContain(first ?? 'x');
+  // Firefox aborta um chunk em download ao recarregar e acusa falha de SRI (mesmo caso das features 002 e 003).
+  await page.waitForLoadState('networkidle');
   await page.reload();
   await expect(page.getByTestId('code')).toHaveCount(0);
   await expect(page.getByText('já foram exibidos')).toBeVisible();

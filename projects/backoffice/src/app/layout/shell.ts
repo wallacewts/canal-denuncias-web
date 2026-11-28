@@ -1,13 +1,14 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, inject, viewChild } from '@angular/core';
+import { Component, computed, inject, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
+import { StaffSession } from '../features/auth/staff-session';
 
 interface NavItem {
   path: string;
@@ -18,8 +19,9 @@ interface NavItem {
 const NARROW = '(max-width: 959.98px)';
 
 /**
- * Área autenticada da equipe. O guard de autenticação entra junto com o módulo auth da API.
- * Os itens visíveis vão depender do perfil (ex.: ADMIN não vê denúncias).
+ * Área autenticada da equipe (protegida pelo `authGuard`). O menu é derivado das declarações das rotas filhas
+ * (`data.nav` e `data.ability`) e das permissões efetivas devolvidas pela API (Q1): o front não copia a matriz de
+ * perfis, e a API continua checando cada rota.
  */
 @Component({
   selector: 'app-shell',
@@ -52,7 +54,7 @@ const NARROW = '(max-width: 959.98px)';
     <mat-sidenav-container class="container">
       <mat-sidenav id="menu-principal" [mode]="narrow() ? 'over' : 'side'" [opened]="!narrow()">
         <mat-nav-list aria-label="Menu">
-          @for (item of nav; track item.path) {
+          @for (item of nav(); track item.path) {
             <a
               mat-list-item
               [routerLink]="item.path"
@@ -100,14 +102,18 @@ export class Shell {
     { initialValue: false },
   );
 
-  protected readonly nav: NavItem[] = [
-    { path: 'painel', label: 'Painel' },
-    { path: 'denuncias', label: 'Caixa de denúncias' },
-    { path: 'triagem', label: 'Triagem e atribuição' },
-    { path: 'relatorios', label: 'Relatórios' },
-    { path: 'usuarios', label: 'Usuários e perfis' },
-    { path: 'configuracoes', label: 'Configurações' },
-    { path: 'auditoria', label: 'Trilha de auditoria' },
-    { path: 'perfil', label: 'Meu perfil' },
-  ];
+  protected readonly session = inject(StaffSession);
+  private readonly children = inject(ActivatedRoute).routeConfig?.children ?? [];
+
+  protected readonly nav = computed<NavItem[]>(() => {
+    // Lido dentro do computed para o menu acompanhar o usuário atual (troca de sessão, perfil retirado).
+    this.session.user();
+    return this.children
+      .filter((route) => typeof route.data?.['nav'] === 'string')
+      .filter((route) => {
+        const ability = route.data?.['ability'];
+        return typeof ability !== 'string' || this.session.can(ability);
+      })
+      .map((route) => ({ path: route.path ?? '', label: route.data?.['nav'] as string }));
+  });
 }
