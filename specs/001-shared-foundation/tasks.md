@@ -216,9 +216,8 @@ teste de descarte ao sair da rota.
 - [x] T070 [US5] ⛔ Bloqueada: TRV-11. Trocar `ProvisionalApiError` pelo modelo de erro gerado de `openapi/public.json` em `projects/shared/src/lib/http/api-error.ts`, remover o tipo provisório e manter verdes os testes de `api-error.spec.ts` e `error.interceptor.spec.ts`
 - [x] T071 [US5] ⛔ Bloqueada: TRV-11. Implementar `scripts/api-check.mjs` (regera sem rede e roda `git diff --exit-code` em `openapi/` e `generated/`) e adicioná-lo ao job `quality` de `.github/workflows/ci.yml`
 - [x] T072 [US5] Implementar o exemplo do padrão de estado (serviço com signals fornecido no componente de rota, com `clear()` em `ngOnDestroy`) em `projects/shared/src/lib/state/screen-state.ts` e documentar o padrão e o critério para adotar `@ngrx/signals` (research.md, R2) em `projects/shared/README.md`
-- [ ] T073 [US5] Registrar as decisões técnicas desta feature (gerador `ng-openapi-gen`, estado com signals, Playwright em container, opção A do e2e) em `../canal-denuncias-api/docs/adr/README.md`, com os próximos números livres no momento da implementação (a partir de D34, porque D27 a D33 estão reservados para o backend), conferindo o arquivo antes de escrever. Só roda depois que o backend tiver registrado as decisões dele
-  - **Adiada (2026-11-27):** o backend está editando o mesmo `docs/adr/README.md` da API no Polish dele. Roda quando
-    ele terminar, a partir de D34, conferindo o arquivo antes de escrever.
+- [x] T073 [US5] Registrar as decisões técnicas desta feature (gerador `ng-openapi-gen`, estado com signals, Playwright em container, opção A do e2e) em `../canal-denuncias-api/docs/adr/README.md`, com os próximos números livres no momento da implementação (a partir de D34, porque D27 a D33 estão reservados para o backend), conferindo o arquivo antes de escrever. Só roda depois que o backend tiver registrado as decisões dele
+  - **Feita em 2026-11-27:** decisões registradas como D34 a D39 no `docs/adr/README.md` da API (commit `e7ab51d`).
 
 **Checkpoint**: todas as user stories funcionando. Só as tarefas ⛔ dependem do backend.
 
