@@ -1,8 +1,8 @@
 // Confere o build de produção (FTRV-11, constituição I e VII): sem source maps publicados, sem referência a domínio
-// externo e sem nada do servidor simulado da API (feature 002, research R1).
-// Uso: npm run build && node scripts/check-build-output.mjs [diretórios...]
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+// externo, sem nada do servidor simulado da API (feature 002, research R1) e sem o barril da lib no bundle inicial
+// (feature 003). Uso: npm run build && node scripts/check-build-output.mjs [diretórios...]
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
 
 const APPS =
   process.argv.length > 2
@@ -45,9 +45,36 @@ for (const app of APPS) {
   }
 }
 
+// Barril da lib no bundle inicial (feature 003): quando código carregado sob demanda importa de `@canal/shared` um
+// símbolo que já está no bundle inicial, o build coloca o barril inteiro, com todos os componentes da lib, no bundle
+// inicial (+100 kB). As estatísticas do build (`ng build --stats-json`, gravadas ao lado do diretório) mostram isso:
+// o barril passa a aparecer entre as entradas do chunk `main` (mesmo com 0 byte próprio), seguido dos componentes da
+// lib. Num build saudável, o `main` usa os arquivos da lib diretamente e o barril não aparece.
+const BARREL = 'projects/shared/src/public-api.ts';
+for (const app of APPS) {
+  const statsFile = join(dirname(app), `${basename(app)}-stats.json`);
+  if (!existsSync(statsFile)) {
+    problems.push(
+      `estatísticas do build ausentes (${statsFile}): rode o build com --stats-json para conferir o barril da lib`,
+    );
+    continue;
+  }
+  const outputs = JSON.parse(readFileSync(statsFile, 'utf8')).outputs ?? {};
+  for (const [name, output] of Object.entries(outputs)) {
+    if (!/(^|\/)main-[^/]*\.js$/.test(name)) continue;
+    if (Object.keys(output.inputs ?? {}).some((input) => input.endsWith(BARREL)))
+      problems.push(
+        `barril @canal/shared no bundle inicial de ${app}: código carregado sob demanda importa do barril um símbolo que ` +
+          'já está no bundle inicial; importe de uma entrada secundária (ex.: @canal/shared/http)',
+      );
+  }
+}
+
 if (problems.length) {
   console.error(problems.join('\n'));
   console.error(`\n${problems.length} problema(s) no build de produção.`);
   process.exit(1);
 }
-console.log(`ok: ${APPS.join(' e ')} sem source maps e sem referência externa`);
+console.log(
+  `ok: ${APPS.join(' e ')} sem source maps, sem referência externa e sem o barril da lib no bundle inicial`,
+);

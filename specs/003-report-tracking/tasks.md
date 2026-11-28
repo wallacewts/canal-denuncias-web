@@ -206,16 +206,16 @@ nenhum dado.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T040 [P] Acessibilidade: incluir `/consultar` e `/acompanhamento` (com acesso simulado) em
+- [x] T040 [P] Acessibilidade: incluir `/consultar` e `/acompanhamento` (com acesso simulado) em
       `e2e/portal/a11y.spec.ts` e em `e2e/portal/layout.spec.ts` (320 px e zoom de 200%), e um percurso só com teclado
       (consultar, responder, sair) em `e2e/portal/tracking-session.spec.ts`
-- [ ] T041 [P] Medir o bundle (inicial e chunks da feature) e registrar no `specs/003-report-tracking/plan.md` (meta:
+- [x] T041 [P] Medir o bundle (inicial e chunks da feature) e registrar no `specs/003-report-tracking/plan.md` (meta:
       até +3 kB no inicial, até 60 kB lazy)
-- [ ] T042 [P] Atualizar `AGENTS.md` e `README.md`: `ReporterAccess` como único ponto de encerramento, cenários novos do
+- [x] T042 [P] Atualizar `AGENTS.md` e `README.md`: `ReporterAccess` como único ponto de encerramento, cenários novos do
       simulador, tipos provisórios do acompanhamento
-- [ ] T043 [P] Marcar os critérios atendidos em `docs/tarefas/02-portal-protocolo-e-consulta.md` e
+- [x] T043 [P] Marcar os critérios atendidos em `docs/tarefas/02-portal-protocolo-e-consulta.md` e
       `docs/tarefas/03-portal-acompanhamento.md`, com a nota de que foram validados contra o simulador
-- [ ] T044 Seguir `specs/003-report-tracking/quickstart.md` e fazer a verificação final (lint, `lint:rules`,
+- [x] T044 Seguir `specs/003-report-tracking/quickstart.md` e fazer a verificação final (lint, `lint:rules`,
       unitários, `test:scripts`, build, `check:build`, `api:check`, e2e)
 
 ---
@@ -286,8 +286,8 @@ Task: "e2e de recarga e rota direta em e2e/portal/tracking-session.spec.ts"
 
 ## Pendências do analyze
 
-- **C2** (aberta): SC-001 (chegar ao andamento em menos de 1 minuto, sem ajuda) entra como validação manual na seção 4
+- **C2** (resolvida no Polish): SC-001 (chegar ao andamento em menos de 1 minuto, sem ajuda) entra como validação manual na seção 4
   do `quickstart.md` (T044).
-- **C3** (aberta): incluir o cenário `access: error` (5xx) na T016, mantendo protocolo e chave nos campos.
-- **U1** (aberta): a restauração pelo cache de navegação (`pageshow` com `persisted`) só tem teste unitário (T007);
+- **C3** (resolvida no Polish, `tracking-access.spec.ts`): incluir o cenário `access: error` (5xx) na T016, mantendo protocolo e chave nos campos.
+- **U1** (resolvida no Polish, `docs/validacoes/acompanhamento.md`): a restauração pelo cache de navegação (`pageshow` com `persisted`) só tem teste unitário (T007);
   registrar a limitação em `docs/validacoes/` no Polish.

@@ -45,7 +45,12 @@ Cenários esperados (ver `contracts/mock-api-tracking.md`):
 Em todos: nenhum protocolo, chave, token ou texto na URL, no título, no console ou no armazenamento; nenhuma requisição
 para outra origem.
 
-## 4. Manual (opcional)
+## 4. Manual
+
+- **SC-001 (analyze C2)**: alguém que não participou do desenvolvimento, com o protocolo `DV-SIMUL-ADO00` e uma chave
+  começando com `SIMULADA` anotados, chega ao andamento em menos de 1 minuto, sem ajuda. Anotar o tempo em
+  `docs/validacoes/acompanhamento.md`.
+- Conferência opcional:
 
 `npm run dev:mock-api` e `npm start` no portal; consultar com `DV-SIMUL-ADO00` e uma chave começando com `SIMULADA`.
 Conferir que o navegador não guarda nada em armazenamento (DevTools → Application) e que sair limpa a tela.

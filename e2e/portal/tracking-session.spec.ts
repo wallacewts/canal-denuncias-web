@@ -109,6 +109,8 @@ test.describe('saída segura', () => {
     request,
   }) => {
     const mock = await openTracking(page, request);
+    // Espera o carregamento inicial terminar antes de trocar o cenário (senão o próprio carregamento recebe o 401).
+    await expect(page.getByTestId('messages')).toBeVisible();
     await mock.setScenario({ me: 'unauthorized' });
     await page.getByRole('button', { name: 'Atualizar' }).click();
     await expect(page).toHaveURL(/\/consultar$/);
@@ -155,5 +157,45 @@ test.describe('saída segura', () => {
     await expect(page).toHaveURL(/\/consultar$/);
     await expect(other.getByTestId('status')).toBeVisible();
     await other.close();
+  });
+});
+
+test.describe('teclado', () => {
+  test.beforeEach(({ privacyGuards }) => {
+    privacyGuards.trackSensitive(MOCK_RECEIPT.protocol);
+    privacyGuards.trackSensitive(MOCK_RECEIPT.accessKey);
+    privacyGuards.trackSensitive('SIMULADA.');
+  });
+
+  /** Aperta Tab até o elemento ficar com o foco (sem usar o mouse). */
+  async function tabTo(
+    page: import('@playwright/test').Page,
+    target: import('@playwright/test').Locator,
+  ) {
+    for (let i = 0; i < 40; i++) {
+      if (await target.evaluate((el) => el === document.activeElement)) return;
+      await page.keyboard.press('Tab');
+    }
+    throw new Error('o elemento não recebeu o foco pelo teclado');
+  }
+
+  test('consultar, responder e sair só com o teclado', async ({ page, request }) => {
+    const mock = await useMockSession(page, request);
+    await page.goto('/consultar');
+    await tabTo(page, page.getByLabel('Protocolo', { exact: true }));
+    await page.keyboard.type(MOCK_RECEIPT.protocol);
+    await tabTo(page, page.getByLabel('Chave de acesso', { exact: true }));
+    await page.keyboard.type(MOCK_RECEIPT.accessKey);
+    await page.keyboard.press('Enter');
+    await expect(page.locator('h1')).toHaveText('Acompanhamento da denúncia');
+    await tabTo(page, page.getByLabel('Sua mensagem'));
+    await page.keyboard.type('Resposta pelo teclado');
+    await tabTo(page, page.getByRole('button', { name: 'Enviar mensagem' }));
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('messages').getByRole('listitem')).toHaveCount(4);
+    expect((await mock.stats()).messages).toBe(1);
+    await tabTo(page, page.getByRole('button', { name: 'Sair', exact: true }).last());
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('end-reason')).toHaveText('Você saiu do acompanhamento.');
   });
 });

@@ -2,6 +2,7 @@ import { expect, test } from '../fixtures/privacy-guards';
 import { useMockSession } from '../support/mock-api';
 import { expectNoHorizontalScroll, NARROW_VIEWPORTS } from '../support/layout';
 import { DESCRIPTION } from './new-report-helpers';
+import { openTracking } from './tracking-helpers';
 
 /**
  * FR-042: as telas do envio funcionam em 320 px e com zoom de 200%, sem rolagem horizontal, inclusive com textos
@@ -34,6 +35,16 @@ for (const viewport of NARROW_VIEWPORTS) {
     await expectNoHorizontalScroll(page);
     await page.getByRole('button', { name: 'Enviar denúncia' }).click();
     await expect(page.locator('h1')).toHaveText('Protocolo gerado');
+    await expectNoHorizontalScroll(page);
+  });
+}
+
+for (const viewport of NARROW_VIEWPORTS) {
+  test(`acompanhamento: sem rolagem horizontal em ${viewport.name}`, async ({ page, request }) => {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    await openTracking(page, request, { report: 'awaiting' });
+    await expectNoHorizontalScroll(page);
+    await page.getByLabel('Sua mensagem').fill('palavra'.repeat(300));
     await expectNoHorizontalScroll(page);
   });
 }

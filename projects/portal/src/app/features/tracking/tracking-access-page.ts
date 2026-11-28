@@ -107,8 +107,13 @@ export class TrackingAccessForm implements OnDestroy {
       <p role="status" class="status">{{ submitting() ? 'Consultando…' : '' }}</p>
       <button mat-flat-button type="submit" [disabled]="submitting()">Consultar</button>
     </form>
-    <section aria-labelledby="shared-device-title" class="guidance">
-      <h2 id="shared-device-title">Se estiver num computador de outra pessoa</h2>
+    <!--
+      Seção sem aria-labelledby, de propósito: no Firefox, com o campo de senha preenchido, calcular o nome acessível de
+      uma seção rotulada pelo h2 derruba a página (achado no e2e da feature 003; ver docs/validacoes/acompanhamento.md).
+      O h2 continua dando a estrutura de títulos.
+    -->
+    <section class="guidance">
+      <h2>Se estiver num computador de outra pessoa</h2>
       <p>
         Use, de preferência, um dispositivo pessoal. Não salve a chave no navegador. Ao terminar,
         clique em Sair e feche a aba.

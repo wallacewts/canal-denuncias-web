@@ -133,6 +133,26 @@ e2e/support/mock-api.ts                    # + cenários de acompanhamento
 **Structure Decision**: tudo do acompanhamento fica em `features/tracking/` do portal; a lib não muda (a
 `ReporterSession` continua mínima e o ciclo de vida é do portal, research R3). O simulador é o mesmo da 002.
 
+## Medição final do bundle (T041)
+
+| Bundle                         | Antes da feature | Depois   | Meta                     |
+| ------------------------------ | ---------------- | -------- | ------------------------ |
+| Inicial do portal              | 413,4 kB         | 417,2 kB | até +3 kB (aviso 440 kB) |
+| Inicial do portal (comprimido) | 102,9 kB         | 103,6 kB | —                        |
+| Lazy `tracking-page`           | —                | 14,6 kB  | até 60 kB somados        |
+| Lazy `tracking-access-page`    | —                | 5,1 kB   |                          |
+| Inicial do backoffice          | 346,8 kB         | 347,0 kB | —                        |
+
+**Por que +3,8 kB e não +3 kB.** O `ReporterAccess` precisa estar no bundle inicial, porque a política HTTP do portal
+(carregada na inicialização) o chama no 401. Com ele entram os temporizadores, o ouvinte de `pageshow`, o motivo do
+encerramento e a geração de acesso (~1,9 kB), além do guard de `/acompanhamento` e do `API_CALLER_HANDLES` e do
+`silentUnauthenticated` no `errorInterceptor` da lib (~0,4 kB), mais a diferença de minificação do resto do app.
+O excesso de 0,8 kB sobre a meta não pede ação: a folga até o aviso da D52 continua em 22,8 kB.
+
+**Regressão evitada.** Durante a US1, importar `API_CALLER_HANDLES` pelo barril `@canal/shared` numa rota lazy levou
+o bundle inicial a 516,9 kB (acima do erro de 500 kB). A entrada secundária `@canal/shared/http` resolveu, e o
+`check:build` passou a reprovar o barril no bundle inicial (testado com o build real: com o import pelo barril, falha).
+
 ## Complexity Tracking
 
 | Violation                                                                  | Why Needed                                                                                                                          | Simpler Alternative Rejected Because                                                                                                                                                    |

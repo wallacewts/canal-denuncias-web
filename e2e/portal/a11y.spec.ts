@@ -4,6 +4,7 @@ import { expectNoHorizontalScroll, NARROW_VIEWPORTS } from '../support/layout';
 import { useMockSession } from '../support/mock-api';
 import { DESCRIPTION } from './new-report-helpers';
 import { PORTAL_ROUTES } from './routes';
+import { openTracking, submitAccess } from './tracking-helpers';
 
 /**
  * Acessibilidade do portal (FTRV-07, WCAG 2.1 AA). As guardas de privacidade e de CSP continuam ativas: o axe roda
@@ -98,4 +99,34 @@ test('envio de denúncia: axe em cada etapa, na revisão com o aviso aberto e no
   await page.getByRole('button', { name: 'Enviar denúncia' }).click();
   await expect(page.locator('h1')).toHaveText('Protocolo gerado');
   await analyze('protocolo');
+});
+
+// Acompanhamento (feature 003): só abre com acesso; o axe roda com a tela preenchida pelo simulador.
+for (const report of ['awaiting', 'concluded-substantiated'] as const) {
+  test(`acompanhamento (${report}): sem violação séria ou crítica de acessibilidade`, async ({
+    page,
+    request,
+  }) => {
+    await openTracking(page, request, { report });
+    await expect(page.getByTestId('messages')).toBeVisible();
+    const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+    const blocking = violations
+      .filter((v) => v.impact === 'serious' || v.impact === 'critical')
+      .map((v) => `${v.id}: ${v.help} (${v.nodes.length})`);
+    expect(blocking).toEqual([]);
+  });
+}
+
+test('consulta com a mensagem genérica de erro: sem violação séria ou crítica', async ({
+  page,
+  request,
+}) => {
+  await useMockSession(page, request, { access: 'invalid' });
+  await page.goto('/consultar');
+  await submitAccess(page);
+  await expect(page.getByRole('alert')).toBeVisible();
+  const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+  expect(
+    violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => v.id),
+  ).toEqual([]);
 });

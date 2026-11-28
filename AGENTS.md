@@ -33,6 +33,17 @@ gera em vez de assumir APIs antigas (zoneless e componentes standalone são o pa
   `features/tracking/tracking.types.ts` (até PUB-01, PUB-03, MSG-01 e MSG-02; remoção na T037 da feature 003). Não crie
   outros tipos de resposta da API escritos à mão.
 - O bundle inicial do portal tem aviso em 440 kB (D52). Código de tela novo vai em rota com `loadComponent`.
+- Em código carregado sob demanda, nunca importe do barril `@canal/shared` um símbolo que já está no bundle inicial
+  (interceptors, políticas, tokens de HTTP): o build levaria a lib inteira para o bundle inicial (+100 kB na feature
+  003). Use a entrada secundária (`@canal/shared/http` para `API_CALLER_HANDLES`). O `check:build` falha se o barril
+  aparecer no bundle inicial; por isso o `npm run build` usa `--stats-json`.
+- O acesso do denunciante só é encerrado pelo `ReporterAccess` (`features/tracking/reporter-access.ts`): expirar, 401,
+  "Sair" e `pageshow` passam por ele. Respostas que chegam depois do encerramento são descartadas (`isCurrent`). A
+  mensagem do encerramento aparece só na tela de consulta (`endReason`), nunca como snackbar.
+- Status que a tela trata sozinha vão em `API_CALLER_HANDLES` (o `errorInterceptor` não mostra mensagem nem roda o
+  401 para eles). No portal, o 401 é silencioso (`silentUnauthenticated`): o `ReporterAccess` avisa a pessoa.
+- O simulador tem cenários de acompanhamento (`access`, `me`, `report`, `messages`, `send`) e `newTeamMessage()`
+  (`e2e/support/mock-api.ts`). Ids de mensagem são estáveis entre leituras.
 - Textos de interface em português; nomes de código em inglês.
 
 ## Princípios

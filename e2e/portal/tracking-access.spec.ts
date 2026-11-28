@@ -72,3 +72,23 @@ test.describe('consulta da denúncia', () => {
     expect((await mock.stats()).sessions).toBe(1);
   });
 });
+
+test('erro do servidor na consulta: mensagem padrão, sem a genérica, com os campos mantidos', async ({
+  page,
+  request,
+  privacyGuards,
+}) => {
+  privacyGuards.trackSensitive(MOCK_RECEIPT.protocol);
+  privacyGuards.trackSensitive(MOCK_RECEIPT.accessKey);
+  await useMockSession(page, request, { access: 'error' });
+  await page.goto('/consultar');
+  await submitAccess(page);
+  await expect(page.locator('mat-snack-bar-container')).toContainText(
+    'Algo deu errado do nosso lado',
+  );
+  await expect(page.getByText('Protocolo ou chave inválidos.')).toHaveCount(0);
+  await expect(page.getByLabel('Protocolo', { exact: true })).toHaveValue(MOCK_RECEIPT.protocol);
+  await expect(page.getByLabel('Chave de acesso', { exact: true })).toHaveValue(
+    MOCK_RECEIPT.accessKey,
+  );
+});

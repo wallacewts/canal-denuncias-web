@@ -35,11 +35,13 @@ conta e sem nada guardado no navegador.
 
 **Critérios de aceite**
 
-- [ ] Formulário com protocolo e chave. A chave fica num campo do tipo senha com botão de mostrar.
-- [ ] O protocolo aceita minúsculas e falta de hífens, e é normalizado antes do envio.
-- [ ] Erro sempre com a mesma mensagem genérica ("Protocolo ou chave inválidos"), inclusive para denúncia encerrada
+- [x] Formulário com protocolo e chave. A chave fica num campo do tipo senha com botão de mostrar.
+- [x] O protocolo aceita minúsculas e falta de hífens, e é normalizado antes do envio.
+- [x] Erro sempre com a mesma mensagem genérica ("Protocolo ou chave inválidos"), inclusive para denúncia encerrada
       ou expurgada.
-- [ ] Com sucesso, guarda o token em memória (PACC-03) e vai para `/acompanhamento`.
+- [x] Com sucesso, guarda o token em memória (PACC-03) e vai para `/acompanhamento`.
+
+> Feature 003: implementado e testado contra o servidor simulado (`tools/mock-api`). A integração com a API real é a T039, bloqueada por PUB-01, PUB-03, MSG-01 e MSG-02.
 
 ### PACC-03 · Sessão do denunciante em memória
 
@@ -49,11 +51,13 @@ conta e sem nada guardado no navegador.
 
 **Critérios de aceite**
 
-- [ ] O token fica só em memória. Recarregar a página encerra o acesso e volta para `/consultar`.
-- [ ] O guard de `/acompanhamento` manda para `/consultar` quando não há token.
-- [ ] Ao expirar (15 minutos, PUB-01) ou receber 401, limpa os dados da denúncia da memória e volta para `/consultar`
+- [x] O token fica só em memória. Recarregar a página encerra o acesso e volta para `/consultar`.
+- [x] O guard de `/acompanhamento` manda para `/consultar` quando não há token.
+- [x] Ao expirar (15 minutos, PUB-01) ou receber 401, limpa os dados da denúncia da memória e volta para `/consultar`
       com uma mensagem.
-- [ ] Botão "Sair" limpa o token e os dados da tela.
+- [x] Botão "Sair" limpa o token e os dados da tela.
+
+> Feature 003: implementado e testado contra o servidor simulado (`tools/mock-api`). A integração com a API real é a T039, bloqueada por PUB-01, PUB-03, MSG-01 e MSG-02.
 
 ### PACC-04 · Encerrar o acesso no servidor
 

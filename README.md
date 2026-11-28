@@ -53,20 +53,20 @@ de produção. Tudo fica no mesmo endereço, sem CORS, e o token XSRF funciona.
 
 ## Scripts
 
-| Script                                      | Faz                                                                |
-| ------------------------------------------- | ------------------------------------------------------------------ |
-| `npm run start:portal` / `start:backoffice` | Servidor de desenvolvimento                                        |
-| `npm run build`                             | Build de produção dos dois apps (`dist/portal`, `dist/backoffice`) |
-| `npm test`                                  | Testes unitários da lib e dos dois apps                            |
-| `npm run lint` / `npm run format:check`     | Qualidade                                                          |
-| `npm run lint:rules`                        | Prova que as regras de privacidade do lint continuam valendo       |
-| `npm run check:build`                       | Build sem source maps, sem domínio externo e sem nada do simulador |
-| `npm run dev:mock-api`                      | Servidor simulado da API na porta 3000 (`tools/mock-api`)          |
-| `npm run api:sync`                          | Copia `openapi/public.json` e `admin.json` da API (`--from <dir>`) |
-| `npm run api:generate`                      | Gera os clientes `@canal/shared/api/public` e `/admin`             |
-| `npm run api:check`                         | Regera sem rede e falha se o cliente estiver desatualizado         |
-| `npm run test:scripts`                      | Testes dos scripts (`api:sync`, `check:build`) e do simulador      |
-| `npm run e2e`                               | Testes de ponta a ponta no container do Playwright                 |
+| Script                                      | Faz                                                                                                       |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `npm run start:portal` / `start:backoffice` | Servidor de desenvolvimento                                                                               |
+| `npm run build`                             | Build de produção dos dois apps, com as estatísticas (`--stats-json`)                                     |
+| `npm test`                                  | Testes unitários da lib e dos dois apps                                                                   |
+| `npm run lint` / `npm run format:check`     | Qualidade                                                                                                 |
+| `npm run lint:rules`                        | Prova que as regras de privacidade do lint continuam valendo                                              |
+| `npm run check:build`                       | Build sem source maps, sem domínio externo, sem nada do simulador e sem o barril da lib no bundle inicial |
+| `npm run dev:mock-api`                      | Servidor simulado da API na porta 3000 (`tools/mock-api`)                                                 |
+| `npm run api:sync`                          | Copia `openapi/public.json` e `admin.json` da API (`--from <dir>`)                                        |
+| `npm run api:generate`                      | Gera os clientes `@canal/shared/api/public` e `/admin`                                                    |
+| `npm run api:check`                         | Regera sem rede e falha se o cliente estiver desatualizado                                                |
+| `npm run test:scripts`                      | Testes dos scripts (`api:sync`, `check:build`) e do simulador                                             |
+| `npm run e2e`                               | Testes de ponta a ponta no container do Playwright                                                        |
 
 ## Testes de ponta a ponta
 
@@ -138,6 +138,17 @@ o `config.json` nunca vão para cache; os arquivos com hash têm cache longo.
   inatividade (30 minutos, com aviso aos 25).
 - **Nada do servidor simulado chega ao build.** Os apps não podem importar `tools/` nem `e2e/` (lint), e o
   `check:build` reprova o build que contiver um sentinela do simulador (`DV-SIMUL`, `SIMULADA`, `__mock`).
+- **O acesso do denunciante fica só em memória e termina num único ponto.** O `ReporterAccess` encerra o acesso aos 15
+  minutos (com aviso aos 13), no 401, no "Sair" e quando a página volta do cache de navegação: apaga a credencial,
+  volta para `/consultar` com `replaceUrl` e mostra o motivo lá. O andamento e as mensagens vivem só na tela.
+
+## Bundle inicial e o barril da lib
+
+Código carregado sob demanda (rotas com `loadComponent`) **nunca** importa do barril `@canal/shared` um símbolo que já
+está no bundle inicial (interceptors, políticas, tokens de HTTP). Quando isso acontece, o build coloca o barril inteiro,
+com todos os componentes da lib, no bundle inicial: na feature 003, o portal foi de 417 kB para 517 kB. Para esses
+símbolos, use uma entrada secundária, como `@canal/shared/http` (`API_CALLER_HANDLES`). O `npm run build` grava as
+estatísticas do esbuild e o `check:build` falha se o barril aparecer no bundle inicial.
 
 ## Telas
 
