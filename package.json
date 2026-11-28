@@ -13,7 +13,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "e2e": "sh scripts/e2e.sh"
+    "e2e": "sh scripts/e2e.sh",
+    "lint:rules": "node scripts/check-lint-rules.mjs",
+    "check:build": "node scripts/check-build-output.mjs"
   },
   "private": true,
   "dependencies": {

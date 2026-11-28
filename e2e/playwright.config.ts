@@ -12,8 +12,18 @@ const areas = {
   backoffice: { testDir: './backoffice', baseURL: 'http://backoffice:8080' },
 } as const;
 
+/**
+ * Em produção os apps rodam em HTTPS. Na rede do e2e as origens são http://portal:8080 e http://backoffice:8080, e o
+ * Chromium ignoraria cabeçalhos que exigem origem confiável (como o Cross-Origin-Opener-Policy), com aviso no console.
+ * Tratar essas origens como seguras faz o navegador aplicar os cabeçalhos como em produção. Isso não muda a CSP.
+ */
+const TEST_ORIGINS = 'http://portal:8080,http://backoffice:8080,http://e2e-api:3000';
+
 const browsers = {
-  chromium: devices['Desktop Chrome'],
+  chromium: {
+    ...devices['Desktop Chrome'],
+    launchOptions: { args: [`--unsafely-treat-insecure-origin-as-secure=${TEST_ORIGINS}`] },
+  },
   firefox: devices['Desktop Firefox'],
 } as const;
 

@@ -72,23 +72,26 @@ do portal, com as guardas de privacidade ativas em Chromium e Firefox.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T014 [P] [US1] Testes do interceptor de credenciais em `projects/shared/src/lib/http/credentials.interceptor.spec.ts`: com `PORTAL_API_POLICY`, nenhuma chamada sai com `withCredentials`; o `Authorization: Bearer` vai só em `api:/public/v1/me/...` e nunca em outras rotas; sem token, nada é anexado; com `BACKOFFICE_API_POLICY`, toda chamada `api:` sai com `withCredentials` e sem `Authorization`
-- [ ] T015 [P] [US1] Testes de `ReporterSession` em `projects/shared/src/lib/session/reporter-session.spec.ts`: `start` guarda o token só em memória, `clear` zera token e expiração, nada é escrito em `localStorage`, `sessionStorage` ou `document.cookie` (espiões)
-- [ ] T016 [P] [US1] Teste das regras de lint em `scripts/check-lint-rules.mjs` (API do ESLint sobre trechos de código): reprova `console.log` em `projects/portal/src`, `localStorage`, `sessionStorage`, `document.cookie` e import de `@canal/shared/api/admin` dentro do portal; aceita `console` em arquivos `*.spec.ts`
-- [ ] T017 [P] [US1] E2E de privacidade do portal em `e2e/portal/routes.spec.ts`: visita todas as rotas de `projects/portal/src/app/app.routes.ts` com `privacyGuards`, abre um diálogo, um aviso e um menu do Material e confere zero violações de CSP e armazenamento vazio
-- [ ] T018 [P] [US1] E2E de privacidade do backoffice em `e2e/backoffice/routes.spec.ts`: mesmas guardas em todas as rotas de `projects/backoffice/src/app/app.routes.ts`
-- [ ] T019 [P] [US1] Teste do build de produção em `scripts/check-build-output.mjs`: falha se `dist/portal` ou `dist/backoffice` contiver arquivos `.map` ou referência a domínio externo (`https?://` fora de `localhost` e comentários de licença)
+- [x] T014 [P] [US1] Testes do interceptor de credenciais em `projects/shared/src/lib/http/credentials.interceptor.spec.ts`: com `PORTAL_API_POLICY`, nenhuma chamada sai com `withCredentials`; o `Authorization: Bearer` vai só em `api:/public/v1/me/...` e nunca em outras rotas; sem token, nada é anexado; com `BACKOFFICE_API_POLICY`, toda chamada `api:` sai com `withCredentials` e sem `Authorization`
+- [x] T015 [P] [US1] Testes de `ReporterSession` em `projects/shared/src/lib/session/reporter-session.spec.ts`: `start` guarda o token só em memória, `clear` zera token e expiração, nada é escrito em `localStorage`, `sessionStorage` ou `document.cookie` (espiões)
+- [x] T016 [P] [US1] Teste das regras de lint em `scripts/check-lint-rules.mjs` (API do ESLint sobre trechos de código): reprova `console.log` em `projects/portal/src`, `localStorage`, `sessionStorage`, `document.cookie` e import de `@canal/shared/api/admin` dentro do portal; aceita `console` em arquivos `*.spec.ts`
+- [x] T017 [P] [US1] E2E de privacidade do portal em `e2e/portal/routes.spec.ts`: visita todas as rotas de `projects/portal/src/app/app.routes.ts` com `privacyGuards`, abre um diálogo, um aviso e um menu do Material e confere zero violações de CSP e armazenamento vazio
+- [x] T018 [P] [US1] E2E de privacidade do backoffice em `e2e/backoffice/routes.spec.ts`: mesmas guardas em todas as rotas de `projects/backoffice/src/app/app.routes.ts`
+- [x] T019 [P] [US1] Teste do build de produção em `scripts/check-build-output.mjs`: falha se `dist/portal` ou `dist/backoffice` contiver arquivos `.map` ou referência a domínio externo (`https?://` fora de `localhost` e comentários de licença)
 
 ### Implementation for User Story 1
 
-- [ ] T020 [US1] Implementar `ReporterSession` (signal somente leitura `token`, `expiresAt`, `start`, `clear`) em `projects/shared/src/lib/session/reporter-session.ts` e exportar em `projects/shared/src/public-api.ts`
-- [ ] T021 [US1] Implementar `credentialsInterceptor` em `projects/shared/src/lib/http/credentials.interceptor.ts`, lendo `API_POLICY` e `ReporterSession`, e registrá-lo em `projects/shared/src/lib/http/provide-api.ts`; remover o `withCredentials: true` fixo de `projects/shared/src/lib/http/api.interceptor.ts` e ajustar `api.interceptor.spec.ts`
-- [ ] T022 [US1] Adicionar em `eslint.config.js` a regra `no-console: error` para `projects/*/src/**/*.ts` (exceto `*.spec.ts`) e `no-restricted-imports` para `@canal/shared/api/admin` em `projects/portal/**`
-- [ ] T023 [P] [US1] Remover o `console.error` de `projects/portal/src/main.ts` e de `projects/backoffice/src/main.ts`, mantendo só a mensagem de indisponibilidade na página
-- [ ] T024 [P] [US1] Definir `sourceMap: false` explícito na configuração `production` dos dois apps e reduzir o orçamento `initial` do portal para `400kB` de aviso e `500kB` de erro em `angular.json`
-- [ ] T025 [P] [US1] Criar a diretiva `SensitiveInput` (`appSensitiveInput`: aplica `autocomplete="off"` e `spellcheck="false"`) em `projects/shared/src/lib/ui/sensitive-input.directive.ts`, com teste em `sensitive-input.directive.spec.ts`, e exportá-la em `projects/shared/src/public-api.ts`
-- [ ] T026 [US1] Incluir `node scripts/check-lint-rules.mjs` e, depois do build, `node scripts/check-build-output.mjs` como passos do job `quality` em `.github/workflows/ci.yml`
+- [x] T020 [US1] Implementar `ReporterSession` (signal somente leitura `token`, `expiresAt`, `start`, `clear`) em `projects/shared/src/lib/session/reporter-session.ts` e exportar em `projects/shared/src/public-api.ts`
+- [x] T021 [US1] Implementar `credentialsInterceptor` em `projects/shared/src/lib/http/credentials.interceptor.ts`, lendo `API_POLICY` e `ReporterSession`, e registrá-lo em `projects/shared/src/lib/http/provide-api.ts`; remover o `withCredentials: true` fixo de `projects/shared/src/lib/http/api.interceptor.ts` e ajustar `api.interceptor.spec.ts`
+- [x] T022 [US1] Adicionar em `eslint.config.js` a regra `no-console: error` para `projects/*/src/**/*.ts` (exceto `*.spec.ts`) e `no-restricted-imports` para `@canal/shared/api/admin` em `projects/portal/**`
+- [x] T023 [P] [US1] Remover o `console.error` de `projects/portal/src/main.ts` e de `projects/backoffice/src/main.ts`, mantendo só a mensagem de indisponibilidade na página
+- [x] T024 [P] [US1] Definir `sourceMap: false` explícito na configuração `production` dos dois apps e reduzir o orçamento `initial` do portal para `400kB` de aviso e `500kB` de erro em `angular.json`
+- [x] T025 [P] [US1] Criar a diretiva `SensitiveInput` (`appSensitiveInput`: aplica `autocomplete="off"` e `spellcheck="false"`) em `projects/shared/src/lib/ui/sensitive-input.directive.ts`, com teste em `sensitive-input.directive.spec.ts`, e exportá-la em `projects/shared/src/public-api.ts`
+- [x] T026 [US1] Incluir `node scripts/check-lint-rules.mjs` e, depois do build, `node scripts/check-build-output.mjs` como passos do job `quality` em `.github/workflows/ci.yml`
 - [ ] T027 [US1] Fazer a validação manual de CSP de FTRV-05 (janelas anônimas do Chrome e do Firefox, com diálogo, aviso, menu, tooltip, datepicker e select) e registrar o resultado, com data e versões dos navegadores, em `docs/validacoes/csp.md`
+  - **Parcial (2026-11-27):** a validação automática em Chromium 159 e Firefox 159 (e2e, 46 testes de rota) está
+    registrada em `docs/validacoes/csp.md`. Faltam a conferência manual da equipe e os componentes que injetam estilo,
+    que ainda não aparecem em nenhuma rota.
 
 **Checkpoint**: US1 completa e testável sozinha. O portal não envia cookies, e as guardas de privacidade passam em
 todas as rotas existentes.

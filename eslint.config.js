@@ -56,6 +56,29 @@ module.exports = defineConfig([
       ],
     },
   },
+  // Nada no console no código dos apps e da lib (FTRV-11): erros não podem vazar dados da denúncia.
+  {
+    files: ['projects/*/src/**/*.ts'],
+    ignores: ['**/*.spec.ts'],
+    rules: { 'no-console': 'error' },
+  },
+  // O portal nunca importa o cliente administrativo (constituição, princípio V).
+  {
+    files: ['projects/portal/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@canal/shared/api/admin',
+              message: 'O portal não pode importar o cliente administrativo da API.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   {
     files: ['**/*.html'],
     extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],

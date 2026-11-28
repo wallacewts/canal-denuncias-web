@@ -29,8 +29,12 @@ jobs:
       - run: npm ci
       - run: npm run format:check
       - run: npm run lint
+      - name: Regras de privacidade do lint continuam valendo
+        run: npm run lint:rules
       - run: npm test
       - run: npm run build
+      - name: Build sem source maps e sem referência externa
+        run: npm run check:build
       - name: Nenhuma referência a CDN, fonte externa ou analytics no build
         run: |
           if grep -rlE "fonts\.googleapis|fonts\.gstatic|googletagmanager|google-analytics|cdn\.jsdelivr|unpkg\.com|cdnjs" dist/; then

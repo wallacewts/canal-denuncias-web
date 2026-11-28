@@ -8,6 +8,7 @@ import type { EnvironmentProviders, Provider } from '@angular/core';
 import { APP_CONFIG, type AppConfig } from '../config/app-config';
 import { apiInterceptor } from './api.interceptor';
 import { API_POLICY, type ApiPolicy } from './api-policy';
+import { credentialsInterceptor } from './credentials.interceptor';
 
 /**
  * HttpClient configurado para a API do canal, com a política de credenciais do app.
@@ -23,7 +24,8 @@ export function provideApi(
     { provide: API_POLICY, useValue: policy },
     provideHttpClient(
       withFetch(),
-      withInterceptors([apiInterceptor]),
+      // Ordem importa: credenciais primeiro (lê o prefixo api:), depois a troca do prefixo pela URL base.
+      withInterceptors([credentialsInterceptor, apiInterceptor]),
       withXsrfConfiguration({ cookieName: 'XSRF-TOKEN', headerName: 'X-XSRF-TOKEN' }),
     ),
   ];

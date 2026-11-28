@@ -42,8 +42,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "700kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "400kB",
+                  "maximumError": "500kB"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -60,7 +60,8 @@
                 },
                 "fonts": false
               },
-              "subresourceIntegrity": true
+              "subresourceIntegrity": true,
+              "sourceMap": false
             },
             "development": {
               "optimization": false,
@@ -147,7 +148,8 @@
                 },
                 "fonts": false
               },
-              "subresourceIntegrity": true
+              "subresourceIntegrity": true,
+              "sourceMap": false
             },
             "development": {
               "optimization": false,

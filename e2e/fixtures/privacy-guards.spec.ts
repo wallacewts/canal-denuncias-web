@@ -19,6 +19,8 @@ test('página limpa não gera violação', async ({ page, privacyGuards }) => {
 test('reprova requisição para origem diferente da do app', async ({ page, privacyGuards }) => {
   await page.goto('/fixture/external');
   await expect.poll(() => kinds(privacyGuards)).toContain('rede');
+  // Espera a requisição externa terminar (o Firefox registra o erro de CORS no console depois dela).
+  await page.waitForLoadState('networkidle');
   privacyGuards.takeViolations();
 });
 

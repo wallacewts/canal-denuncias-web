@@ -6,8 +6,8 @@ import { APP_CONFIG } from '../config/app-config';
 export const API_PREFIX = 'api:';
 
 /**
- * Troca o prefixo `api:` pela URL base de /config.json e envia os cookies da sessão.
- * A sessão da equipe vive em cookie HttpOnly emitido pela API: o front nunca lê nem guarda token.
+ * Troca o prefixo `api:` pela URL base de /config.json.
+ * As credenciais (cookie da equipe ou token do denunciante) são decididas pelo `credentialsInterceptor`.
  */
 export const apiInterceptor: HttpInterceptorFn = (req, next) => {
   if (!req.url.startsWith(API_PREFIX)) {
@@ -15,5 +15,5 @@ export const apiInterceptor: HttpInterceptorFn = (req, next) => {
   }
   const { apiBaseUrl } = inject(APP_CONFIG);
   const path = req.url.slice(API_PREFIX.length).replace(/^\/+/, '');
-  return next(req.clone({ url: `${apiBaseUrl}/${path}`, withCredentials: true }));
+  return next(req.clone({ url: `${apiBaseUrl}/${path}` }));
 };

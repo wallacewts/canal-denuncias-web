@@ -23,7 +23,7 @@ describe('apiInterceptor', () => {
 
   afterEach(() => httpTesting.verify());
 
-  it('troca o prefixo api: pela URL base e envia cookies', () => {
+  it('troca o prefixo api: pela URL base', () => {
     http.get('api:/public/v1/categories').subscribe();
     const req = httpTesting.expectOne('/api/public/v1/categories');
     expect(req.request.withCredentials).toBe(true);
