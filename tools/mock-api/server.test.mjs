@@ -306,6 +306,11 @@ test('mensagens: autor em código, só a data, ordem cronológica, nenhuma busca
   await post('/__mock/new-team-message', {});
   const after = await (await get('/api/public/v1/me/messages', authed(token))).json();
   assert.equal(after.items.length, 4);
+  // A mesma mensagem mantém o id entre leituras; só a nova tem id diferente.
+  assert.deepEqual(
+    after.items.slice(0, 3).map((m) => m.id),
+    items.map((m) => m.id),
+  );
   assert.equal(after.items.at(-1).author, 'TEAM');
   const stats = await (await get('/__mock/stats')).json();
   assert.equal(stats.messageReads, 2);

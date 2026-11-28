@@ -37,3 +37,28 @@ test.describe('acesso do denunciante', () => {
     await expect(page.getByLabel('Protocolo', { exact: true })).toHaveValue('');
   });
 });
+
+test.describe('aviso de expiração', () => {
+  test.beforeEach(({ privacyGuards }) => {
+    privacyGuards.trackSensitive(MOCK_RECEIPT.protocol);
+    privacyGuards.trackSensitive(MOCK_RECEIPT.accessKey);
+    privacyGuards.trackSensitive('SIMULADA.');
+  });
+
+  test('aos 13 minutos aparece a faixa, sem tirar o foco do campo', async ({ page, request }) => {
+    await page.clock.install();
+    await openTracking(page, request);
+    const field = page.getByLabel('Sua mensagem');
+    await field.click();
+    await field.fill('texto em digitação');
+    await page.clock.runFor(13 * 60_000 - 5_000);
+    await expect(page.getByTestId('expiry-banner')).toHaveCount(0);
+    await page.clock.runFor(5_000);
+    const banner = page.getByTestId('expiry-banner');
+    await expect(banner).toHaveAttribute('role', 'alert');
+    await expect(banner).toHaveText(
+      'Seu acesso termina em 2 minutos. O texto que você ainda não enviou será perdido.',
+    );
+    await expect(field).toBeFocused();
+  });
+});

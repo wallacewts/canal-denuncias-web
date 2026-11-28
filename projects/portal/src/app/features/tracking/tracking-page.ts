@@ -1,37 +1,26 @@
-import {
-  type AfterViewInit,
-  Component,
-  Injectable,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
-import { PageHeader, ScreenState } from '@canal/shared';
+import { type AfterViewInit, Component, inject, signal, viewChild } from '@angular/core';
+import { PageHeader } from '@canal/shared';
+import { forkJoin } from 'rxjs';
+import { ExpiryBanner } from './expiry-banner';
 import { ReporterAccess } from './reporter-access';
 import { TrackingApi } from './tracking.api';
-import type { ProvisionalTrackingMessage, ProvisionalTrackingReport } from './tracking.types';
+import { TrackingViewState } from './tracking-view.state';
 import { TrackingStatus } from './tracking-status';
 import { TrackingTimeline } from './tracking-timeline';
-
-export interface TrackingView {
-  readonly report: ProvisionalTrackingReport;
-  readonly messages: readonly ProvisionalTrackingMessage[];
-}
-
-/** Andamento e mensagens com escopo de tela (D35): somem quando a tela é destruída (sair, expirar, 401, trocar de rota). */
-@Injectable()
-export class TrackingViewState extends ScreenState<TrackingView> {}
+import { TrackingMessages } from './tracking-messages';
 
 /** Acompanhamento da denúncia (PTRK-01, PTRK-02, PTRK-04). Só abre com a credencial em memória (guard). */
 @Component({
   selector: 'app-tracking-page',
-  imports: [PageHeader, TrackingStatus, TrackingTimeline],
+  imports: [PageHeader, ExpiryBanner, TrackingStatus, TrackingTimeline, TrackingMessages],
   providers: [TrackingViewState],
   template: `
     <lib-page-header title="Acompanhamento da denúncia" />
+    <app-expiry-banner />
     @if (view.value(); as v) {
       <app-tracking-status [report]="v.report" (replyNow)="focusReply()" />
       <app-tracking-timeline [entries]="v.report.timeline" />
+      <app-tracking-messages />
     } @else if (loadFailed()) {
       <p>Não foi possível carregar o andamento agora. Tente de novo em alguns minutos.</p>
     } @else {
@@ -66,10 +55,9 @@ export class TrackingPage implements AfterViewInit {
 
   private load(): void {
     const generation = this.access.generation();
-    this.api.report().subscribe({
-      next: (report) => {
-        if (!this.access.isCurrent(generation)) return;
-        this.view.set({ report, messages: this.view.value()?.messages ?? [] });
+    forkJoin({ report: this.api.report(), messages: this.api.messages() }).subscribe({
+      next: (view) => {
+        if (this.access.isCurrent(generation)) this.view.set(view);
       },
       error: () => {
         if (this.access.isCurrent(generation)) this.loadFailed.set(true);

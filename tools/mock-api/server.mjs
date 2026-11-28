@@ -285,13 +285,13 @@ const TOKEN_TTL_MS = 15 * 60_000;
 const CLOSED_STATUSES = new Set(['CLOSED', 'CONCLUDED']);
 
 let messageSeq = 0;
-const message = (author, body, daysAgo) => ({
-  id: `SIMULADA-MSG-${++messageSeq}`,
+const message = (author, body, daysAgo, id = `SIMULADA-MSG-${++messageSeq}`) => ({
+  id,
   author,
   body,
   sentOn: daysFromToday(-daysAgo),
 });
-const teamMessage = (body, daysAgo) => message('TEAM', body, daysAgo);
+const teamMessage = (body, daysAgo, id) => message('TEAM', body, daysAgo, id);
 
 const REPORTS = {
   received: { status: 'RECEIVED' },
@@ -323,9 +323,10 @@ function buildReport(session) {
 function baseMessages(session) {
   if (session.scenario.messages === 'empty') return [];
   return [
-    teamMessage('Recebemos sua denúncia SIMULADA e vamos analisar.', 9),
-    message('REPORTER', 'Obrigado. Fico no aguardo (SIMULADA).', 8),
-    teamMessage('Pode informar qual sistema foi afetado? (SIMULADA)', 3),
+    // Ids fixos: a mesma mensagem tem o mesmo id em toda leitura (o portal compara ids para anunciar as novas).
+    teamMessage('Recebemos sua denúncia SIMULADA e vamos analisar.', 9, 'SIMULADA-MSG-BASE-1'),
+    message('REPORTER', 'Obrigado. Fico no aguardo (SIMULADA).', 8, 'SIMULADA-MSG-BASE-2'),
+    teamMessage('Pode informar qual sistema foi afetado? (SIMULADA)', 3, 'SIMULADA-MSG-BASE-3'),
   ];
 }
 

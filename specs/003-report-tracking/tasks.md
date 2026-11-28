@@ -136,27 +136,27 @@ avançar o relógio até o aviso.
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T025 [P] [US2] e2e `e2e/portal/tracking.spec.ts` (mensagens): ordem cronológica; autor "Equipe de apuração" e
+- [x] T025 [P] [US2] e2e `e2e/portal/tracking.spec.ts` (mensagens): ordem cronológica; autor "Equipe de apuração" e
       "Você", sem nenhum nome; datas sem hora; envio com 1 e com 5.000 caracteres; 5.001 bloqueado com erro ligado ao
       campo; clique duplo em "Enviar" faz um só envio (`stats.messages`); texto mantido em erro; status volta para "Em
       análise" depois de responder em `awaiting`
-- [ ] T026 [P] [US2] e2e `e2e/portal/tracking.spec.ts` (atualizar e encerrada): "Atualizar" traz a mensagem de `newTeamMessage()` e anuncia "1 mensagem nova";
+- [x] T026 [P] [US2] e2e `e2e/portal/tracking.spec.ts` (atualizar e encerrada): "Atualizar" traz a mensagem de `newTeamMessage()` e anuncia "1 mensagem nova";
       nenhuma requisição de mensagens acontece sem o clique (contador do simulador estável com o relógio avançado);
       `send: closed` esconde o campo e mostra a explicação; `closed` e `concluded-*` mostram mensagens sem campo
-- [ ] T027 [P] [US2] e2e `e2e/portal/tracking-session.spec.ts` (aviso): com `page.clock`, a faixa aparece aos 13 min
+- [x] T027 [P] [US2] e2e `e2e/portal/tracking-session.spec.ts` (aviso): com `page.clock`, a faixa aparece aos 13 min
       com `role="alert"`, sem tirar o foco do campo, e diz que o texto não enviado será perdido
-- [ ] T028 [P] [US2] Testes de componente em `TRK/tracking-messages.spec.ts` e `TRK/expiry-banner.spec.ts`: contador,
+- [x] T028 [P] [US2] Testes de componente em `TRK/tracking-messages.spec.ts` e `TRK/expiry-banner.spec.ts`: contador,
       botão desabilitado durante o envio, mensagem exibida por interpolação (texto com `<b>` aparece literal), lista
       vazia com a orientação
 
 ### Implementação
 
-- [ ] T029 [US2] `TRK/tracking-messages.ts`: lista (`ol`), "Atualizar" com região `aria-live`, campo com contador e
+- [x] T029 [US2] `TRK/tracking-messages.ts`: lista (`ol`), "Atualizar" com região `aria-live`, campo com contador e
       `FormFieldError`, envio protegido contra clique duplo, recarga depois do envio e do 409, estado sem `canReply`
       (research R8, R9)
-- [ ] T030 [P] [US2] `TRK/expiry-banner.ts`: faixa não modal ligada a `ReporterAccess.expiringSoon` e `minutesLeft`
+- [x] T030 [P] [US2] `TRK/expiry-banner.ts`: faixa não modal ligada a `ReporterAccess.expiringSoon` e `minutesLeft`
       (research R6)
-- [ ] T031 [US2] Integrar T029 e T030 em `TRK/tracking-page.ts` (depende de T023, T029, T030)
+- [x] T031 [US2] Integrar T029 e T030 em `TRK/tracking-page.ts` (depende de T023, T029, T030)
 
 **Checkpoint**: US1 e US2 formam o MVP do acompanhamento.
 
