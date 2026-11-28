@@ -15,16 +15,19 @@ npm run start:backoffice     # http://localhost:4300, com /api apontando para o 
 ## 2. Roteiros manuais
 
 1. **Entrada:** conta `pronta` → e-mail e senha → código → painel. Repetir com senha errada, e-mail inexistente,
-   conta `bloqueada` e `desativada`: a mesma mensagem em todos.
-2. **Primeiro acesso:** conta `primeiro-acesso` → troca de senha (testar senha curta e senha comum) → cadastro do
+   conta `bloqueada` e `desativada`: a mesma mensagem em todos. **Medir (SC-001):** com o código à mão, da tela de
+   login ao painel em menos de 30 segundos, sem ajuda.
+1. **Senha redefinida com autenticador:** conta `troca-com-autenticador` (senha provisória) → código → troca de senha →
+   painel. Recarregar na troca de senha: continua nela; abrir `/denuncias` pelo endereço: volta para a troca.
+1. **Primeiro acesso:** conta `primeiro-acesso` → troca de senha (testar senha curta e senha comum) → cadastro do
    autenticador (QR code e segredo) → código inválido e depois válido → 10 códigos, copiar e baixar, "Guardei" →
    painel. Recarregar na tela dos códigos: eles não reaparecem. **Medir (SC-002):** menos de 5 minutos sem ajuda.
-3. **Menu por permissão:** conta `sem-permissoes` → menu só com Painel e Meu perfil; abrir `/usuarios` pelo endereço →
+1. **Menu por permissão:** conta `sem-permissoes` → menu só com Painel e Meu perfil; abrir `/usuarios` pelo endereço →
    acesso negado.
-4. **Expiração:** com o relógio controlado do simulador, esperar o aviso de inatividade, continuar, esperar de novo e
+1. **Expiração:** com o relógio controlado do simulador, esperar o aviso de inatividade, continuar, esperar de novo e
    deixar expirar → login com a mensagem. Repetir para o limite de 8 horas (aviso sem "Continuar").
-5. **Abas:** abrir duas abas, sair numa → a outra volta ao login. Usar só uma por 14 minutos → a outra não mostra aviso.
-6. **Voltar:** depois de sair, usar o voltar do navegador → nenhuma tela interna com dados.
+1. **Abas:** abrir duas abas, sair numa → a outra volta ao login. Usar só uma por 14 minutos → a outra não mostra aviso.
+1. **Voltar:** depois de sair, usar o voltar do navegador → nenhuma tela interna com dados.
 
 ## 3. Verificações automáticas
 

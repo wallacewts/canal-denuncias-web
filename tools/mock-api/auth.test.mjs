@@ -68,6 +68,35 @@ test('login: a mesma resposta para e-mail inexistente, senha errada, conta bloqu
   }
 });
 
+test('etapa fora de hora: 403 STEP_NOT_ALLOWED (sessão mantida); sem sessão continua 401', async () => {
+  const pending = await signIn(ACCOUNTS.pronta, DEFAULT_PASSWORD);
+  const early = await call('POST', `${ADMIN}/auth/mfa/enrollment`, { sid: pending.sid });
+  assert.equal(early.status, 403);
+  assert.equal(early.body.code, 'STEP_NOT_ALLOWED');
+  const sid = await signedIn();
+  for (const [method, path, body] of [
+    ['POST', `${ADMIN}/auth/mfa/challenge`, { code: VALID_TOTP }],
+    ['POST', `${ADMIN}/auth/mfa/enrollment`, undefined],
+    ['POST', `${ADMIN}/auth/mfa/enrollment/confirmation`, { code: VALID_TOTP }],
+  ]) {
+    const r = await call(method, path, { body, sid });
+    assert.equal(r.status, 403, path);
+    assert.equal(r.body.code, 'STEP_NOT_ALLOWED', path);
+  }
+  assert.equal((await call('GET', `${ADMIN}/me`, { sid })).status, 200, 'sessão mantida');
+  assert.equal((await call('POST', `${ADMIN}/auth/mfa/enrollment`)).status, 401);
+});
+
+test('desafio: excesso de tentativas é 429 (cenário rate-limited)', async () => {
+  const first = await signIn(ACCOUNTS.pronta, DEFAULT_PASSWORD);
+  await scenario({ challenge: 'rate-limited' });
+  const r = await call('POST', `${ADMIN}/auth/mfa/challenge`, {
+    body: { code: VALID_TOTP },
+    sid: first.sid,
+  });
+  assert.equal(r.status, 429);
+});
+
 test('login: excesso de tentativas é 429 (cenário rate-limited)', async () => {
   await scenario({ signIn: 'rate-limited' });
   assert.equal((await signIn(ACCOUNTS.pronta, DEFAULT_PASSWORD)).status, 429);
@@ -115,13 +144,15 @@ test('login + desafio: etapa, horários, cookie HttpOnly sem Secure e id novo de
   );
 });
 
-test('desafio: código inválido 401, bloqueio 423, código de recuperação de uso único', async () => {
+test('desafio: código inválido 422 MFA_CODE_INVALID (sessão mantida), bloqueio 423, recuperação de uso único', async () => {
   let first = await signIn(ACCOUNTS.pronta, DEFAULT_PASSWORD);
-  assert.equal(
-    (await call('POST', `${ADMIN}/auth/mfa/challenge`, { body: { code: '12345' }, sid: first.sid }))
-      .status,
-    401,
-  );
+  const wrong = await call('POST', `${ADMIN}/auth/mfa/challenge`, {
+    body: { code: '12345' },
+    sid: first.sid,
+  });
+  assert.equal(wrong.status, 422);
+  assert.equal(wrong.body.message[0].code, 'MFA_CODE_INVALID');
+  assert.ok(!wrong.text.includes('12345'));
   await scenario({ challenge: 'locked' });
   assert.equal(
     (
@@ -143,7 +174,44 @@ test('desafio: código inválido 401, bloqueio 423, código de recuperação de 
     body: { recoveryCode: 'SIMULADA-REC-0001' },
     sid: first.sid,
   });
-  assert.equal(again.status, 401);
+  assert.equal(again.status, 422);
+  assert.equal(again.body.message[0].code, 'MFA_CODE_INVALID');
+  // 401 só para sessão ausente ou expirada.
+  assert.equal(
+    (await call('POST', `${ADMIN}/auth/mfa/challenge`, { body: { code: VALID_TOTP } })).status,
+    401,
+  );
+});
+
+test('quem já tem autenticador e precisa trocar a senha: segundo fator primeiro, depois a troca', async () => {
+  const first = await signIn(ACCOUNTS.trocaComAutenticador, PROVISIONAL_PASSWORD);
+  assert.equal(first.body.nextStep, 'MFA_REQUIRED');
+  const mfa = await call('POST', `${ADMIN}/auth/mfa/challenge`, {
+    body: { code: VALID_TOTP },
+    sid: first.sid,
+  });
+  assert.equal(mfa.status, 200);
+  assert.equal(mfa.body.nextStep, 'PASSWORD_CHANGE_REQUIRED');
+  // Segundo fator feito: /me responde com passwordChangeRequired; as demais rotas administrativas, 403 com código.
+  const me = await call('GET', `${ADMIN}/me`, { sid: mfa.sid });
+  assert.equal(me.status, 200);
+  assert.equal(me.body.passwordChangeRequired, true);
+  const other = await call('GET', `${ADMIN}/reports`, { sid: mfa.sid });
+  assert.equal(other.status, 403);
+  assert.equal(other.body.code, 'PASSWORD_CHANGE_REQUIRED');
+  const pwd = await call('PUT', `${ADMIN}/me/password`, {
+    body: { currentPassword: PROVISIONAL_PASSWORD, newPassword: 'nova-senha-bem-longa-SIMULADA' },
+    sid: mfa.sid,
+  });
+  assert.equal(pwd.body.nextStep, 'DONE');
+  assert.equal((await call('GET', `${ADMIN}/me`, { sid: pwd.sid })).body.passwordChangeRequired, false);
+  assert.notEqual((await call('GET', `${ADMIN}/reports`, { sid: pwd.sid })).status, 403);
+});
+
+test('sem autenticador (AUTH-03): rotas que exigem segundo fator respondem 401', async () => {
+  const first = await signIn(ACCOUNTS.primeiroAcesso, PROVISIONAL_PASSWORD);
+  assert.equal((await call('GET', `${ADMIN}/me`, { sid: first.sid })).status, 401);
+  assert.notEqual((await call('GET', `${ADMIN}/reports`, { sid: first.sid })).status, 403);
 });
 
 test('primeiro acesso: senha, cadastro com QR code PNG, 10 códigos e acesso liberado', async () => {
@@ -159,15 +227,12 @@ test('primeiro acesso: senha, cadastro com QR code PNG, 10 códigos e acesso lib
   assert.equal(enroll.status, 200);
   assert.match(enroll.body.qrCodeDataUri, /^data:image\/png;base64,/);
   assert.match(enroll.body.secret, /__mock/);
-  assert.equal(
-    (
-      await call('POST', `${ADMIN}/auth/mfa/enrollment/confirmation`, {
-        body: { code: '000000' },
-        sid: pwd.sid,
-      })
-    ).status,
-    401,
-  );
+  const wrong = await call('POST', `${ADMIN}/auth/mfa/enrollment/confirmation`, {
+    body: { code: '000000' },
+    sid: pwd.sid,
+  });
+  assert.equal(wrong.status, 422);
+  assert.equal(wrong.body.message[0].code, 'MFA_CODE_INVALID');
   const ok = await call('POST', `${ADMIN}/auth/mfa/enrollment/confirmation`, {
     body: { code: VALID_TOTP },
     sid: pwd.sid,
@@ -190,6 +255,9 @@ test('troca de senha: 422 com código (senha atual, curta, comum) e 429 na 5ª s
     (await put(DEFAULT_PASSWORD, 'senhasenha123')).body.message[0].code,
     'PASSWORD_COMMON',
   );
+  const same = await put(DEFAULT_PASSWORD, DEFAULT_PASSWORD);
+  assert.equal(same.status, 422);
+  assert.equal(same.body.message[0].code, 'PASSWORD_SAME_AS_CURRENT');
   for (let i = 1; i <= 4; i++) {
     const wrong = await put('XQZ', 'nova-senha-bem-longa');
     assert.equal(wrong.status, 422);

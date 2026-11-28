@@ -76,11 +76,12 @@ import { StaffSession } from './staff-session';
         <lib-form-field-error
           #codeError
           [control]="form.controls.code"
-          [messages]="{ required: 'Informe o código.', pattern: 'O código tem seis dígitos.' }"
+          [messages]="{
+            required: 'Informe o código.',
+            pattern: 'O código tem seis dígitos.',
+            invalid: 'Código inválido. Confira e tente de novo.',
+          }"
         />
-        @if (failure()) {
-          <p role="alert" class="error">Código inválido. Confira e tente de novo.</p>
-        }
         <p role="status" class="status">{{ submitting() ? 'Confirmando…' : '' }}</p>
         <button mat-flat-button type="submit" [disabled]="submitting()">Ativar</button>
       </form>
@@ -131,7 +132,6 @@ export class MfaEnrollmentPage implements OnInit, AfterViewInit {
         ?.join(' ') ?? '',
   );
   protected readonly submitting = signal(false);
-  protected readonly failure = signal(false);
   protected readonly form = new FormGroup({
     code: new FormControl('', {
       nonNullable: true,
@@ -156,7 +156,6 @@ export class MfaEnrollmentPage implements OnInit, AfterViewInit {
     if (this.form.invalid) return;
     const code = this.form.controls.code.value;
     this.form.reset();
-    this.failure.set(false);
     this.submitting.set(true);
     this.api
       .confirmEnrollment(code)
@@ -168,14 +167,12 @@ export class MfaEnrollmentPage implements OnInit, AfterViewInit {
           void this.router.navigateByUrl('/primeiro-acesso/codigos', { replaceUrl: true });
         },
         error: (error: unknown) => {
-          if (
-            error instanceof HttpErrorResponse &&
-            error.status === 401 &&
-            this.session.pendingExpired()
-          ) {
-            return this.session.end('unauthenticated');
+          // 422 MFA_CODE_INVALID: erro no campo, sessão pendente mantida. O 401 é da política (sessão encerrada).
+          if (error instanceof HttpErrorResponse && error.status === 422) {
+            const control = this.form.controls.code;
+            control.setErrors({ invalid: true });
+            control.markAsTouched();
           }
-          this.failure.set(true);
         },
       });
   }

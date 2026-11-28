@@ -51,6 +51,7 @@ export const ACCOUNTS = {
   bloqueada: 'bloqueada.SIMULADA@canal.test',
   desativada: 'desativada.SIMULADA@canal.test',
   semPermissoes: 'sem-permissoes.SIMULADA@canal.test',
+  trocaComAutenticador: 'troca-com-autenticador.SIMULADA@canal.test',
 };
 
 const newAccounts = () =>
@@ -65,6 +66,12 @@ const newAccounts = () =>
         mfaEnabledAt: null,
         passwordChangeRequired: true,
         recoveryCodes: [],
+      }),
+      // Já tem autenticador e precisa trocar a senha (ex.: senha redefinida pela administração).
+      account(ACCOUNTS.trocaComAutenticador, {
+        name: 'Pessoa Troca SIMULADA',
+        password: PROVISIONAL_PASSWORD,
+        passwordChangeRequired: true,
       }),
       account(ACCOUNTS.bloqueada, { status: 'BLOCKED' }),
       account(ACCOUNTS.desativada, { status: 'DISABLED' }),
@@ -108,12 +115,20 @@ const expiry = (auth, s) => ({
 const alive = (auth, s) =>
   now(auth) < s.lastActiveAt + IDLE_MS && now(auth) < s.createdAt + ABSOLUTE_MS;
 
+/**
+ * Próxima etapa (AUTH-01 a AUTH-05). Sem autenticador: troca da senha provisória, depois cadastro. Com autenticador:
+ * segundo fator primeiro, depois a troca de senha exigida (decisão do backend, feature 006).
+ */
 function stepOf(acc, s) {
-  if (s.mfa === 'verified') return 'DONE';
-  if (acc.passwordChangeRequired) return 'PASSWORD_CHANGE_REQUIRED';
-  if (!acc.mfaEnabledAt) return 'MFA_ENROLLMENT_REQUIRED';
-  return 'MFA_REQUIRED';
+  if (!acc.mfaEnabledAt) {
+    return acc.passwordChangeRequired ? 'PASSWORD_CHANGE_REQUIRED' : 'MFA_ENROLLMENT_REQUIRED';
+  }
+  if (s.mfa !== 'verified') return 'MFA_REQUIRED';
+  return acc.passwordChangeRequired ? 'PASSWORD_CHANGE_REQUIRED' : 'DONE';
 }
+
+/** Código do autenticador (ou de recuperação) errado: 422 com código, sessão pendente mantida. */
+const mfaCodeInvalid = (path) => fieldError('MFA_CODE_INVALID', path, 'Código inválido.');
 
 /** Sessão válida da requisição, ou null (cookie ausente, desconhecido ou expirado). */
 function currentSession(req, auth) {
@@ -246,7 +261,25 @@ export async function handleAuth(req, res, url, auth, helpers) {
     `${ADMIN}/me`,
     `${ADMIN}/me/password`,
   ]);
-  if (!authRoutes.has(path)) return false;
+  if (!authRoutes.has(path)) {
+    // Segundo fator feito, troca de senha exigida: as demais rotas administrativas respondem 403 com código.
+    const pendingChange = path.startsWith(`${ADMIN}/`) ? currentSession(req, auth) : null;
+    if (pendingChange?.s.mfa === 'verified' && pendingChange.acc.passwordChangeRequired) {
+      return (
+        json(
+          res,
+          403,
+          {
+            ...apiError(403, 'Forbidden', 'Troca de senha obrigatória.'),
+            code: 'PASSWORD_CHANGE_REQUIRED',
+          },
+          noStore,
+        ),
+        true
+      );
+    }
+    return false;
+  }
   // O front corrige a diferença de relógio pelo cabeçalho Date (R3): ele acompanha o relógio simulado, como na API real
   // o Date acompanha os horários de expiração.
   res.setHeader('Date', new Date(now(auth)).toUTCString());
@@ -258,6 +291,14 @@ export async function handleAuth(req, res, url, auth, helpers) {
 
   const unauthorized = () =>
     json(res, 401, apiError(401, 'Unauthorized', 'Não autenticado.'), noStore);
+  // Rota de etapa chamada fora da etapa (sessão válida): 403 com código, sessão mantida (feature 006 do backend).
+  const stepNotAllowed = () =>
+    json(
+      res,
+      403,
+      { ...apiError(403, 'Forbidden', 'Etapa não permitida.'), code: 'STEP_NOT_ALLOWED' },
+      noStore,
+    );
 
   if (path === `${ADMIN}/auth/sign-in` && req.method === 'POST') {
     if (scenario.signIn === 'rate-limited') {
@@ -297,7 +338,10 @@ export async function handleAuth(req, res, url, auth, helpers) {
   const { sid, s, acc } = cur;
 
   if (path === `${ADMIN}/auth/mfa/challenge` && req.method === 'POST') {
-    if (stepOf(acc, s) !== 'MFA_REQUIRED') return (unauthorized(), true);
+    if (stepOf(acc, s) !== 'MFA_REQUIRED') return (stepNotAllowed(), true);
+    if (scenario.challenge === 'rate-limited') {
+      return (json(res, 429, apiError(429, 'Too Many Requests', 'Muitas tentativas.'), noStore), true);
+    }
     if (scenario.challenge === 'locked') {
       return (json(res, 423, apiError(423, 'Locked', 'Bloqueado temporariamente.'), noStore), true);
     }
@@ -305,7 +349,10 @@ export async function handleAuth(req, res, url, auth, helpers) {
     const ok =
       (strict(body, ['code']) && body.code === VALID_TOTP && scenario.challenge !== 'invalid') ||
       (strict(body, ['recoveryCode']) && acc.recoveryCodes.includes(body.recoveryCode));
-    if (!ok) return (unauthorized(), true);
+    if (!ok) {
+      const path = body && 'recoveryCode' in body ? 'recoveryCode' : 'code';
+      return (json(res, 422, mfaCodeInvalid(path), noStore), true);
+    }
     if (body.recoveryCode)
       acc.recoveryCodes = acc.recoveryCodes.filter((c) => c !== body.recoveryCode);
     s.mfa = 'verified';
@@ -315,7 +362,7 @@ export async function handleAuth(req, res, url, auth, helpers) {
       json(
         res,
         200,
-        { nextStep: 'DONE', ...expiry(auth, s) },
+        { nextStep: stepOf(acc, s), ...expiry(auth, s) },
         { ...noStore, 'Set-Cookie': setCookie(next) },
       ),
       true
@@ -323,7 +370,7 @@ export async function handleAuth(req, res, url, auth, helpers) {
   }
 
   if (path === `${ADMIN}/auth/mfa/enrollment` && req.method === 'POST') {
-    if (stepOf(acc, s) !== 'MFA_ENROLLMENT_REQUIRED') return (unauthorized(), true);
+    if (stepOf(acc, s) !== 'MFA_ENROLLMENT_REQUIRED') return (stepNotAllowed(), true);
     s.enrolling = true;
     return (
       json(
@@ -341,9 +388,11 @@ export async function handleAuth(req, res, url, auth, helpers) {
   }
 
   if (path === `${ADMIN}/auth/mfa/enrollment/confirmation` && req.method === 'POST') {
-    if (!s.enrolling || stepOf(acc, s) !== 'MFA_ENROLLMENT_REQUIRED') return (unauthorized(), true);
+    if (!s.enrolling || stepOf(acc, s) !== 'MFA_ENROLLMENT_REQUIRED')
+      return (stepNotAllowed(), true);
     const body = await readJson(req, readBody);
-    if (!strict(body, ['code']) || body.code !== VALID_TOTP) return (unauthorized(), true);
+    if (!strict(body, ['code']) || body.code !== VALID_TOTP)
+      return (json(res, 422, mfaCodeInvalid('code'), noStore), true);
     acc.mfaEnabledAt = new Date(now(auth)).toISOString();
     acc.recoveryCodes = Array.from(
       { length: 10 },
@@ -357,7 +406,7 @@ export async function handleAuth(req, res, url, auth, helpers) {
       json(
         res,
         200,
-        { recoveryCodes: acc.recoveryCodes, nextStep: 'DONE', ...expiry(auth, s) },
+        { recoveryCodes: acc.recoveryCodes, nextStep: stepOf(acc, s), ...expiry(auth, s) },
         { ...noStore, 'Set-Cookie': setCookie(next) },
       ),
       true
@@ -366,7 +415,7 @@ export async function handleAuth(req, res, url, auth, helpers) {
 
   if (path === `${ADMIN}/me/password` && req.method === 'PUT') {
     const step = stepOf(acc, s);
-    if (step !== 'DONE' && step !== 'PASSWORD_CHANGE_REQUIRED') return (unauthorized(), true);
+    if (step !== 'DONE' && step !== 'PASSWORD_CHANGE_REQUIRED') return (stepNotAllowed(), true);
     const body = await readJson(req, readBody);
     if (!strict(body, ['currentPassword', 'newPassword'])) {
       return (json(res, 400, apiError(400, 'Bad Request', 'Corpo inválido.'), noStore), true);
@@ -399,6 +448,17 @@ export async function handleAuth(req, res, url, auth, helpers) {
         true
       );
     }
+    if (body.newPassword === acc.password) {
+      return (
+        json(
+          res,
+          422,
+          fieldError('PASSWORD_SAME_AS_CURRENT', 'newPassword', 'Senha igual à atual.'),
+          noStore,
+        ),
+        true
+      );
+    }
     if (COMMON_PASSWORDS.has(body.newPassword.toLowerCase())) {
       return (
         json(res, 422, fieldError('PASSWORD_COMMON', 'newPassword', 'Senha comum.'), noStore),
@@ -423,6 +483,7 @@ export async function handleAuth(req, res, url, auth, helpers) {
   }
 
   if (path === `${ADMIN}/me` && req.method === 'GET') {
+    // Exige segundo fator (AUTH-03): sem ele, 401. Com troca de senha pendente, responde com passwordChangeRequired.
     if (s.mfa !== 'verified') return (unauthorized(), true);
     s.lastActiveAt = now(auth);
     return (json(res, 200, currentUser(auth, acc, s), noStore), true);

@@ -8,13 +8,13 @@ import { provideApi } from './provide-api';
 
 const SUPPORT = (id: string) => ` Código para o suporte: ${id}`;
 
-function setup(audience: ApiPolicy['audience']) {
+function setup(audience: ApiPolicy['audience'], onForbidden?: ApiPolicy['onForbidden']) {
   const onUnauthenticated = vi.fn();
   const notifications = { error: vi.fn(), success: vi.fn() };
   const policy: ApiPolicy =
     audience === 'portal'
       ? { audience, withCredentials: false, bearerFor: '/public/v1/me/', onUnauthenticated }
-      : { audience, withCredentials: true, bearerFor: null, onUnauthenticated };
+      : { audience, withCredentials: true, bearerFor: null, onUnauthenticated, onForbidden };
   TestBed.configureTestingModule({
     providers: [
       provideApi({ apiBaseUrl: '/api' }, policy),
@@ -127,6 +127,25 @@ describe('errorInterceptor (contracts/error-messages.md)', () => {
   it('não chama a ação de não autenticado em outros status', () => {
     const { onUnauthenticated } = fail('portal', 403);
     expect(onUnauthenticated).not.toHaveBeenCalled();
+  });
+
+  it('403 tratado pelo app (onForbidden devolve verdadeiro): sem mensagem, erro repassado', () => {
+    const onForbidden = vi.fn(() => true);
+    const ctx = setup('backoffice', onForbidden);
+    const errors: unknown[] = [];
+    ctx.http.get('api:/admin/v1/x').subscribe({ error: (e: unknown) => errors.push(e) });
+    const body = { statusCode: 403, error: 'Forbidden', code: 'PASSWORD_CHANGE_REQUIRED' };
+    ctx.httpTesting.expectOne('/api/admin/v1/x').flush(body, { status: 403, statusText: 'x' });
+    expect(onForbidden).toHaveBeenCalledWith(body);
+    expect(ctx.notifications.error).not.toHaveBeenCalled();
+    expect(errors).toHaveLength(1);
+  });
+
+  it('403 que o app não trata (onForbidden devolve falso): mensagem padrão', () => {
+    const ctx = setup('backoffice', () => false);
+    ctx.http.get('api:/admin/v1/x').subscribe({ error: () => undefined });
+    ctx.httpTesting.expectOne('/api/admin/v1/x').flush(null, { status: 403, statusText: 'x' });
+    expect(ctx.notifications.error).toHaveBeenCalledTimes(1);
   });
 
   it('erro do servidor: não escreve nada no console', () => {

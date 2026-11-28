@@ -2,6 +2,7 @@ import { expect, test } from '../fixtures/privacy-guards';
 import { STAFF, useMockSession } from '../support/mock-api';
 import { signInByApi } from './auth-helpers';
 import { BACKOFFICE_ROUTES } from './routes';
+import { reloadWhenSettled } from '../support/reload';
 
 /** BAUTH-05 contra o simulador (feature 004, US3). */
 
@@ -49,9 +50,7 @@ test('recarregar uma tela interna restaura a sessão pelo /me', async ({ page, r
   await signInByApi(page, request);
   await page.goto('/denuncias');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Caixa de denúncias');
-  // Firefox aborta um chunk em download ao recarregar e acusa falha de SRI (mesmo caso das features 002 e 003).
-  await page.waitForLoadState('networkidle');
-  await page.reload();
+  await reloadWhenSettled(page);
   await expect(page).toHaveURL(/\/denuncias$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Caixa de denúncias');
 });

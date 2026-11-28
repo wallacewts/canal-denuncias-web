@@ -106,6 +106,15 @@ describe('PasswordChangeForm (BAUTH-04, BPRF-02)', () => {
     expect(el.textContent).toContain('A nova senha precisa ter pelo menos 12 caracteres.');
   });
 
+  it('422 PASSWORD_SAME_AS_CURRENT tem mensagem própria no campo da nova senha', async () => {
+    const { el, fill, submit } = setup();
+    changePassword.mockReturnValue(throwError(() => unprocessable('PASSWORD_SAME_AS_CURRENT')));
+    fill('senha-atual-longa', 'senha-atual-longa');
+    await submit();
+    expect(el.textContent).toContain('A nova senha precisa ser diferente da atual.');
+    expect(end).not.toHaveBeenCalled();
+  });
+
   it('429 (5 erros de senha atual) encerra a sessão pelo StaffSession', async () => {
     changePassword.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 429 })));
     const { fill, submit } = setup();

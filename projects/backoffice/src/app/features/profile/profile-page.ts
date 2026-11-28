@@ -24,8 +24,12 @@ const ROLE_LABELS: Record<Role, string> = {
   template: `
     <lib-page-header title="Meu perfil" subtitle="Seus dados de acesso e a troca de senha." />
     @if (session.user(); as user) {
-      <section aria-labelledby="dados">
-        <h2 id="dados">Seus dados</h2>
+      <!--
+        Seções sem aria-labelledby, de propósito: com campo de senha na tela, o Firefox derruba a página ao calcular o
+        nome acessível de seções rotuladas (docs/validacoes/acompanhamento.md). Os h2 dão a estrutura de títulos.
+      -->
+      <section>
+        <h2>Seus dados</h2>
         <dl data-testid="profile-data">
           <dt>Nome</dt>
           <dd>{{ user.name }}</dd>
@@ -38,8 +42,8 @@ const ROLE_LABELS: Record<Role, string> = {
         </dl>
       </section>
     }
-    <section aria-labelledby="senha">
-      <h2 id="senha">Trocar senha</h2>
+    <section>
+      <h2>Trocar senha</h2>
       <p role="status" class="notice">
         @if (changed()) {
           <span data-testid="password-changed">

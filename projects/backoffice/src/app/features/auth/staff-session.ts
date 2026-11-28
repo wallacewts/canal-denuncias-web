@@ -131,6 +131,11 @@ export class StaffSession implements OnDestroy {
     if (this.userState()) return true;
     try {
       const { value, serverNow } = await firstValueFrom(this.api.me(true));
+      // Segundo fator feito, troca de senha exigida: a sessão fica pendente nessa etapa, sem dados de usuário.
+      if (value.passwordChangeRequired) {
+        this.startPending('PASSWORD_CHANGE_REQUIRED', value, serverNow);
+        return false;
+      }
       this.establish(value, serverNow);
       return true;
     } catch {
@@ -152,6 +157,24 @@ export class StaffSession implements OnDestroy {
     if (this.warningState() === 'idle') this.warningState.set(null);
     this.reschedule();
     if (broadcast) this.channel?.postMessage({ type: 'activity', at: this.lastActivityLocal });
+  }
+
+  /**
+   * A API exige a troca de senha (403 `PASSWORD_CHANGE_REQUIRED`): apaga o usuário e os dados da memória, descarta
+   * respostas pendentes e leva à troca. A sessão continua viva na API até a troca ou a expiração.
+   */
+  requirePasswordChange(): void {
+    if (!this.live) return;
+    const expiresAtLocal =
+      this.idleWindowMs === null ? Date.now() : this.lastActivityLocal + this.idleWindowMs;
+    this.cancelTimer();
+    this.generationState.update((g) => g + 1);
+    this.userState.set(null);
+    this.warningState.set(null);
+    this.idleWindowMs = null;
+    this.absoluteAtLocal = null;
+    this.pendingState.set({ step: 'PASSWORD_CHANGE_REQUIRED', expiresAtLocal });
+    void this.router.navigateByUrl('/primeiro-acesso/senha', { replaceUrl: true });
   }
 
   rememberReturn(url: string): void {

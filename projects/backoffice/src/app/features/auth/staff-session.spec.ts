@@ -65,6 +65,32 @@ describe('StaffSession (R1 a R3)', () => {
     expect(session().can('users.manage')).toBe(false);
   });
 
+  it('restauração com troca de senha exigida (/me com passwordChangeRequired): etapa pendente, sem usuário', async () => {
+    me.mockReturnValue(
+      of({ value: { ...user(Date.now()), passwordChangeRequired: true }, serverNow: Date.now() }),
+    );
+    const s = session();
+    expect(await s.restore()).toBe(false);
+    expect(s.user()).toBeNull();
+    expect(s.pending()?.step).toBe('PASSWORD_CHANGE_REQUIRED');
+    expect(s.pendingExpired()).toBe(false);
+  });
+
+  it('403 PASSWORD_CHANGE_REQUIRED no meio do uso: apaga o usuário, descarta respostas e vai à troca de senha', () => {
+    const s = session();
+    s.establish(user(Date.now()), Date.now());
+    const generation = s.generation();
+    s.requirePasswordChange();
+    expect(s.user()).toBeNull();
+    expect(s.isCurrent(generation)).toBe(false);
+    expect(s.pending()?.step).toBe('PASSWORD_CHANGE_REQUIRED');
+    expect(s.pendingExpired()).toBe(false);
+    expect(navigateByUrl).toHaveBeenCalledWith('/primeiro-acesso/senha', { replaceUrl: true });
+    // Sem timers de aviso enquanto a troca está pendente.
+    vi.advanceTimersByTime(14 * MIN);
+    expect(s.warning()).toBeNull();
+  });
+
   it('restauração com 401 devolve falso sem encerrar nem mostrar mensagem', async () => {
     me.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
     expect(await session().restore()).toBe(false);

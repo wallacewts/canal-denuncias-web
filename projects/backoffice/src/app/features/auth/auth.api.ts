@@ -54,14 +54,17 @@ export class AuthApi {
       .pipe(timed(toStepResponse));
   }
 
-  /** 401 (código inválido ou sessão pendente expirada) e 423 (bloqueio temporário) são tratados pela tela. */
+  /**
+   * 422 `MFA_CODE_INVALID` (código errado, erro no campo) e 423 (bloqueio temporário) são tratados pela tela. O 401 (só
+   * sessão ausente ou expirada) segue para a política de sessão encerrada.
+   */
   challenge(
     body: { code: string } | { recoveryCode: string },
   ): Observable<Timed<ProvisionalStepResponse>> {
     return this.http
       .post<unknown>('api:/admin/v1/auth/mfa/challenge', body, {
         observe: 'response',
-        ...handles(401, 423),
+        ...handles(422, 423),
       })
       .pipe(timed(toStepResponse));
   }
@@ -72,6 +75,7 @@ export class AuthApi {
       .pipe(map(toEnrollment));
   }
 
+  /** 422 `MFA_CODE_INVALID` é tratado pela tela; o 401 (sessão encerrada) segue para a política. */
   confirmEnrollment(code: string): Observable<Timed<ProvisionalEnrollmentConfirmation>> {
     return this.http
       .post<unknown>(
@@ -79,7 +83,7 @@ export class AuthApi {
         { code },
         {
           observe: 'response',
-          ...handles(401),
+          ...handles(422),
         },
       )
       .pipe(timed(toEnrollmentConfirmation));

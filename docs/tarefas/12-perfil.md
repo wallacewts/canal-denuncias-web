@@ -8,6 +8,9 @@
 
 ---
 
+> **Feature 004 do front (2026-11-28):** BPRF-01 e BPRF-02 atendidos e validados contra o simulador; conferência com
+> a API real na integração da feature 004. BPRF-03 (Produção) continua aberto.
+
 ### BPRF-01 · Meus dados
 
 **Estimativa:** P · **Marco:** MVP · **Depende de:** BAUTH-05, USERS-07
@@ -16,7 +19,7 @@
 
 **Critérios de aceite**
 
-- [ ] Nome, e-mail, perfis e data de ativação do MFA.
+- [x] Nome, e-mail, perfis e data de ativação do MFA.
 
 ### BPRF-02 · Trocar senha
 
@@ -26,8 +29,8 @@
 
 **Critérios de aceite**
 
-- [ ] Reaproveita o formulário de BAUTH-04.
-- [ ] Depois da troca, avisa que a sessão foi renovada.
+- [x] Reaproveita o formulário de BAUTH-04.
+- [x] Depois da troca, avisa que a sessão foi renovada.
 
 ### BPRF-03 · Sessões ativas
 

@@ -16,6 +16,9 @@ export const authGuard: CanActivateFn & CanActivateChildFn = async (_route, stat
   if (pending && !session.pendingExpired()) return router.parseUrl(stepRoute(pending.step));
   if (await session.restore()) return true;
   session.rememberReturn(state.url);
+  // A restauração pode revelar uma etapa pendente (troca de senha exigida depois do segundo fator).
+  const restored = session.pending();
+  if (restored && !session.pendingExpired()) return router.parseUrl(stepRoute(restored.step));
   return router.parseUrl('/login');
 };
 

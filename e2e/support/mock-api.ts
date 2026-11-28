@@ -24,7 +24,7 @@ export interface MockScenario {
   /** Etapa da senha do backoffice: 429 recebe a mesma mensagem genérica (feature 004). */
   signIn?: 'ok' | 'rate-limited';
   /** Desafio do segundo fator: código recusado ou bloqueio temporário (423). */
-  challenge?: 'ok' | 'invalid' | 'locked';
+  challenge?: 'ok' | 'invalid' | 'locked' | 'rate-limited';
 }
 
 /** Contadores do simulador (contracts/mock-api-tracking.md). */
@@ -42,6 +42,7 @@ export const STAFF = {
   bloqueada: 'bloqueada.SIMULADA@canal.test',
   desativada: 'desativada.SIMULADA@canal.test',
   semPermissoes: 'sem-permissoes.SIMULADA@canal.test',
+  trocaComAutenticador: 'troca-com-autenticador.SIMULADA@canal.test',
   password: 'senha-correta-SIMULADA',
   provisionalPassword: 'provisoria-SIMULADA',
   totp: '123456',

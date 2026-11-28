@@ -165,6 +165,12 @@ export function toEnrollmentConfirmation(body: unknown): ProvisionalEnrollmentCo
  * Códigos de erro de campo de uma resposta 422 (formato `ApiError` da API: `message` com `{ code, path }`). Só os
  * códigos: nunca o texto da API nem o que a pessoa enviou.
  */
+/** Códigos de erro de qualquer resposta: `code` no corpo ou nos itens de `message` (formato a conferir na T047). */
+export function errorCodes(body: unknown): string[] {
+  const top = typeof body === 'object' && body !== null ? (body as Json)['code'] : null;
+  return [...(typeof top === 'string' ? [top] : []), ...fieldErrorCodes(body)];
+}
+
 export function fieldErrorCodes(body: unknown): string[] {
   const message = typeof body === 'object' && body !== null ? (body as Json)['message'] : null;
   if (!Array.isArray(message)) return [];

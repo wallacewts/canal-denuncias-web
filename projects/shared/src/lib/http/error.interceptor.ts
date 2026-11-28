@@ -33,6 +33,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         if (req.context.get(API_CALLER_HANDLES).includes(error.statusCode)) {
           return throwError(() => response);
         }
+        const onForbidden = policy.onForbidden;
+        if (
+          error.statusCode === 403 &&
+          onForbidden &&
+          runInInjectionContext(injector, () => onForbidden(response.error))
+        ) {
+          return throwError(() => response);
+        }
         const silent = error.statusCode === 401 && policy.silentUnauthenticated === true;
         if (!silent)
           notifications.error(

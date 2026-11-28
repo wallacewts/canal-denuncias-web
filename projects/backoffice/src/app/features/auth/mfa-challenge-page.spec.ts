@@ -8,6 +8,17 @@ import { MfaChallengePage } from './mfa-challenge-page';
 import { SignInFlow } from './sign-in-flow';
 import { StaffSession } from './staff-session';
 
+const mfaInvalid = () =>
+  new HttpErrorResponse({
+    status: 422,
+    error: {
+      statusCode: 422,
+      error: 'Unprocessable Entity',
+      message: [{ code: 'MFA_CODE_INVALID', path: 'code', message: 'm' }],
+      requestId: 'r',
+    },
+  });
+
 describe('MfaChallengePage (BAUTH-02)', () => {
   const challenge = vi.fn();
   const advance = vi.fn().mockResolvedValue(undefined);
@@ -81,14 +92,15 @@ describe('MfaChallengePage (BAUTH-02)', () => {
     expect(challenge).toHaveBeenCalledWith({ recoveryCode: 'SIMULADA-REC-0001' });
   });
 
-  it('401 mostra mensagem genérica; 423 mostra bloqueio sem motivo', async () => {
-    challenge.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
+  it('422 MFA_CODE_INVALID vira erro no campo, sem encerrar a sessão; 423 mostra bloqueio sem motivo', async () => {
+    challenge.mockReturnValue(throwError(mfaInvalid));
     const { el, type, submit } = await render();
     type('000000');
     await submit();
-    expect(el.querySelector('[role="alert"]')?.textContent?.trim()).toBe(
-      'Código inválido. Confira e tente de novo.',
-    );
+    expect(el.textContent).toContain('Código inválido. Confira e tente de novo.');
+    expect(el.querySelector('input')?.getAttribute('aria-invalid')).toBe('true');
+    expect(el.querySelector('[role="alert"]')).toBeNull();
+    expect(TestBed.inject(StaffSession).consumeEndReason()).toBeNull();
     challenge.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 423 })));
     type('000000');
     await submit();
@@ -97,12 +109,13 @@ describe('MfaChallengePage (BAUTH-02)', () => {
     );
   });
 
-  it('401 com a sessão pendente expirada volta ao login com a mensagem de sessão encerrada', async () => {
-    challenge.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
-    const { type, submit } = await render(1);
-    await new Promise((r) => setTimeout(r, 5));
-    type('000000');
+  it('código de recuperação errado (422) também fica no campo', async () => {
+    challenge.mockReturnValue(throwError(mfaInvalid));
+    const { el, harness, type, submit } = await render();
+    (el.querySelector('[data-testid="use-recovery"]') as HTMLButtonElement).click();
+    harness.detectChanges();
+    type('SIMULADA-REC-9999');
     await submit();
-    expect(TestBed.inject(StaffSession).consumeEndReason()).toBe('unauthenticated');
+    expect(el.textContent).toContain('Código inválido. Confira e tente de novo.');
   });
 });

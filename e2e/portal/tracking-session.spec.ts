@@ -1,6 +1,7 @@
 import { expect, test } from '../fixtures/privacy-guards';
 import { MOCK_RECEIPT, useMockSession } from '../support/mock-api';
 import { openTracking } from './tracking-helpers';
+import { reloadWhenSettled } from '../support/reload';
 
 /** Acesso só em memória (feature 003): recarga, rota direta e URL colada nunca mostram a denúncia. */
 test.describe('acesso do denunciante', () => {
@@ -15,7 +16,7 @@ test.describe('acesso do denunciante', () => {
     request,
   }) => {
     await openTracking(page, request);
-    await page.reload();
+    await reloadWhenSettled(page);
     await expect(page).toHaveURL(/\/consultar$/);
     await expect(page.getByTestId('status')).toHaveCount(0);
   });

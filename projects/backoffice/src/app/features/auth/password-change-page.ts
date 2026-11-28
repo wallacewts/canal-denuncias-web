@@ -5,14 +5,17 @@ import type { ProvisionalStepResponse } from './auth.types';
 import { PasswordChangeForm } from './password-change-form';
 import { SignInFlow } from './sign-in-flow';
 
-/** Troca da senha provisória no primeiro acesso (BAUTH-04). Depois dela, a API indica o cadastro do segundo fator. */
+/**
+ * Troca da senha provisória (BAUTH-04). No primeiro acesso vem antes do cadastro do segundo fator; para quem já tem
+ * autenticador (senha redefinida), vem depois do desafio. A ordem é decidida pela API.
+ */
 @Component({
   selector: 'app-password-change-page',
   imports: [PageHeader, PasswordChangeForm],
   template: `
     <lib-page-header
       title="Trocar senha"
-      subtitle="No primeiro acesso, troque a senha provisória que você recebeu da administração."
+      subtitle="Troque a senha provisória que você recebeu da administração antes de continuar."
     />
     <app-password-change-form (changed)="next($event)" />
   `,

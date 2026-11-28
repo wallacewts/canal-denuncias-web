@@ -15,6 +15,17 @@ class Parent {}
 const PNG = 'data:image/png;base64,iVBORw0KGgo=';
 const CODES = Array.from({ length: 10 }, (_, i) => `C-${i}`);
 
+const mfaInvalid = () =>
+  new HttpErrorResponse({
+    status: 422,
+    error: {
+      statusCode: 422,
+      error: 'Unprocessable Entity',
+      message: [{ code: 'MFA_CODE_INVALID', path: 'code', message: 'm' }],
+      requestId: 'r',
+    },
+  });
+
 describe('MfaEnrollmentPage (BAUTH-03)', () => {
   const startEnrollment = vi.fn();
   const confirmEnrollment = vi.fn();
@@ -82,12 +93,12 @@ describe('MfaEnrollmentPage (BAUTH-03)', () => {
 
   it('código inválido não ativa; código válido guarda os códigos e segue sem o segredo', async () => {
     const { el, type, submit } = await render();
-    confirmEnrollment.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
+    confirmEnrollment.mockReturnValue(throwError(mfaInvalid));
     type('000000');
     await submit();
-    expect(el.querySelector('[role="alert"]')?.textContent?.trim()).toBe(
-      'Código inválido. Confira e tente de novo.',
-    );
+    expect(el.textContent).toContain('Código inválido. Confira e tente de novo.');
+    expect(el.querySelector('input')?.getAttribute('aria-invalid')).toBe('true');
+    expect(TestBed.inject(StaffSession).consumeEndReason()).toBeNull();
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
     confirmEnrollment.mockReturnValue(
       of({ value: { recoveryCodes: CODES, nextStep: 'DONE' }, serverNow: null }),
@@ -106,14 +117,5 @@ describe('MfaEnrollmentPage (BAUTH-03)', () => {
     expect(state?.value()?.enrollment?.secret).toBe('ABCDEFGHIJKL');
     await harness.navigateByUrl('/login');
     expect(state?.value()).toBeNull();
-  });
-
-  it('401 com a sessão pendente expirada volta ao login', async () => {
-    confirmEnrollment.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
-    const { type, submit } = await render(1);
-    await new Promise((r) => setTimeout(r, 5));
-    type('123456');
-    await submit();
-    expect(TestBed.inject(StaffSession).consumeEndReason()).toBe('unauthenticated');
   });
 });

@@ -67,6 +67,11 @@ test('envio de denúncia: axe em cada etapa, na revisão com o aviso aberto e no
 }) => {
   await useMockSession(page, request);
   const analyze = async (where: string) => {
+    // Espera as transições terminarem (troca de etapa, abertura do diálogo): no meio delas, o contraste medido não é o
+    // final. A tela final continua sendo medida por inteiro.
+    await page.waitForFunction(() =>
+      document.getAnimations().every((a) => a.playState !== 'running'),
+    );
     const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
     const blocking = violations
       .filter((v) => v.impact === 'serious' || v.impact === 'critical')
@@ -81,6 +86,7 @@ test('envio de denúncia: axe em cada etapa, na revisão com o aviso aberto e no
   await analyze('categoria');
   await page.getByRole('radio', { name: 'Vazamento de dados' }).check();
   await page.getByRole('button', { name: 'Continuar' }).click();
+  await expect(page.getByLabel('Descrição')).toBeVisible();
   await analyze('relato');
   await page.getByLabel('Descrição').fill(DESCRIPTION);
   await page.getByRole('button', { name: 'Continuar' }).click();
@@ -90,10 +96,6 @@ test('envio de denúncia: axe em cada etapa, na revisão com o aviso aberto e no
   await analyze('revisão');
   await page.getByRole('button', { name: 'Ler o aviso de privacidade' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
-  // Espera a animação de abertura terminar: no meio dela, o contraste medido não é o final.
-  await page.waitForFunction(() =>
-    document.getAnimations().every((a) => a.playState !== 'running'),
-  );
   await analyze('revisão com o aviso aberto');
   await page.getByRole('button', { name: 'Fechar' }).click();
   await page.getByRole('button', { name: 'Enviar denúncia' }).click();

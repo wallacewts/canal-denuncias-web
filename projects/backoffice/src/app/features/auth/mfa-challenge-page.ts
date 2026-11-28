@@ -9,14 +9,16 @@ import { FieldErrorLink, FormFieldError, PageHeader, SensitiveInput } from '@can
 import { finalize } from 'rxjs';
 import { AuthApi } from './auth.api';
 import { SignInFlow } from './sign-in-flow';
-import { StaffSession } from './staff-session';
 
 const TOTP = /^\d{6}$/;
 
+const INVALID_CODE = 'Código inválido. Confira e tente de novo.';
+
 /**
  * Desafio do segundo fator (BAUTH-02): código de seis dígitos do aplicativo autenticador ou um código de recuperação.
- * Código errado tem mensagem genérica; o bloqueio temporário (423) tem mensagem própria, sem dizer o motivo. Se a
- * sessão pendente já expirou (horário da API), volta ao login com a mensagem de sessão encerrada.
+ * Código errado (422 `MFA_CODE_INVALID`) é erro no campo, com a sessão pendente mantida; o bloqueio temporário (423) tem
+ * mensagem própria, sem dizer o motivo. O 401 significa só sessão ausente ou expirada e volta ao login pela política
+ * do backoffice, com a mensagem de sessão encerrada.
  */
 @Component({
   selector: 'app-mfa-challenge-page',
@@ -62,8 +64,12 @@ const TOTP = /^\d{6}$/;
           [control]="form.controls.code"
           [messages]="
             recovery()
-              ? { required: 'Informe o código de recuperação.' }
-              : { required: 'Informe o código.', pattern: 'O código tem seis dígitos.' }
+              ? { required: 'Informe o código de recuperação.', invalid: invalidCode }
+              : {
+                  required: 'Informe o código.',
+                  pattern: 'O código tem seis dígitos.',
+                  invalid: invalidCode,
+                }
           "
         />
         @if (failure(); as message) {
@@ -108,8 +114,8 @@ export class MfaChallengePage implements AfterViewInit {
   private readonly api = inject(AuthApi);
   private readonly header = viewChild.required(PageHeader);
   private readonly flow = inject(SignInFlow);
-  private readonly session = inject(StaffSession);
 
+  protected readonly invalidCode = INVALID_CODE;
   protected readonly recovery = signal(false);
   protected readonly submitting = signal(false);
   protected readonly failure = signal<string | null>(null);
@@ -149,13 +155,14 @@ export class MfaChallengePage implements AfterViewInit {
       .subscribe({
         next: (step) => void this.flow.advance(step),
         error: (error: unknown) => {
-          if (!(error instanceof HttpErrorResponse))
-            return this.failure.set('Código inválido. Confira e tente de novo.');
+          if (!(error instanceof HttpErrorResponse)) return;
           if (error.status === 423) {
             this.failure.set('Muitas tentativas. Aguarde alguns minutos e entre de novo.');
-          } else if (error.status === 401) {
-            if (this.session.pendingExpired()) this.session.end('unauthenticated');
-            else this.failure.set('Código inválido. Confira e tente de novo.');
+          } else if (error.status === 422) {
+            // MFA_CODE_INVALID: erro no campo, sessão pendente mantida. O 401 é da política (sessão encerrada).
+            const code = this.form.controls.code;
+            code.setErrors({ invalid: true });
+            code.markAsTouched();
           }
         },
       });

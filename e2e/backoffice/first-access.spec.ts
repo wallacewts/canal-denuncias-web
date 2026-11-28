@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { expect, test } from '../fixtures/privacy-guards';
 import { STAFF, useMockSession } from '../support/mock-api';
+import { reloadWhenSettled } from '../support/reload';
 
 /** BAUTH-03 e BAUTH-04 contra o simulador (feature 004, US2). As guardas de privacidade valem em todos os testes. */
 
@@ -67,8 +68,12 @@ test('código inválido não ativa o autenticador', async ({ page, request }) =>
   await changePassword(page, STAFF.provisionalPassword, NEW_PASSWORD);
   await page.getByLabel('Código de seis dígitos').fill('000000');
   await page.getByRole('button', { name: 'Ativar' }).click();
-  await expect(page.getByRole('alert')).toHaveText('Código inválido. Confira e tente de novo.');
+  // 422 MFA_CODE_INVALID: erro no campo, a sessão pendente continua e o código certo ainda ativa.
+  await expect(page.getByText('Código inválido. Confira e tente de novo.')).toBeVisible();
   await expect(page).toHaveURL(/\/primeiro-acesso\/autenticador$/);
+  await page.getByLabel('Código de seis dígitos').fill(STAFF.totp);
+  await page.getByRole('button', { name: 'Ativar' }).click();
+  await expect(page).toHaveURL(/\/primeiro-acesso\/codigos$/);
 });
 
 test('códigos de recuperação: arquivo baixado com nome fixo, e não reaparecem ao recarregar', async ({
@@ -85,9 +90,7 @@ test('códigos de recuperação: arquivo baixado com nome fixo, e não reaparece
   expect(download.suggestedFilename()).toBe('codigos-de-recuperacao.txt');
   const content = await readFile((await download.path()) as string, 'utf8');
   expect(content).toContain(first ?? 'x');
-  // Firefox aborta um chunk em download ao recarregar e acusa falha de SRI (mesmo caso das features 002 e 003).
-  await page.waitForLoadState('networkidle');
-  await page.reload();
+  await reloadWhenSettled(page);
   await expect(page.getByTestId('code')).toHaveCount(0);
   await expect(page.getByText('já foram exibidos')).toBeVisible();
   await page.getByRole('button', { name: 'Continuar' }).click();

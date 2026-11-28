@@ -52,6 +52,17 @@ describe('guards (R4, FR-011 a FR-014)', () => {
     expect(fake.restore).not.toHaveBeenCalled();
   });
 
+  it('restauração que revela troca de senha exigida leva à troca e guarda o retorno', async () => {
+    fake.authenticated.mockReturnValue(false);
+    fake.restore.mockImplementation(async () => {
+      fake.pending.mockReturnValue({ step: 'PASSWORD_CHANGE_REQUIRED' });
+      return false;
+    });
+    fake.pendingExpired.mockReturnValue(false);
+    expect(str(await run('/denuncias'))).toBe('/primeiro-acesso/senha');
+    expect(fake.rememberReturn).toHaveBeenCalledWith('/denuncias');
+  });
+
   it('etapa pendente em memória leva à etapa (FR-012)', async () => {
     fake.authenticated.mockReturnValue(false);
     fake.pending.mockReturnValue({ step: 'PASSWORD_CHANGE_REQUIRED' });

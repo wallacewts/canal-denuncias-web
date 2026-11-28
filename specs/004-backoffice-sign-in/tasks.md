@@ -259,15 +259,15 @@ mostra o aviso de sessão renovada e outras sessões encerradas.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T050 [P] Telas novas em `e2e/backoffice/layout.spec.ts` (320 px e zoom de 200%) e `e2e/backoffice/a11y.spec.ts` (novo,
+- [x] T050 [P] Telas novas em `e2e/backoffice/layout.spec.ts` (320 px e zoom de 200%) e `e2e/backoffice/a11y.spec.ts` (novo,
       axe, como `e2e/portal/a11y.spec.ts`), mais o percurso de entrada e de primeiro acesso só com teclado
-- [ ] T051 [P] Medir e registrar no `plan.md` o bundle inicial do backoffice (antes 347,0 kB, previsão ~355 kB) e o do
+- [x] T051 [P] Medir e registrar no `plan.md` o bundle inicial do backoffice (antes 347,0 kB, previsão ~355 kB) e o do
       portal (sem crescimento esperado pela extração da T018)
-- [ ] T052 [P] `AGENTS.md` e `README.md`: `StaffSession` como único ponto de encerramento, proteção por origem no lugar
+- [x] T052 [P] `AGENTS.md` e `README.md`: `StaffSession` como único ponto de encerramento, proteção por origem no lugar
       do token XSRF, `@canal/shared/files`, contas e cenários do simulador
-- [ ] T053 [P] Marcar os critérios atendidos em `docs/tarefas/05-backoffice-auth.md` e `docs/tarefas/12-perfil.md`,
+- [x] T053 [P] Marcar os critérios atendidos em `docs/tarefas/05-backoffice-auth.md` e `docs/tarefas/12-perfil.md`,
       com a nota de que foram validados contra o simulador
-- [ ] T054 Seguir `specs/004-backoffice-sign-in/quickstart.md` e a verificação final (lint, `lint:rules`, testes,
+- [x] T054 Seguir `specs/004-backoffice-sign-in/quickstart.md` e a verificação final (lint, `lint:rules`, testes,
       `test:scripts`, build dos dois apps, `check:build`, `api:check`, e2e duas vezes)
 
 ---
@@ -330,13 +330,18 @@ abertas; sem a US4 uma sessão esquecida expõe denúncias. A US5 (P2) vem depoi
 ## Notes
 
 - A etapa da senha não tem mensagem própria de bloqueio: 401 e 429 recebem a mesma mensagem (decisão do usuário).
-- O bloqueio do desafio do segundo fator tem mensagem própria (423, a confirmar no contrato).
+- O bloqueio do desafio do segundo fator tem mensagem própria (423, decidido).
+- Decisões do backend (feature 006), aplicadas no Polish: código do autenticador errado é 422 `MFA_CODE_INVALID` (no
+  campo, sessão mantida) e 401 é só sessão ausente ou expirada; com autenticador, o desafio vem antes da troca de senha
+  exigida (o desafio pode devolver `PASSWORD_CHANGE_REQUIRED`); `PASSWORD_SAME_AS_CURRENT` com mensagem própria; 429 no
+  desafio com a mensagem genérica; 403 `PASSWORD_CHANGE_REQUIRED` nas demais rotas (leva à troca, `/me` restaura a
+  etapa ao recarregar); 403 `STEP_NOT_ALLOWED` em rota de etapa fora de hora (leva à etapa certa, sem encerrar).
 - Commits por fase ou história, com os hooks rodando.
 
 ## Pendências do analyze
 
-| ID  | Severidade | Pendência                                                                                           | Onde resolver                      |
-| --- | ---------- | --------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| C1  | LOW        | SC-001 (entrar em menos de 30 s) sem passo de validação manual no quickstart                        | T054 (quickstart)                  |
-| C2  | LOW        | SC-003 não cita o 429 da etapa da senha e SC-004 não cita o encerramento pelo 429 da troca de senha | Polish, ao marcar critérios (T053) |
-| D1  | LOW        | T014 e T037 tratam da tela de acesso negado: T014 cria o componente, T037 só liga 403 e menu        | No implement                       |
+| ID  | Severidade | Pendência                                                                                           | Onde resolver                                                                                  |
+| --- | ---------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| C1  | LOW        | SC-001 (entrar em menos de 30 s) sem passo de validação manual no quickstart                        | Resolvida no Polish: passo no roteiro 1 do quickstart                                          |
+| C2  | LOW        | SC-003 não cita o 429 da etapa da senha e SC-004 não cita o encerramento pelo 429 da troca de senha | Resolvida no Polish: SC-003 e SC-004 citam os dois 429                                         |
+| D1  | LOW        | T014 e T037 tratam da tela de acesso negado: T014 cria o componente, T037 só liga 403 e menu        | Resolvida no implement: T014 criou `access-denied.ts`; T037 ligou o `permissionGuard` e o menu |

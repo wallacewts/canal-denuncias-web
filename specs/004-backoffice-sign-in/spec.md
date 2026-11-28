@@ -86,8 +86,8 @@ navegador ou console e somem ao sair da tela.
    para o cadastro do aplicativo autenticador.
 4. **Given** o cadastro, **When** a tela abre, **Then** mostra o QR code e o segredo em texto para digitação manual, com
    instruções curtas.
-5. **Given** o cadastro, **When** a pessoa informa um código inválido, **Then** o segundo fator não é ativado e ela
-   pode tentar de novo; **When** informa um código válido, **Then** o segundo fator é ativado.
+5. **Given** o cadastro, **When** a pessoa informa um código inválido, **Then** o segundo fator não é ativado, o erro
+   aparece no campo, sem encerrar a sessão, e ela pode tentar de novo; **When** informa um código válido, **Then** o segundo fator é ativado.
 6. **Given** o segundo fator ativado, **When** a confirmação termina, **Then** a tela mostra os 10 códigos de
    recuperação uma única vez, com "Copiar" e "Baixar arquivo", e só libera "Continuar" depois que a pessoa marca que
    guardou os códigos.
@@ -212,15 +212,16 @@ outras sessões dela foram encerradas.
   cadastro do segundo fator ou desafio do segundo fator.
 - **FR-003**: O desafio do segundo fator DEVE aceitar o código de seis dígitos do autenticador ou um código de
   recuperação, com campo reconhecido como código de uso único e teclado numérico no celular.
-- **FR-004**: Falhas no segundo fator DEVEM mostrar mensagem genérica; o bloqueio temporário DEVE ter mensagem própria,
-  sem dizer o motivo.
+- **FR-004**: Código errado no segundo fator DEVE mostrar mensagem genérica no campo, sem encerrar a sessão; o bloqueio
+  temporário DEVE ter mensagem própria, sem dizer o motivo.
 - **FR-005**: O front NÃO DEVE ler, receber, guardar ou enviar token de sessão; a sessão segue só pelo cookie protegido
   da API.
 
 **Primeiro acesso (BAUTH-03, BAUTH-04)**
 
-- **FR-006**: Conta com troca de senha obrigatória DEVE passar pela troca antes de qualquer outra tela; depois dela,
-  segue para o cadastro do segundo fator quando ele ainda não existir.
+- **FR-006**: Conta com troca de senha obrigatória DEVE passar pela troca antes das telas internas. Sem segundo fator,
+  a troca vem primeiro e depois o cadastro; com segundo fator já cadastrado (senha redefinida), o desafio vem primeiro
+  e depois a troca. A ordem é a que a API indica.
 - **FR-007**: A troca de senha DEVE pedir senha atual, nova e confirmação, exibir a política (mínimo de 12 caracteres e
   recusa de senhas comuns) e validar na tela o que for possível (tamanho e confirmação); a recusa por senha comum vem
   da API, que é a autoridade.
@@ -326,9 +327,10 @@ outras sessões dela foram encerradas.
   ajuda.
 - **SC-002**: Uma pessoa nova completa o primeiro acesso (troca de senha, cadastro do segundo fator e guarda dos códigos)
   em menos de 5 minutos, sem ajuda.
-- **SC-003**: Em 100% das tentativas com e-mail inexistente, senha errada, conta bloqueada e conta desativada, a
-  mensagem e o comportamento da tela são idênticos.
-- **SC-004**: Em 100% dos encerramentos (expiração por inatividade, limite de 8 horas, 401 e saída), nenhum dado de
+- **SC-003**: Em 100% das tentativas com e-mail inexistente, senha errada, conta bloqueada, conta desativada e excesso
+  de tentativas na etapa da senha (429), a mensagem e o comportamento da tela são idênticos.
+- **SC-004**: Em 100% dos encerramentos (expiração por inatividade, limite de 8 horas, 401, 429 da 5ª senha atual
+  errada na troca de senha e saída), nenhum dado de
   denúncia ou do perfil permanece acessível na tela, na memória da aplicação ou no histórico de navegação.
 - **SC-005**: 100% das telas internas recusam acesso sem sessão válida com segundo fator verificado.
 - **SC-006**: Nenhum teste de ponta a ponta desta feature registra requisição externa, dado sensível em URL,
@@ -345,8 +347,15 @@ outras sessões dela foram encerradas.
   do USERS-07. o `/me` e as respostas do login trazem os horários de expiração (por inatividade e absoluta) e as permissões efetivas.
   Essas premissas são registradas no backlog da API pelo agente do backend, como nas features 002 e 003, e conferidas na
   integração.
-- **Ordem do primeiro acesso:** troca de senha antes do cadastro do segundo fator (BAUTH-04), porque só contas novas têm
-  senha provisória e elas ainda não têm segundo fator.
+- **Ordem das etapas:** no primeiro acesso, troca de senha antes do cadastro do segundo fator (BAUTH-04). Quem já tem
+  segundo fator e precisa trocar a senha (senha redefinida pelo administrador) passa pelo desafio primeiro e depois
+  pela troca (decisão do backend, feature 006). O front segue a etapa que a API devolve.
+- **Erros de digitação e 401 (decisão do backend, feature 006):** código do autenticador errado é `422 MFA_CODE_INVALID`
+  no desafio e na confirmação do cadastro, mostrado no campo sem encerrar a sessão; `401` significa só sessão ausente ou
+  expirada em todo o fluxo. A troca de senha tem também `PASSWORD_SAME_AS_CURRENT`, com mensagem própria. Rota de etapa
+  fora de hora responde `403 STEP_NOT_ALLOWED` (o front leva à etapa certa, sem encerrar a sessão); com a troca de senha
+  pendente depois do segundo fator, as demais rotas respondem `403 PASSWORD_CHANGE_REQUIRED` (o front leva à troca, sem
+  a tela de acesso negado). O desafio também pode responder `429`, com a mensagem genérica de excesso de tentativas.
 - **Proteção contra falsificação de requisição:** a API usa a proteção nativa do Nest 12 por origem (AUTH-07, ADR 0053:
   escrita administrativa de outra origem é recusada), somada ao cookie `SameSite=Strict`. O backoffice já chama a API na
   mesma origem, pelo proxy `/api` (D38). O token de cabeçalho configurado na feature 001 fica inerte (a API não o

@@ -90,6 +90,7 @@ const sameAsNew = (group: AbstractControl): ValidationErrors | null => {
           minlength: 'A nova senha precisa ter pelo menos 12 caracteres.',
           tooShort: 'A nova senha precisa ter pelo menos 12 caracteres.',
           common: 'Essa senha é comum demais. Escolha outra.',
+          same: 'A nova senha precisa ser diferente da atual.',
         }"
       />
       <mat-form-field appearance="outline">
@@ -184,6 +185,8 @@ export class PasswordChangeForm {
           if (codes.includes('PASSWORD_TOO_SHORT'))
             mark(this.form.controls.newPassword, 'tooShort');
           if (codes.includes('PASSWORD_COMMON')) mark(this.form.controls.newPassword, 'common');
+          if (codes.includes('PASSWORD_SAME_AS_CURRENT'))
+            mark(this.form.controls.newPassword, 'same');
         },
       });
   }

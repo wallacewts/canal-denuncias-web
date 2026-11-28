@@ -38,6 +38,13 @@ intactas; QR code só como PNG embutido (R6); avisos com margem de 60 s (R3)
 **Scale/Scope**: 5 telas novas de entrada e primeiro acesso, guards em 9 rotas do `Shell`, "Meu perfil"; bundle
 inicial do backoffice de 347,0 kB para até ~355 kB (aviso em 700 kB)
 
+**Bundle medido (T051, 2026-11-28):** backoffice 381,81 kB (previsão ~355 kB; aviso em 700 kB). O que pesou: código da
+lib e do Material ligado ao bundle inicial pela sessão, guards e Shell (347,0 → 368,8 kB nas P1) e o `formatDate` do
+`@angular/common` (+11,6 kB), que o esbuild põe no bundle inicial porque o arquivo dele já é alcançado pelo `main`; ele
+entra pelo `staffDateTime` de "Meu perfil" e seria pago de qualquer forma pelas próximas telas da equipe com datas
+(D25). Portal 417,36 kB (era 417,19 kB; +0,17 kB do `onForbidden` no `errorInterceptor` da lib; a extração do
+`downloadTextFile` da T018 não mudou o tamanho).
+
 ## Constitution Check
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._

@@ -45,6 +45,16 @@ gera em vez de assumir APIs antigas (zoneless e componentes standalone são o pa
   401 para eles). No portal, o 401 é silencioso (`silentUnauthenticated`): o `ReporterAccess` avisa a pessoa.
 - O simulador tem cenários de acompanhamento (`access`, `me`, `report`, `messages`, `send`) e `newTeamMessage()`
   (`e2e/support/mock-api.ts`). Ids de mensagem são estáveis entre leituras.
+- A sessão da equipe só é encerrada pelo `StaffSession` (`features/auth/staff-session.ts`): inatividade, limite de 8
+  horas, 401, "Sair" e saída em outra aba passam pelo `end()`. Horários de expiração vêm da API (nunca um prazo escrito
+  no front); a correção de relógio usa o `Date` da API, que o nginx do backoffice repassa. Menu e rotas usam só as
+  permissões (`abilities`) do `/me`. No backoffice, 403 `PASSWORD_CHANGE_REQUIRED` leva à troca de senha e 403
+  `STEP_NOT_ALLOWED` à etapa certa (`onForbidden` da política), sem a mensagem de acesso negado.
+- Proteção contra falsificação de requisição: a da API por origem (AUTH-07), sem token XSRF. O proxy do backoffice
+  repassa o `Host` original com a porta.
+- Arquivo de texto baixado no navegador: `downloadTextFile` de `@canal/shared/files`.
+- O simulador tem contas da equipe (`STAFF` em `e2e/support/mock-api.ts`), cenários `signIn` e `challenge`, relógio
+  (`advanceClock`) e revogação de sessões. Recarregar no e2e: `reloadWhenSettled` (`e2e/support/reload.ts`).
 - Textos de interface em português; nomes de código em inglês.
 
 ## Princípios

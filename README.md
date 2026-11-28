@@ -45,11 +45,13 @@ docker compose up -d --build
 ```
 
 Cada app repassa `/api` para a API (`APP_API_UPSTREAM`, no compose `http://host.docker.internal:3000`), como o proxy
-de produção. Tudo fica no mesmo endereço, sem CORS, e o token XSRF funciona.
+de produção. Tudo fica no mesmo endereço, sem CORS, e o cookie de sessão da equipe (`SameSite=Strict`) funciona.
 
 - **Proxy do portal:** remove `X-Forwarded-For`, `X-Real-IP`, `Forwarded` e `Cookie` antes de chegar à API, inclusive
   cabeçalhos de IP forjados pelo cliente, e descarta o `Set-Cookie` da resposta. Não registra acesso.
-- **Proxy do backoffice:** repassa o IP real (a API audita as ações da equipe) e o cookie de sessão.
+- **Proxy do backoffice:** repassa o IP real (a API audita as ações da equipe), o cookie de sessão, o `Host` original
+  com a porta (`$http_host`, para a proteção da API por origem) e o `Date` da API (`proxy_pass_header Date`, base da
+  correção de relógio dos avisos de expiração).
 
 ## Scripts
 
@@ -82,7 +84,8 @@ e2e/
 ├── fixtures/privacy-guards.ts # guardas automáticas: rede, URL, CSP/Trusted Types, armazenamento e console
 ├── support/                   # utilitários de layout e de chamada à API (o servidor simulado fica em tools/mock-api)
 ├── portal/                    # rotas, acessibilidade (axe), proxy /api, envio de denúncia, página inicial, COOP
-└── backoffice/                # rotas, layout em telas estreitas, proxy /api
+└── backoffice/                # rotas, layout, acessibilidade (axe), proxy /api, entrada, primeiro acesso, guards,
+                               # expiração e abas, perfil, escrita de outra origem
 ```
 
 O relatório fica em `e2e/report/` (fora do Git). No CI, o job `e2e` publica o relatório como artefato.
@@ -96,8 +99,8 @@ Cada app lê `/config.json` antes de iniciar. A mesma imagem serve todos os ambi
 ```
 
 - **Produção:** `"/api"`, com o proxy reverso levando `/api` para a API no mesmo domínio. É o desenho recomendado:
-  os cookies de sessão (`HttpOnly`, `Secure`, `SameSite=Strict`) e o token CSRF (`XSRF-TOKEN` → cabeçalho
-  `X-XSRF-TOKEN`) só funcionam assim.
+  o cookie de sessão da equipe (`HttpOnly`, `Secure`, `SameSite=Strict`) só funciona assim. A proteção contra
+  falsificação de requisição é a da API por origem (`Sec-Fetch-Site`/`Origin` contra o `Host`, AUTH-07), sem token.
 - **docker compose local:** também `"/api"` (arquivos em `docker/config/`), pelo proxy do nginx de cada app.
 
 Chamadas à API usam o prefixo `api:`, que o interceptor troca pela URL base. A política de cada app decide as
@@ -141,6 +144,10 @@ o `config.json` nunca vão para cache; os arquivos com hash têm cache longo.
 - **O acesso do denunciante fica só em memória e termina num único ponto.** O `ReporterAccess` encerra o acesso aos 15
   minutos (com aviso aos 13), no 401, no "Sair" e quando a página volta do cache de navegação: apaga a credencial,
   volta para `/consultar` com `replaceUrl` e mostra o motivo lá. O andamento e as mensagens vivem só na tela.
+- **A sessão da equipe é o cookie `HttpOnly` da API e termina num único ponto.** O `StaffSession` guarda em memória só
+  o usuário, as permissões efetivas e os horários de expiração informados pela API. Inatividade, limite de 8 horas, 401,
+  "Sair" e saída em outra aba (`BroadcastChannel`, só eventos) passam pelo `end()`, que limpa a memória e vai ao login
+  com o motivo. Menu e rotas usam as permissões do `/me`.
 
 ## Bundle inicial e o barril da lib
 
@@ -152,22 +159,27 @@ estatísticas do esbuild e o `check:build` falha se o barril aparecer no bundle 
 
 ## Telas
 
-| Portal (8)               | Backoffice (10)         |
-| ------------------------ | ----------------------- |
-| Início                   | Entrar (senha + MFA)    |
-| Aviso de privacidade     | Painel                  |
-| Nova denúncia (4 etapas) | Caixa de denúncias      |
-| Revisão e envio          | Detalhe da denúncia     |
-| Protocolo gerado         | Triagem e atribuição    |
-| Consultar denúncia       | Relatórios e exportação |
-| Acompanhamento           | Usuários e perfis       |
-| Ajuda                    | Configurações           |
-|                          | Trilha de auditoria     |
-|                          | Meu perfil              |
+| Portal (8)               | Backoffice (10)                        |
+| ------------------------ | -------------------------------------- |
+| Início                   | Entrar (senha + MFA) e primeiro acesso |
+| Aviso de privacidade     | Painel                                 |
+| Nova denúncia (4 etapas) | Caixa de denúncias                     |
+| Revisão e envio          | Detalhe da denúncia                    |
+| Protocolo gerado         | Triagem e atribuição                   |
+| Consultar denúncia       | Relatórios e exportação                |
+| Acompanhamento           | Usuários e perfis                      |
+| Ajuda                    | Configurações                          |
+|                          | Trilha de auditoria                    |
+|                          | Meu perfil                             |
 
 No portal, a página inicial, as etapas da nova denúncia, a revisão, a tela do protocolo e o aviso de privacidade
-estão implementados (feature 002), contra o servidor simulado até a API ter os endpoints. As demais telas são
-placeholders.
+estão implementados (feature 002), e a consulta e o acompanhamento também (feature 003). No backoffice, a entrada, o
+primeiro acesso, a proteção das telas por permissão, a expiração e "Meu perfil" estão implementados (feature 004).
+Tudo contra o servidor simulado até a API ter os endpoints. As demais telas são placeholders.
+
+O simulador tem contas de cenário da equipe (`pronta`, `primeiro-acesso`, `troca-com-autenticador`, `bloqueada`,
+`desativada`, `sem-permissoes`; senha `senha-correta-SIMULADA`, provisória `provisoria-SIMULADA`, código `123456`),
+relógio controlado e cenários (`contracts/auth-api.md` da feature 004).
 
 ## Commits
 

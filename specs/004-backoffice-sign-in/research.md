@@ -162,10 +162,12 @@ o código da proteção nativa contra escrita de outra origem em `@nestjs/core/s
 - **Decisão:** cada tela declara em `API_CALLER_HANDLES` os status que trata:
   - login: `401` e `429` com a **mesma** mensagem genérica "E-mail ou senha inválidos" — a etapa da senha não tem
     mensagem própria de bloqueio, para não revelar se o e-mail existe (decisão do usuário, 2026-11-28);
-  - desafio: `401` (código inválido), `423` (bloqueio temporário, mensagem sem motivo — código a confirmar, ver
-    `contracts/auth-api.md`), `401` de sessão pendente expirada vira volta ao login;
+  - desafio e confirmação do cadastro: `422 MFA_CODE_INVALID` (código errado) como erro no campo, com a sessão pendente
+    mantida; no desafio, `423` (bloqueio temporário, mensagem sem motivo). `401` é só sessão ausente ou expirada e segue
+    para a política de sessão encerrada (decisão do backend, feature 006);
   - troca de senha: `422` com código — `CURRENT_PASSWORD_INVALID` mostrado como erro no campo de senha atual, sem
-    encerrar a sessão, e o código da regra para a senha nova; `401` aqui é só sessão ausente ou expirada (encerra).
+    encerrar a sessão, e o código da regra para a senha nova (`PASSWORD_TOO_SHORT`, `PASSWORD_COMMON`,
+    `PASSWORD_SAME_AS_CURRENT`); `401` aqui é só sessão ausente ou expirada (encerra).
     Depois de 5 senhas atuais erradas na mesma sessão, a API responde `429` e encerra a sessão: a tela trata o `429`
     chamando `StaffSession.end('unauthenticated')` (login com a mensagem de sessão encerrada).
   - `429` no desafio fica com a mensagem genérica da base de erros até o BAUTH-08

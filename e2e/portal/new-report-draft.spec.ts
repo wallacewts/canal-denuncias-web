@@ -1,6 +1,7 @@
 import { expect, test } from '../fixtures/privacy-guards';
 import { MOCK_RECEIPT, useMockSession } from '../support/mock-api';
 import { DESCRIPTION, expectStep, fillMinimalReport } from './new-report-helpers';
+import { reloadWhenSettled } from '../support/reload';
 
 /**
  * Garantias do rascunho (US2 da feature 002): etapas não podem ser puladas, saída e recarga avisam, erro não apaga
@@ -84,7 +85,7 @@ test.describe('rascunho sem rastro e sem perda por engano', () => {
     await page.getByRole('button', { name: 'Enviar denúncia' }).click();
     await expect(page.getByTestId('access-key')).toBeVisible();
     page.once('dialog', (dialog) => void dialog.accept());
-    await page.reload();
+    await reloadWhenSettled(page);
     await expect(page.getByText('O protocolo e a chave não podem mais ser exibidos')).toBeVisible();
     await expect(page.getByTestId('access-key')).toHaveCount(0);
   });

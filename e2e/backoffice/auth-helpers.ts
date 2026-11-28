@@ -1,5 +1,6 @@
 import type { APIRequestContext, Page } from '@playwright/test';
 import { STAFF, useMockSession, type MockScenario } from '../support/mock-api';
+import { waitForFonts } from '../support/reload';
 
 /**
  * Entra no backoffice pela API simulada, na mesma origem (pelo proxy /api), sem passar pela tela de login: o
@@ -29,5 +30,7 @@ export async function signInByApi(
     },
     { email: account, password: STAFF.password, code: STAFF.totp },
   );
+  // Quem chama navega em seguida (goto): sem esperar, o Firefox aborta a fonte da tela de login em download.
+  await waitForFonts(page);
   return mock;
 }

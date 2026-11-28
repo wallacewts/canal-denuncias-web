@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import { expect, test } from '../fixtures/privacy-guards';
 import { STAFF } from '../support/mock-api';
 import { signInByApi } from './auth-helpers';
+import { reloadWhenSettled } from '../support/reload';
 
 /** BPRF-01 e BPRF-02 contra o simulador (feature 004, US5). */
 
@@ -28,7 +29,7 @@ test('Meu perfil mostra nome, e-mail, perfis e a data de ativação do segundo f
   await expect(data).toContainText(/10\/01\/2026 \d{2}:00:00/);
 });
 
-test('troca de senha: senha comum e senha atual errada ficam no campo; sucesso avisa e encerra as outras sessões', async ({
+test('troca de senha: senha comum, igual à atual e senha atual errada ficam no campo; sucesso avisa e encerra as outras sessões', async ({
   page,
   request,
 }) => {
@@ -46,6 +47,9 @@ test('troca de senha: senha comum e senha atual errada ficam no campo; sucesso a
   await expect(page.getByText('Essa senha é comum demais. Escolha outra.')).toBeVisible();
   await expect(page.getByLabel('Senha atual')).toHaveValue('');
 
+  await changePassword(page, STAFF.password, STAFF.password);
+  await expect(page.getByText('A nova senha precisa ser diferente da atual.')).toBeVisible();
+
   await changePassword(page, 'senha-errada-XQZ', 'nova-senha-bem-longa-SIMULADA');
   await expect(page.getByText('Senha atual incorreta.')).toBeVisible();
   await expect(page).toHaveURL(/\/perfil$/);
@@ -56,10 +60,8 @@ test('troca de senha: senha comum e senha atual errada ficam no campo; sucesso a
   );
   await expect(page.getByText('Senha atual incorreta.')).toHaveCount(0);
   expect((await mock.authStats()).sessions).toBe(1);
-  // A sessão renovada (cookie novo) continua valendo. Firefox aborta um chunk em download ao recarregar e acusa falha
-  // de SRI (mesmo caso das features 002 e 003).
-  await page.waitForLoadState('networkidle');
-  await page.reload();
+  // A sessão renovada (cookie novo) continua valendo.
+  await reloadWhenSettled(page);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Meu perfil');
 });
 
