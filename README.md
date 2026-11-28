@@ -57,6 +57,30 @@ de produção. Tudo fica no mesmo endereço, sem CORS, e o token XSRF funciona.
 | `npm run build`                             | Build de produção dos dois apps (`dist/portal`, `dist/backoffice`) |
 | `npm test`                                  | Testes unitários da lib e dos dois apps                            |
 | `npm run lint` / `npm run format:check`     | Qualidade                                                          |
+| `npm run lint:rules`                        | Prova que as regras de privacidade do lint continuam valendo       |
+| `npm run check:build`                       | Build sem source maps e sem referência a domínio externo           |
+| `npm run api:sync`                          | Copia `openapi/public.json` e `admin.json` da API (`--from <dir>`) |
+| `npm run api:generate`                      | Gera os clientes `@canal/shared/api/public` e `/admin`             |
+| `npm run api:check`                         | Regera sem rede e falha se o cliente estiver desatualizado         |
+| `npm run test:scripts`                      | Testes dos scripts (`api:sync`)                                    |
+| `npm run e2e`                               | Testes de ponta a ponta no container do Playwright                 |
+
+## Testes de ponta a ponta
+
+`npm run e2e` sobe os dois apps (imagens nginx de produção), um servidor de eco no lugar da API e roda o Playwright na
+imagem oficial `mcr.microsoft.com/playwright:v1.65.1-noble`, com Chromium e Firefox. O host não precisa suportar o
+Playwright. Pré-requisito: `npm ci`.
+
+```text
+e2e/
+├── playwright.config.ts      # projetos fixture, portal e backoffice × Chromium e Firefox (sem bypassCSP)
+├── fixtures/privacy-guards.ts # guardas automáticas: rede, URL, CSP/Trusted Types, armazenamento e console
+├── support/                   # servidor de eco (echo-api.mjs) e utilitários de layout e de chamada à API
+├── portal/                    # rotas, acessibilidade (axe), proxy /api
+└── backoffice/                # rotas, layout em telas estreitas, proxy /api
+```
+
+O relatório fica em `e2e/report/` (fora do Git). No CI, o job `e2e` publica o relatório como artefato.
 
 ## Configuração em tempo de execução
 

@@ -8,9 +8,9 @@ const BY_STATUS: Record<number, string> = {
   0: 'Não foi possível falar com o servidor. Verifique sua conexão e tente de novo.',
   400: 'Alguns dados não foram aceitos. Revise os campos destacados e tente de novo.',
   403: 'Você não tem permissão para fazer isso. Se achar que deveria ter, fale com o administrador.',
-  404: 'Não encontramos o que você procurou. Ele pode ter sido removido.',
+  404: 'Não encontramos o que você procurou. Ele pode ter sido removido. Volte à página anterior e tente de novo.',
   409: 'Essa informação mudou enquanto você trabalhava. Atualize a página e tente de novo.',
-  410: 'Este conteúdo não está mais disponível.',
+  410: 'Este conteúdo não está mais disponível. Volte à página inicial para continuar.',
   429: 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo.',
 };
 

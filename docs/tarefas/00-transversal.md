@@ -19,11 +19,12 @@ Os tipos e as chamadas à API são gerados do documento OpenAPI da API, em vez d
 
 **Critérios de aceite**
 
-- [ ] Ferramenta escolhida e registrada (`orval` ou `ng-openapi-gen`), gerando serviços com `HttpClient` e o
+- [x] Ferramenta escolhida e registrada (`orval` ou `ng-openapi-gen`), gerando serviços com `HttpClient` e o
       prefixo `api:` tratado pelo `apiInterceptor`.
-- [ ] A geração lê um arquivo `openapi.json` versionado no repositório. Nenhuma requisição externa na geração.
-- [ ] O CI falha se o código gerado estiver desatualizado em relação ao `openapi.json`.
-- [ ] Nenhum DTO da API é escrito à mão nos apps.
+- [x] A geração lê um arquivo `openapi.json` versionado no repositório. Nenhuma requisição externa na geração.
+  - Feito com dois contratos versionados, `openapi/public.json` e `openapi/admin.json` (`npm run api:sync`).
+- [x] O CI falha se o código gerado estiver desatualizado em relação ao `openapi.json`.
+- [x] Nenhum DTO da API é escrito à mão nos apps.
 
 ### FTRV-02 · Tratamento de erros HTTP
 
@@ -36,13 +37,13 @@ Interceptor e `ErrorHandler` globais que transformam o corpo de erro da API em m
 
 **Critérios de aceite**
 
-- [ ] Lê o corpo padrão `{ statusCode, error, message, requestId }` e mostra uma mensagem em português com o
+- [x] Lê o corpo padrão `{ statusCode, error, message, requestId }` e mostra uma mensagem em português com o
       `requestId` para suporte.
-- [ ] 401 no backoffice leva ao login (BAUTH-05). 401 no acompanhamento do portal leva a `/consultar` (PACC-03).
-- [ ] 403, 404, 409, 410 e 429 têm mensagens próprias. 500 mostra mensagem genérica.
-- [ ] Nenhum corpo de requisição ou resposta vai para o `console`. O `ErrorHandler` não registra o objeto de erro
+- [x] 401 no backoffice leva ao login (BAUTH-05). 401 no acompanhamento do portal leva a `/consultar` (PACC-03).
+- [x] 403, 404, 409, 410 e 429 têm mensagens próprias. 500 mostra mensagem genérica.
+- [x] Nenhum corpo de requisição ou resposta vai para o `console`. O `ErrorHandler` não registra o objeto de erro
       HTTP inteiro.
-- [ ] Testes unitários para cada código de status.
+- [x] Testes unitários para cada código de status.
 
 ### FTRV-03 · Credenciais separadas por app
 
@@ -55,10 +56,10 @@ cookies; o backoffice deve.
 
 **Critérios de aceite**
 
-- [ ] `provideApi()` recebe a política do app: backoffice com `withCredentials`, portal sem.
-- [ ] No portal, o token do denunciante (guardado só em memória) vai em `Authorization: Bearer` apenas nas rotas
+- [x] `provideApi()` recebe a política do app: backoffice com `withCredentials`, portal sem.
+- [x] No portal, o token do denunciante (guardado só em memória) vai em `Authorization: Bearer` apenas nas rotas
       `/public/v1/me/*`.
-- [ ] Testes do interceptor para os dois casos.
+- [x] Testes do interceptor para os dois casos.
 
 ### FTRV-04 · Mesmo domínio no docker compose local (XSRF)
 
@@ -71,10 +72,11 @@ token XSRF. Em produção a API fica em `/api` no mesmo domínio.
 
 **Critérios de aceite**
 
-- [ ] O nginx de cada app repassa `/api` para a API (variável de ambiente com o endereço), como o proxy de produção.
-- [ ] `docker/config/*.json` passa a usar `"apiBaseUrl": "/api"` e a CSP volta a `connect-src 'self'`.
+- [x] O nginx de cada app repassa `/api` para a API (variável de ambiente com o endereço), como o proxy de produção.
+- [x] `docker/config/*.json` passa a usar `"apiBaseUrl": "/api"` e a CSP volta a `connect-src 'self'`.
 - [ ] No compose, um `POST` administrativo leva o cabeçalho `X-XSRF-TOKEN` (conferido no teste e2e).
-- [ ] README atualizado.
+  - Pendente: T058 do 001-shared-foundation, bloqueada por AUTH-07 e pela primeira ação administrativa (BAUTH-01).
+- [x] README atualizado.
 
 ### FTRV-05 · Validar CSP e Trusted Types num navegador real
 
@@ -87,9 +89,12 @@ CSP ativa.
 
 - [ ] Com os containers do compose, Chrome e Firefox sem extensões (janela anônima) navegam por todas as rotas dos dois
       apps sem nenhuma violação de CSP ou Trusted Types no console.
+  - Parcial: validado automaticamente em Chromium 159 e Firefox 159 nas 23 rotas (`docs/validacoes/csp.md`). Falta a
+    conferência manual da equipe. Fecha na etapa 7.
 - [ ] Inclui os componentes Material que injetam estilo ou DOM: dialog, snackbar, menu, tooltip, datepicker, select.
-- [ ] Se algum estilo for bloqueado, a correção é registrada como decisão antes de afrouxar a CSP.
-- [ ] O teste e2e (FTRV-06) falha se aparecer violação de CSP no console.
+  - Pendente: diálogo e snackbar existem na lib, mas ainda não aparecem em nenhuma tela. Fecha na etapa 7, com as telas.
+- [x] Se algum estilo for bloqueado, a correção é registrada como decisão antes de afrouxar a CSP.
+- [x] O teste e2e (FTRV-06) falha se aparecer violação de CSP no console.
 
 ### FTRV-06 · Testes de ponta a ponta
 
@@ -104,9 +109,10 @@ Playwright, localmente e no CI.
 
 - [ ] Fluxo do MVP coberto: enviar denúncia, guardar protocolo e chave, consultar, trocar mensagem com a equipe; login
       com MFA, triagem, atribuição e conclusão.
-- [ ] Todo teste registra as requisições de rede e falha se alguma for para domínio diferente do próprio app ou da API.
-- [ ] Todo teste falha se a URL contiver protocolo, chave ou texto do relato.
-- [ ] Job de e2e no CI (`ubuntu-latest`).
+  - Opção A: a estrutura e as guardas estão prontas; cada feature de tela acrescenta o seu fluxo. Fecha na etapa 7.
+- [x] Todo teste registra as requisições de rede e falha se alguma for para domínio diferente do próprio app ou da API.
+- [x] Todo teste falha se a URL contiver protocolo, chave ou texto do relato.
+- [x] Job de e2e no CI (`ubuntu-latest`).
 
 ### FTRV-07 · Acessibilidade
 
@@ -116,12 +122,13 @@ O portal precisa atender WCAG 2.1 AA. O backoffice segue as mesmas regras, sem e
 
 **Critérios de aceite**
 
-- [ ] `axe-core` roda no e2e em todas as rotas do portal, sem violação séria ou crítica.
+- [x] `axe-core` roda no e2e em todas as rotas do portal, sem violação séria ou crítica.
 - [ ] Todo o portal funciona só com teclado, com foco visível. Ao trocar de etapa no wizard, o foco vai para o título
       da etapa.
-- [ ] Erros de formulário anunciados por região `aria-live` e ligados ao campo (`aria-describedby`).
-- [ ] Contraste mínimo de 4,5:1 nos textos. `lang="pt-BR"` nos dois apps.
-- [ ] Os dois apps funcionam com zoom de 200% e na largura de 320 px.
+  - Teclado e foco visível testados. O foco no título ao trocar de etapa (`PageHeader.focus()`) é usado na feature 01.
+- [x] Erros de formulário anunciados por região `aria-live` e ligados ao campo (`aria-describedby`).
+- [x] Contraste mínimo de 4,5:1 nos textos. `lang="pt-BR"` nos dois apps.
+- [x] Os dois apps funcionam com zoom de 200% e na largura de 320 px.
 
 ### FTRV-08 · Textos de interface centralizados (i18n)
 
@@ -132,6 +139,7 @@ Hoje só existe português. A decisão é se vale extrair os textos agora.
 **Critérios de aceite**
 
 - [ ] Decisão registrada: `@jsverse/transloco`, i18n nativo do Angular ou manter os textos no template.
+  - Fora do escopo da 001-shared-foundation (marco Evolução). Os textos seguem em português no próprio app.
 - [ ] Se adotar i18n, os textos do portal ficam num arquivo `pt-BR` sem requisição externa.
 
 ### FTRV-09 · Tema e componentes base
@@ -144,10 +152,10 @@ Hoje só existe português. A decisão é se vale extrair os textos agora.
 
 **Critérios de aceite**
 
-- [ ] Confirmações usam `ConfirmDialog` (nunca `window.confirm`).
-- [ ] Pipe de data só com dia para o portal e pipe com data e hora exata para o backoffice (decisão D25).
-- [ ] `StatusChip` com cor e texto, nunca só cor.
-- [ ] Componentes com testes unitários e sem estilos inline sem nonce.
+- [x] Confirmações usam `ConfirmDialog` (nunca `window.confirm`).
+- [x] Pipe de data só com dia para o portal e pipe com data e hora exata para o backoffice (decisão D25).
+- [x] `StatusChip` com cor e texto, nunca só cor.
+- [x] Componentes com testes unitários e sem estilos inline sem nonce.
 
 ### FTRV-10 · Padrão de estado e formulários
 
@@ -155,9 +163,10 @@ Hoje só existe português. A decisão é se vale extrair os textos agora.
 
 **Critérios de aceite**
 
-- [ ] Decisão registrada: `@ngrx/signals` (SignalStore) ou serviços com signals.
+- [x] Decisão registrada: `@ngrx/signals` (SignalStore) ou serviços com signals.
 - [ ] Formulários reativos tipados. Nenhum estado persistido no navegador.
-- [ ] Estado sensível (rascunho do relato, dados da denúncia aberta, identidade revelada) é limpo ao sair da tela ou
+  - Nenhum estado é persistido no navegador. Os formulários tipados entram nas features de tela (ainda não há formulário).
+- [x] Estado sensível (rascunho do relato, dados da denúncia aberta, identidade revelada) é limpo ao sair da tela ou
       encerrar a sessão.
 
 ### FTRV-11 · Proteção de dados no cliente
@@ -166,9 +175,11 @@ Hoje só existe português. A decisão é se vale extrair os textos agora.
 
 **Critérios de aceite**
 
-- [ ] Regra de lint contra `console.*` no código dos apps (as regras contra `localStorage`, `sessionStorage` e
+- [x] Regra de lint contra `console.*` no código dos apps (as regras contra `localStorage`, `sessionStorage` e
       `document.cookie` já existem).
-- [ ] Build de produção sem source maps publicados.
-- [ ] Teste e2e confirma que `localStorage`, `sessionStorage` e IndexedDB continuam vazios depois do fluxo completo.
-- [ ] Campos de relato e chave com `autocomplete="off"` e sem correção ortográfica do navegador (`spellcheck="false"`)
+- [x] Build de produção sem source maps publicados.
+- [x] Teste e2e confirma que `localStorage`, `sessionStorage` e IndexedDB continuam vazios depois do fluxo completo.
+  - A checagem roda ao fim de todo teste e2e; os fluxos completos entram com as telas.
+- [x] Campos de relato e chave com `autocomplete="off"` e sem correção ortográfica do navegador (`spellcheck="false"`)
       onde o texto não é livre.
+  - Diretiva `appSensitiveInput` pronta na lib; aplicada pelos campos das features 01 e 02.

@@ -190,8 +190,8 @@ contínua falha; rodar os testes de ponta a ponta contra o ambiente local.
 
 **Contrato com a API (FTRV-01)**
 
-- **FR-001**: Os tipos e as chamadas à API DEVEM ser gerados a partir do contrato publicado pela API (TRV-11),
-  versionado no repositório; nenhum formato de dado da API pode ser escrito à mão nos apps.
+- **FR-001**: Os tipos e as chamadas à API DEVEM ser gerados a partir dos contratos publicados pela API (TRV-11),
+  `openapi/public.json` e `openapi/admin.json`, versionados no repositório; nenhum formato de dado da API pode ser escrito à mão nos apps.
 - **FR-002**: A geração DEVE funcionar sem nenhuma requisição externa.
 - **FR-003**: A integração contínua DEVE falhar quando o código gerado estiver desatualizado em relação ao contrato.
 - **FR-004**: A ferramenta de geração escolhida DEVE ser registrada como decisão.
@@ -272,8 +272,8 @@ contínua falha; rodar os testes de ponta a ponta contra o ambiente local.
 
 **Proteção de dados no cliente (FTRV-11)**
 
-- **FR-034**: Uma regra de verificação de código DEVE impedir escrita no console no código dos apps, somando-se às
-  regras que já proíbem armazenamento local, de sessão e cookies legíveis.
+- **FR-034**: Uma regra de verificação de código DEVE garantir o FR-008 (nada no console) no código dos apps,
+  somando-se às regras que já proíbem armazenamento local, de sessão e cookies legíveis.
 - **FR-035**: A versão de produção NÃO DEVE publicar mapas de código-fonte.
 - **FR-036**: Um teste de ponta a ponta DEVE confirmar que o armazenamento do navegador continua vazio depois do fluxo
   completo.
@@ -301,8 +301,8 @@ contínua falha; rodar os testes de ponta a ponta contra o ambiente local.
 
 ### Key Entities _(include if feature involves data)_
 
-- **Configuração do app**: endereço da API e política de credenciais de cada app (portal sem cookies, backoffice com
-  sessão), carregada quando o app inicia.
+- **Configuração do app**: endereço da API, carregado quando o app inicia. A política de credenciais (portal sem
+  cookies, backoffice com sessão) fica fixa no código de cada app, para não poder ser trocada por configuração.
 - **Erro padronizado da API**: código de status, tipo, mensagem e identificador da requisição, definido pela API
   (TRV-01) e convertido em mensagem para a pessoa.
 - **Credencial de acompanhamento do denunciante**: obtida na consulta com protocolo e chave, válida só para uma
@@ -349,5 +349,11 @@ contínua falha; rodar os testes de ponta a ponta contra o ambiente local.
 - **Navegadores**: as versões atuais de dois navegadores de mercado (Chrome e Firefox) são a referência para a
   validação da política de segurança.
 - **Acessibilidade do backoffice**: segue as mesmas regras do portal, sem exigência formal de conformidade.
+- **Aviso antes de a credencial expirar** (caso de borda acima): a lib guarda a expiração (`ReporterSession.expiresAt`),
+  e o aviso na tela entra na feature de acompanhamento do portal (03, PTRK-02), onde a pessoa escreve mensagens.
+- **Formulários tipados (FR-032)** e o uso do `PageHeader.focus()` no wizard (FR-022) entram nas features de tela,
+  porque ainda não há formulário nem wizard implementados.
+- **Proteção contra falsificação conferida em e2e (FR-015, SC-007)**: o proxy e o envio do token já funcionam; o teste
+  com a API real (T058) espera a AUTH-07 e a primeira ação administrativa, e fecha na etapa 7 se não sair antes.
 - **Recarregar a página no acompanhamento** exige nova consulta com protocolo e chave; isso é intencional, porque nada
   pode ficar guardado no navegador.

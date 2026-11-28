@@ -36,6 +36,8 @@
 - [ ] Campo de resposta com limite de caracteres e contador. Envio desabilitado durante a requisição.
 - [ ] Botão "Atualizar" para buscar mensagens novas, anunciadas por `aria-live`.
 - [ ] Denúncia encerrada mostra as mensagens, mas não aceita novas.
+- [ ] Aviso, antes de a credencial do denunciante expirar (`ReporterSession.expiresAt`), de que o texto não enviado
+      será perdido. Vem do 001-shared-foundation (pendência G2 do analyze).
 
 ### PTRK-03 · Complementos com anexos
 

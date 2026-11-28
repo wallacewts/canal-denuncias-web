@@ -63,9 +63,12 @@ describe('errorInterceptor (contracts/error-messages.md)', () => {
       403,
       'Você não tem permissão para fazer isso. Se achar que deveria ter, fale com o administrador.',
     ],
-    [404, 'Não encontramos o que você procurou. Ele pode ter sido removido.'],
+    [
+      404,
+      'Não encontramos o que você procurou. Ele pode ter sido removido. Volte à página anterior e tente de novo.',
+    ],
     [409, 'Essa informação mudou enquanto você trabalhava. Atualize a página e tente de novo.'],
-    [410, 'Este conteúdo não está mais disponível.'],
+    [410, 'Este conteúdo não está mais disponível. Volte à página inicial para continuar.'],
     [429, 'Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente de novo.'],
     [500, 'Algo deu errado do nosso lado. Tente de novo em alguns minutos.'],
     [503, 'Algo deu errado do nosso lado. Tente de novo em alguns minutos.'],
@@ -105,7 +108,8 @@ describe('errorInterceptor (contracts/error-messages.md)', () => {
       requestId: 'req-9',
     });
     expect(notifications.error).toHaveBeenCalledWith(
-      'Não encontramos o que você procurou. Ele pode ter sido removido.' + SUPPORT('req-9'),
+      'Não encontramos o que você procurou. Ele pode ter sido removido. Volte à página anterior e tente de novo.' +
+        SUPPORT('req-9'),
       'req-9',
     );
   });

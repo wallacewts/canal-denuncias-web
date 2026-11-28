@@ -217,7 +217,8 @@ teste de descarte ao sair da rota.
 - [x] T071 [US5] ⛔ Bloqueada: TRV-11. Implementar `scripts/api-check.mjs` (regera sem rede e roda `git diff --exit-code` em `openapi/` e `generated/`) e adicioná-lo ao job `quality` de `.github/workflows/ci.yml`
 - [x] T072 [US5] Implementar o exemplo do padrão de estado (serviço com signals fornecido no componente de rota, com `clear()` em `ngOnDestroy`) em `projects/shared/src/lib/state/screen-state.ts` e documentar o padrão e o critério para adotar `@ngrx/signals` (research.md, R2) em `projects/shared/README.md`
 - [ ] T073 [US5] Registrar as decisões técnicas desta feature (gerador `ng-openapi-gen`, estado com signals, Playwright em container, opção A do e2e) em `../canal-denuncias-api/docs/adr/README.md`, com os próximos números livres no momento da implementação (a partir de D34, porque D27 a D33 estão reservados para o backend), conferindo o arquivo antes de escrever. Só roda depois que o backend tiver registrado as decisões dele
-  - **Adiada para o Polish** (instrução do coordenador): roda depois que o backend registrar D27 a D33.
+  - **Adiada (2026-11-27):** o backend está editando o mesmo `docs/adr/README.md` da API no Polish dele. Roda quando
+    ele terminar, a partir de D34, conferindo o arquivo antes de escrever.
 
 **Checkpoint**: todas as user stories funcionando. Só as tarefas ⛔ dependem do backend.
 
@@ -227,11 +228,11 @@ teste de descarte ao sair da rota.
 
 **Purpose**: documentação, CI completo e validação final pelo quickstart.
 
-- [ ] T074 [P] Atualizar `AGENTS.md` com as regras novas: `no-console`, portal sem `@canal/shared/api/admin`, `ReporterSession` só em memória, `npm run e2e` em container e `api:sync` antes de gerar o cliente
-- [ ] T075 [P] Atualizar `README.md` com os scripts `api:sync`, `api:generate`, `api:check` e `e2e` e com a estrutura de `e2e/`
-- [ ] T076 Marcar no `docs/tarefas/00-transversal.md` os critérios de aceite concluídos e, nos que fecham na etapa 7 (opção A), anotar o que ficou para as features de tela
-- [ ] T077 Rodar o roteiro completo de `specs/001-shared-foundation/quickstart.md` (passos 1 a 6, pulando o 1 enquanto TRV-11 estiver bloqueada) e registrar o resultado em `docs/validacoes/csp.md`
-- [ ] T078 Rodar `npm run lint`, `npm run format:check`, `npm test`, `npm run build` e `npm run e2e`, conferir que o bundle inicial do portal em `dist/portal/` fica abaixo de 400 kB e corrigir o que falhar
+- [x] T074 [P] Atualizar `AGENTS.md` com as regras novas: `no-console`, portal sem `@canal/shared/api/admin`, `ReporterSession` só em memória, `npm run e2e` em container e `api:sync` antes de gerar o cliente
+- [x] T075 [P] Atualizar `README.md` com os scripts `api:sync`, `api:generate`, `api:check` e `e2e` e com a estrutura de `e2e/`
+- [x] T076 Marcar no `docs/tarefas/00-transversal.md` os critérios de aceite concluídos e, nos que fecham na etapa 7 (opção A), anotar o que ficou para as features de tela
+- [x] T077 Rodar o roteiro completo de `specs/001-shared-foundation/quickstart.md` (passos 1 a 6, pulando o 1 enquanto TRV-11 estiver bloqueada) e registrar o resultado em `docs/validacoes/csp.md`
+- [x] T078 Rodar `npm run lint`, `npm run format:check`, `npm test`, `npm run build` e `npm run e2e`, conferir que o bundle inicial do portal em `dist/portal/` fica abaixo de 400 kB e corrigir o que falhar
 
 ---
 
@@ -328,13 +329,21 @@ Achados de 2026-11-27 que ficaram para o implement (não bloqueiam):
 
 - **G2**: o aviso antes de a credencial do denunciante expirar (caso de borda da spec e `expiresAt` no data-model) não
   tem tarefa. Decidir no implement se entra aqui ou na feature 03 (acompanhamento).
+  **Resolvida:** virou premissa da spec e critério da PTRK-02 (feature 03, acompanhamento).
 - **G4**: FR-001 a FR-003, FR-015, SC-006 e SC-007 dependem das tarefas ⛔ (TRV-11 e AUTH-07). A feature só fecha com
   elas concluídas ou movidas explicitamente para a etapa 7.
+  **Resolvida:** FR-001 a FR-003 e SC-006 concluídos (T069 a T071). FR-015 e SC-007 seguem com a T058, registrada como premissa (fecha na etapa 7 se a AUTH-07 não sair antes).
 - **I4**: a spec descreve a política de credenciais como parte da "Configuração do app" carregada na inicialização; o
   data-model a fixa no código (`ApiPolicy`). Alinhar o texto da spec ao data-model.
+  **Resolvida:** "Configuração do app" na spec agora separa o endereço da API (config.json) da política fixa no código.
 - **U1**: a página de teste do `e2e-api` usada na T012 precisa enviar um cabeçalho CSP para a guarda de violação ser
   provada.
+  **Resolvida:** as páginas do `e2e-api` enviam CSP própria; o teste de violação passa nos dois navegadores.
 - **A1**: o SC-008 é medido por revisão das mensagens; registrar essa revisão na T077 (roteiro do quickstart).
+  **Resolvida:** revisão registrada em `docs/validacoes/csp.md`; 404 e 410 ganharam o que fazer.
 - **D1**: FR-008 e FR-034 tratam de "nada no console"; consolidar na próxima revisão da spec.
+  **Resolvida:** o FR-034 agora só garante o FR-008 por regra de código, sem repetir o requisito.
 - **I5**: o FR-001 fala em "o contrato", no singular; agora são `openapi/public.json` e `openapi/admin.json`.
+  **Resolvida:** o FR-001 cita os dois contratos.
 - **G5**: o FR-032 (formulários tipados) não tem tarefa porque ainda não há formulário; entra nas features de tela.
+  **Resolvida:** registrada como premissa da spec; entra nas features de tela.
