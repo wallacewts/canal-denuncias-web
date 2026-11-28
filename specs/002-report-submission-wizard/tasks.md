@@ -118,7 +118,7 @@ do protocolo, a cópia e o download.
 - [x] T024 [P] [US1] Testes `FLOW/protocol-issued-page.spec.ts` e `FLOW/receipt-file.spec.ts`: exibição a partir da
       memória; "Concluir" exige a marcação; ao concluir, apaga; `Blob` `text/plain`, nome fixo sem protocolo nem chave,
       `revokeObjectURL` chamado; cópia negada mostra a orientação e o valor continua selecionável
-- [x] T025 [P] [US1] `e2e/portal/a11y.spec.ts` e `e2e/portal/layout.spec.ts` (novo, se não existir): axe em cada
+- [x] T025 [P] [US1] `e2e/portal/a11y.spec.ts` e `e2e/portal/layout.spec.ts` (novo): axe em cada
       etapa, na revisão (com o diálogo do aviso aberto) e no protocolo com o fluxo preenchido; 320 px e zoom de 200%
 
 ### Implementação
@@ -132,6 +132,7 @@ do protocolo, a cópia e o download.
 - [x] T030 [P] [US1] `FLOW/steps/involved-step.ts`
 - [x] T031 [P] [US1] Extrair `projects/portal/src/app/features/privacy/privacy-notice-content.ts` de
       `privacy-notice-page.ts` e criar o diálogo do aviso usado pela revisão
+      (`projects/portal/src/app/features/privacy/privacy-notice-dialog.ts`)
 - [x] T032 [US1] `FLOW/review-page.ts`: resumo, links de edição, diálogo do aviso, envio com botão desabilitado e, no
       sucesso, `ReceiptState`, limpeza do rascunho e navegação para `protocolo`
 - [x] T033 [P] [US1] `FLOW/receipt-file.ts` (research R7)
@@ -213,16 +214,16 @@ a US1.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T051 Medir o bundle (inicial do portal até 380 kB, chunks do fluxo até 150 kB somados) e registrar em
+- [x] T051 Medir o bundle (inicial do portal até 380 kB, chunks do fluxo até 150 kB somados) e registrar em
       `docs/validacoes/bundle.md`
-- [ ] T052 [P] Atualizar `AGENTS.md` e `README.md` (simulador, `dev:mock-api`, sentinelas, regra de import,
+- [x] T052 [P] Atualizar `AGENTS.md` e `README.md` (simulador, `dev:mock-api`, sentinelas, regra de import,
       `.tool-versions`)
-- [ ] T053 [P] Atualizar `docs/validacoes/csp.md` com o diálogo e os componentes novos que passam a aparecer nas telas
+- [x] T053 [P] Atualizar `docs/validacoes/csp.md` com o diálogo e os componentes novos que passam a aparecer nas telas
       (avança a T027 da feature 001)
-- [ ] T054 Marcar os critérios de aceite em `docs/tarefas/01-portal-nova-denuncia.md` (PNEW-01 a PNEW-06),
+- [x] T054 Marcar os critérios de aceite em `docs/tarefas/01-portal-nova-denuncia.md` (PNEW-01 a PNEW-06),
       `docs/tarefas/02-portal-protocolo-e-consulta.md` (PACC-01) e `docs/tarefas/04-portal-paginas-institucionais.md`
       (PINF-01), com nota nos que dependem da integração
-- [ ] T055 Seguir o `quickstart.md` e a verificação final: `lint`, `lint:rules`, `test`, `test:scripts`, build dos dois
+- [x] T055 Seguir o `quickstart.md` e a verificação final: `lint`, `lint:rules`, `test`, `test:scripts`, build dos dois
       apps, `check:build`, `api:check` e `e2e`
 
 ---
@@ -289,9 +290,9 @@ Achados de baixa severidade do analyze de 2026-11-28, a resolver durante o imple
 
 - **C3** (resolvida na T045): a página inicial (`/`) entra no teste de zoom de 200% e 320 px.
 - **C4** (resolvida na T035): asserção de que `/nova-denuncia/anexos` e `/nova-denuncia/identificacao` não exibem a etapa.
-- **C5**: SC-001 (menos de 5 minutos, sem ajuda) fica como validação manual no `quickstart.md`.
-- **U2**: caminho do diálogo da T031 (`projects/portal/src/app/features/privacy/privacy-notice-dialog.ts`) e os arquivos de
+- **C5** (resolvida no Polish): SC-001 (menos de 5 minutos, sem ajuda) fica como validação manual no `quickstart.md`.
+- **U2** (resolvida no Polish): caminho do diálogo da T031 (`projects/portal/src/app/features/privacy/privacy-notice-dialog.ts`) e os arquivos de
   teste novos na árvore do `plan.md`.
-- **U3**: `e2e/portal/layout.spec.ts` é novo (o texto da T025 diz "se não existir").
-- **D1**: FR-001 e FR-035 se sobrepõem (URL, título, console); consolidar na spec.
-- **I2**: citar "Comprovante de envio (Receipt)" na spec para alinhar com o data-model.
+- **U3** (resolvida no Polish): `e2e/portal/layout.spec.ts` é novo (o texto da T025 diz "se não existir").
+- **D1** (resolvida no Polish): FR-001 e FR-035 se sobrepõem (URL, título, console); consolidar na spec.
+- **I2** (resolvida no Polish): citar "Comprovante de envio (Receipt)" na spec para alinhar com o data-model.

@@ -16,14 +16,16 @@ conta e sem nada guardado no navegador.
 
 **Critérios de aceite**
 
-- [ ] Mostra protocolo e chave uma única vez, a partir da memória. Recarregar a página mostra só um aviso de que eles
+- [x] Mostra protocolo e chave uma única vez, a partir da memória. Recarregar a página mostra só um aviso de que eles
       não podem mais ser exibidos.
-- [ ] Botões de copiar cada um (com retorno visual e anunciado) e de baixar um `.txt` gerado no próprio navegador, sem
+- [x] Botões de copiar cada um (com retorno visual e anunciado) e de baixar um `.txt` gerado no próprio navegador, sem
       chamada ao servidor.
-- [ ] Aviso claro de que não existe recuperação da chave.
-- [ ] A pessoa precisa marcar "Guardei o protocolo e a chave" antes de sair da tela pelo botão. Ao sair, protocolo e
+- [x] Aviso claro de que não existe recuperação da chave.
+- [x] A pessoa precisa marcar "Guardei o protocolo e a chave" antes de sair da tela pelo botão. Ao sair, protocolo e
       chave são apagados da memória.
-- [ ] Protocolo e chave nunca aparecem na URL, no título da página nem no console.
+- [x] Protocolo e chave nunca aparecem na URL, no título da página nem no console.
+
+> Feature 002: implementado e testado contra o servidor simulado (`tools/mock-api`). A integração com a API real é a T050, bloqueada por CAT-01 e REP-02.
 
 ### PACC-02 · Consultar denúncia
 

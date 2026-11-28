@@ -49,3 +49,8 @@ npm run api:sync && npm run api:generate && npm run api:check
 
 Executar a tarefa bloqueada que troca os tipos provisórios pelo cliente gerado e rodar de novo os passos 2 e 3 contra
 a API real (`APP_API_UPSTREAM` apontando para ela).
+
+## 5. Validação manual (SC-001)
+
+Uma pessoa que não conhece o sistema envia uma denúncia com descrição mínima, do início até a tela do protocolo, sem
+ajuda. Esperado: menos de 5 minutos. Esse critério não é automatizável e fica registrado aqui para a revisão da equipe.

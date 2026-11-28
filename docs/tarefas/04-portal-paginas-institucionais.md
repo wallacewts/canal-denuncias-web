@@ -16,10 +16,12 @@ denunciar.
 
 **Critérios de aceite**
 
-- [ ] Explica o que pode ser relatado (vazamento, prática inadequada, atividade suspeita) e quem pode relatar.
-- [ ] Explica as garantias: sem cadastro, sem registro de IP, relato cifrado, identidade opcional e lacrada.
-- [ ] Botões "Fazer uma denúncia" e "Consultar uma denúncia".
-- [ ] Recomendação de usar um dispositivo e uma rede pessoais quando a pessoa quiser mais anonimato.
+- [x] Explica o que pode ser relatado (vazamento, prática inadequada, atividade suspeita) e quem pode relatar.
+- [x] Explica as garantias: sem cadastro, sem registro de IP, relato cifrado, identidade opcional e lacrada.
+- [x] Botões "Fazer uma denúncia" e "Consultar uma denúncia".
+- [x] Recomendação de usar um dispositivo e uma rede pessoais quando a pessoa quiser mais anonimato.
+
+> Feature 002: concluído.
 
 ### PINF-02 · Aviso de privacidade
 

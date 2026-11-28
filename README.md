@@ -34,7 +34,8 @@ npm run start:backoffice   # http://localhost:4300
 ```
 
 Em desenvolvimento, `ng serve` repassa `/api` para `http://localhost:3000` (ver `proxy.conf.json`), então a API fica
-no mesmo domínio, como em produção.
+no mesmo domínio, como em produção. Enquanto a API não tiver os endpoints de categorias e de envio (CAT-01 e REP-02),
+`npm run dev:mock-api` sobe o servidor simulado nessa porta, com protocolo e chave simulados (`DV-SIMUL-ADO00`).
 
 Para rodar como em produção (nginx com os cabeçalhos de segurança e o proxy `/api`), com a API rodando no host em
 `http://localhost:3000`:
@@ -59,17 +60,20 @@ de produção. Tudo fica no mesmo endereço, sem CORS, e o token XSRF funciona.
 | `npm test`                                  | Testes unitários da lib e dos dois apps                            |
 | `npm run lint` / `npm run format:check`     | Qualidade                                                          |
 | `npm run lint:rules`                        | Prova que as regras de privacidade do lint continuam valendo       |
-| `npm run check:build`                       | Build sem source maps e sem referência a domínio externo           |
+| `npm run check:build`                       | Build sem source maps, sem domínio externo e sem nada do simulador |
+| `npm run dev:mock-api`                      | Servidor simulado da API na porta 3000 (`tools/mock-api`)          |
 | `npm run api:sync`                          | Copia `openapi/public.json` e `admin.json` da API (`--from <dir>`) |
 | `npm run api:generate`                      | Gera os clientes `@canal/shared/api/public` e `/admin`             |
 | `npm run api:check`                         | Regera sem rede e falha se o cliente estiver desatualizado         |
-| `npm run test:scripts`                      | Testes dos scripts (`api:sync`)                                    |
+| `npm run test:scripts`                      | Testes dos scripts (`api:sync`, `check:build`) e do simulador      |
 | `npm run e2e`                               | Testes de ponta a ponta no container do Playwright                 |
 
 ## Testes de ponta a ponta
 
-`npm run e2e` sobe os dois apps (imagens nginx de produção), um servidor de eco no lugar da API e roda o Playwright na
-imagem oficial `mcr.microsoft.com/playwright:v1.65.1-noble`, com Chromium e Firefox. O host não precisa suportar o
+`npm run e2e` sobe os dois apps (imagens nginx de produção), o servidor simulado no lugar da API (`tools/mock-api`,
+com cenários e contador separados por teste pelo cabeçalho `x-mock-session`) e roda o Playwright na imagem oficial
+`mcr.microsoft.com/playwright:v1.65.1-noble`, com Chromium (canal `chromium`, que trata as origens de teste como
+seguras) e Firefox. O host não precisa suportar o
 Playwright. Pré-requisito: `npm ci`.
 
 ```text
@@ -77,7 +81,7 @@ e2e/
 ├── playwright.config.ts      # projetos fixture, portal e backoffice × Chromium e Firefox (sem bypassCSP)
 ├── fixtures/privacy-guards.ts # guardas automáticas: rede, URL, CSP/Trusted Types, armazenamento e console
 ├── support/                   # utilitários de layout e de chamada à API (o servidor simulado fica em tools/mock-api)
-├── portal/                    # rotas, acessibilidade (axe), proxy /api
+├── portal/                    # rotas, acessibilidade (axe), proxy /api, envio de denúncia, página inicial, COOP
 └── backoffice/                # rotas, layout em telas estreitas, proxy /api
 ```
 
@@ -129,8 +133,11 @@ o `config.json` nunca vão para cache; os arquivos com hash têm cache longo.
   O CI falha se o build referenciar um domínio externo conhecido. O analytics do Angular CLI está desligado.
 - **Nada de `localStorage`, `sessionStorage` ou `document.cookie`.** A sessão é um cookie `HttpOnly` emitido pela API.
   O ESLint bloqueia esses usos.
-- **Protocolo, chave e dados do relato nunca vão na URL.** O assistente de nova denúncia guarda os dados só em memória
-  até o envio.
+- **Protocolo, chave e dados do relato nunca vão na URL.** O assistente de nova denúncia guarda o rascunho e o
+  comprovante só em memória, numa rota-pai que os descarta ao sair, com aviso ao recarregar ou sair e descarte por
+  inatividade (30 minutos, com aviso aos 25).
+- **Nada do servidor simulado chega ao build.** Os apps não podem importar `tools/` nem `e2e/` (lint), e o
+  `check:build` reprova o build que contiver um sentinela do simulador (`DV-SIMUL`, `SIMULADA`, `__mock`).
 
 ## Telas
 
@@ -138,7 +145,7 @@ o `config.json` nunca vão para cache; os arquivos com hash têm cache longo.
 | ------------------------ | ----------------------- |
 | Início                   | Entrar (senha + MFA)    |
 | Aviso de privacidade     | Painel                  |
-| Nova denúncia (6 etapas) | Caixa de denúncias      |
+| Nova denúncia (4 etapas) | Caixa de denúncias      |
 | Revisão e envio          | Detalhe da denúncia     |
 | Protocolo gerado         | Triagem e atribuição    |
 | Consultar denúncia       | Relatórios e exportação |
@@ -147,7 +154,9 @@ o `config.json` nunca vão para cache; os arquivos com hash têm cache longo.
 |                          | Trilha de auditoria     |
 |                          | Meu perfil              |
 
-Todas são placeholders por enquanto.
+No portal, a página inicial, as etapas da nova denúncia, a revisão, a tela do protocolo e o aviso de privacidade
+estão implementados (feature 002), contra o servidor simulado até a API ter os endpoints. As demais telas são
+placeholders.
 
 ## Commits
 

@@ -18,12 +18,14 @@ fica só em memória e nada do relato passa pela URL.
 
 **Critérios de aceite**
 
-- [ ] O rascunho vive só em memória. A URL leva apenas o nome da etapa (`/nova-denuncia/relato`).
-- [ ] Não é possível pular etapas obrigatórias pela URL: o guard volta para a primeira etapa pendente.
-- [ ] Recarregar ou fechar a aba avisa que o rascunho será perdido (`beforeunload`). Isso é intencional: nada é salvo
+- [x] O rascunho vive só em memória. A URL leva apenas o nome da etapa (`/nova-denuncia/relato`).
+- [x] Não é possível pular etapas obrigatórias pela URL: o guard volta para a primeira etapa pendente.
+- [x] Recarregar ou fechar a aba avisa que o rascunho será perdido (`beforeunload`). Isso é intencional: nada é salvo
       no navegador.
-- [ ] Indicador de progresso com o nome e o número da etapa, acessível a leitor de tela.
-- [ ] Anexos e identificação ficam ocultos enquanto PNEW-07 e PNEW-08 não estiverem prontas.
+- [x] Indicador de progresso com o nome e o número da etapa, acessível a leitor de tela.
+- [x] Anexos e identificação ficam ocultos enquanto PNEW-07 e PNEW-08 não estiverem prontas.
+
+> Feature 002: concluído.
 
 ### PNEW-02 · Etapa: tipo de denunciante
 
@@ -31,8 +33,10 @@ fica só em memória e nada do relato passa pela URL.
 
 **Critérios de aceite**
 
-- [ ] Opções Colaborador, Parceiro e Terceiro, enviadas como `EMPLOYEE`, `PARTNER` e `THIRD_PARTY`.
-- [ ] Texto explica que a escolha não identifica a pessoa.
+- [x] Opções Colaborador, Parceiro e Terceiro, enviadas como `EMPLOYEE`, `PARTNER` e `THIRD_PARTY`.
+- [x] Texto explica que a escolha não identifica a pessoa.
+
+> Feature 002: concluído.
 
 ### PNEW-03 · Etapa: categoria
 
@@ -42,8 +46,10 @@ fica só em memória e nada do relato passa pela URL.
 
 **Critérios de aceite**
 
-- [ ] Mostra nome e descrição de cada categoria ativa, na ordem da API.
-- [ ] Estados de carregamento e de erro, com opção de tentar de novo.
+- [x] Mostra nome e descrição de cada categoria ativa, na ordem da API.
+- [x] Estados de carregamento e de erro, com opção de tentar de novo.
+
+> Feature 002: implementado e testado contra o servidor simulado (`tools/mock-api`). A integração com a API real é a T050, bloqueada por CAT-01 e REP-02.
 
 ### PNEW-04 · Etapa: relato
 
@@ -54,12 +60,14 @@ evidências.
 
 **Critérios de aceite**
 
-- [ ] Descrição obrigatória de 100 a 10.000 caracteres, com contador. Demais textos até 2.000, como em REP-02.
-- [ ] "Quando aconteceu" aceita data exata ou só mês e ano.
-- [ ] Tipos de dados em seleção múltipla (dados pessoais, financeiros, credenciais, outros).
-- [ ] Orientação curta: descrever fatos, e não incluir dados que identifiquem quem denuncia se a pessoa quer ficar
+- [x] Descrição obrigatória de 100 a 10.000 caracteres, com contador. Demais textos até 2.000, como em REP-02.
+- [x] "Quando aconteceu" aceita data exata ou só mês e ano.
+- [x] Tipos de dados em seleção múltipla (dados pessoais, financeiros, credenciais, outros).
+- [x] Orientação curta: descrever fatos, e não incluir dados que identifiquem quem denuncia se a pessoa quer ficar
       anônima.
-- [ ] Mensagens de validação ligadas aos campos e anunciadas (FTRV-07).
+- [x] Mensagens de validação ligadas aos campos e anunciadas (FTRV-07).
+
+> Feature 002: implementado e testado contra o servidor simulado (`tools/mock-api`). A integração com a API real é a T050, bloqueada por CAT-01 e REP-02.
 
 ### PNEW-05 · Etapa: envolvidos
 
@@ -67,8 +75,10 @@ evidências.
 
 **Critérios de aceite**
 
-- [ ] Etapa opcional. Até 20 envolvidos, cada um com nome e função opcionais.
-- [ ] Adicionar e remover por teclado, com o foco indo para a linha nova.
+- [x] Etapa opcional. Até 20 envolvidos, cada um com nome e função opcionais.
+- [x] Adicionar e remover por teclado, com o foco indo para a linha nova.
+
+> Feature 002: concluído.
 
 ### PNEW-06 · Revisão e envio
 
@@ -79,12 +89,14 @@ evidências.
 
 **Critérios de aceite**
 
-- [ ] Mostra tudo o que será enviado, com link para editar cada etapa.
-- [ ] Link para o aviso de privacidade antes do botão de enviar.
-- [ ] O botão fica desabilitado durante o envio (sem envio duplicado).
-- [ ] Com 201, guarda `protocol`, `accessKey` e `receivedOn` só em memória, limpa o rascunho e vai para
+- [x] Mostra tudo o que será enviado, com link para editar cada etapa.
+- [x] Link para o aviso de privacidade antes do botão de enviar.
+- [x] O botão fica desabilitado durante o envio (sem envio duplicado).
+- [x] Com 201, guarda `protocol`, `accessKey` e `receivedOn` só em memória, limpa o rascunho e vai para
       `/nova-denuncia/protocolo` (PACC-01).
-- [ ] Com erro, o rascunho continua intacto e a mensagem segue FTRV-02.
+- [x] Com erro, o rascunho continua intacto e a mensagem segue FTRV-02.
+
+> Feature 002: implementado e testado contra o servidor simulado (`tools/mock-api`). A integração com a API real é a T050, bloqueada por CAT-01 e REP-02.
 
 ### PNEW-07 · Etapa: anexos
 

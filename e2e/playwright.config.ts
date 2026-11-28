@@ -22,6 +22,9 @@ const TEST_ORIGINS = 'http://portal:8080,http://backoffice:8080,http://e2e-api:3
 const browsers = {
   chromium: {
     ...devices['Desktop Chrome'],
+    // Chromium completo (novo headless). O chromium-headless-shell, padrão do Playwright, ignora a flag abaixo e deixa a
+    // página fora de contexto seguro, sem COOP (feature 002; ver docs/validacoes/csp.md).
+    channel: 'chromium',
     launchOptions: { args: [`--unsafely-treat-insecure-origin-as-secure=${TEST_ORIGINS}`] },
   },
   firefox: devices['Desktop Firefox'],

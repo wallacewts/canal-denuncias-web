@@ -101,6 +101,7 @@ projects/portal/src/app/
 └── features/
     ├── home/home-page.ts                  # PINF-01
     ├── privacy/
+    │   ├── privacy-notice-dialog.ts       # novo: diálogo do aviso usado pela revisão
     │   ├── privacy-notice-page.ts         # passa a usar o conteúdo compartilhado
     │   └── privacy-notice-content.ts      # novo: texto do aviso (página e diálogo)
     └── new-report/
@@ -118,12 +119,22 @@ projects/portal/src/app/
         ├── steps/                         # 4 etapas; attachments-step e identification-step saem
         ├── review-page.ts
         └── protocol-issued-page.ts
-tools/mock-api/server.mjs                  # novo: simulador (absorve e2e/support/echo-api.mjs)
-scripts/check-build-output.mjs             # + sentinelas do simulador
+tools/mock-api/
+├── server.mjs                             # novo: simulador (absorve e2e/support/echo-api.mjs)
+└── server.test.mjs                        # novo: testes do simulador (test:scripts)
+scripts/
+├── check-build-output.mjs                 # + sentinelas do simulador
+└── check-build-output.test.mjs            # novo: prova que o build com sentinela é reprovado
 e2e/portal/
 ├── routes.ts                              # sem anexos e identificação
-├── new-report.spec.ts                     # novo: fluxo, erros, clique duplo, saídas, download, inatividade
-└── a11y.spec.ts                           # + telas novas com o fluxo preenchido
+├── new-report.spec.ts                     # novo: fluxo, cópia, download, clique duplo, categorias, teclado
+├── new-report-draft.spec.ts               # novo: etapas puladas, erros, saídas, recarga, inatividade
+├── new-report-helpers.ts                  # novo: preenchimento mínimo e checagem de foco e progresso
+├── home.spec.ts                           # novo: página inicial
+├── layout.spec.ts                         # novo: fluxo em 320 px e zoom de 200%
+├── coop.spec.ts                           # novo: prova do COOP no Chromium
+├── a11y.spec.ts                           # + telas novas com o fluxo preenchido
+e2e/support/mock-api.ts                    # novo: sessão isolada do simulador por teste
 docker-compose.e2e.yml                     # upstream /api -> tools/mock-api
 ```
 

@@ -237,8 +237,8 @@ da API.
 - **FR-033**: Sair pelo botão MUST exigir a confirmação "Guardei o protocolo e a chave"; sair por outro caminho (voltar
   do navegador, outro link) MUST pedir confirmação.
 - **FR-034**: Ao sair da tela, protocolo e chave MUST ser apagados da memória.
-- **FR-035**: Protocolo e chave MUST nunca aparecer na URL, no título da página, no console nem no nome do arquivo
-  baixado.
+- **FR-035**: Protocolo e chave MUST nunca aparecer no nome do arquivo baixado (URL, título e console já estão cobertos
+  pelo FR-001).
 
 **Página inicial (PINF-01)**
 
@@ -289,7 +289,7 @@ da API.
   da aba.
 - **Categoria**: opção de classificação recebida da API, com código, nome e descrição, só as ativas e na ordem
   definida pela API.
-- **Comprovante de envio**: protocolo, chave e data de recebimento devolvidos pela API no envio. Vive só em memória,
+- **Comprovante de envio (Receipt)**: protocolo, chave e data de recebimento devolvidos pela API no envio. Vive só em memória,
   até a pessoa sair da tela do protocolo.
 - **Envolvido**: pessoa citada no relato, com nome e função opcionais; até 20 por denúncia.
 

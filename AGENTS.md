@@ -26,6 +26,11 @@ gera em vez de assumir APIs antigas (zoneless e componentes standalone são o pa
 - O proxy `/api` do portal remove IP e cookies; não mude isso sem registrar decisão.
 - Testes de ponta a ponta: `npm run e2e` (Playwright no container oficial). Todo teste usa a fixture `privacyGuards` de
   `e2e/fixtures/privacy-guards.ts`. Nunca use `bypassCSP`.
+- O servidor simulado da API fica em `tools/mock-api` (e2e e `npm run dev:mock-api`). Os apps nunca importam `tools/` nem
+  `e2e/` (o lint reprova), e o `check:build` reprova sentinelas do simulador (`DV-SIMUL`, `SIMULADA`, `__mock`) no build.
+- O envio de denúncia usa tipos provisórios (`report-submission.types.ts`) até CAT-01 e REP-02 saírem no contrato da API;
+  a troca pelo cliente gerado é a T048 da feature 002. Não crie outros tipos de resposta da API escritos à mão.
+- O bundle inicial do portal tem aviso em 440 kB (D52). Código de tela novo vai em rota com `loadComponent`.
 - Textos de interface em português; nomes de código em inglês.
 
 ## Princípios
