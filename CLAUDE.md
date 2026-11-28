@@ -4,5 +4,5 @@
 
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-specs/003-report-tracking/plan.md
+specs/004-backoffice-sign-in/plan.md
 <!-- SPECKIT END -->

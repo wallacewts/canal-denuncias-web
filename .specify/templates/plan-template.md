@@ -43,7 +43,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 Confira cada portão contra `.specify/memory/constitution.md`. Marque ✅ ou explique a violação em "Complexity Tracking".
 
 - [ ] I. Anonimato: nenhuma requisição externa; protocolo, chave e conteúdo fora de URL, storage, cookies do portal e console
-- [ ] II. Navegador: CSP com nonce e Trusted Types intactas; sessão só em cookie HttpOnly com XSRF
+- [ ] II. Navegador: CSP com nonce e Trusted Types intactas; sessão só em cookie HttpOnly com proteção contra falsificação de requisição (token ou verificação de origem pela API)
 - [ ] III. Fronteira: nenhuma permissão decidida só no front; regras de negócio consumidas da API, não copiadas
 - [ ] IV. Acessibilidade: telas do portal em WCAG 2.1 AA, com teste automatizado de acessibilidade
 - [ ] V. Padrões Angular: standalone, signals, zoneless, lazy loading; cliente da API gerado do OpenAPI; portal não importa o backoffice

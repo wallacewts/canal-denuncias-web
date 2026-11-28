@@ -21,6 +21,10 @@ export interface MockScenario {
     | 'error';
   messages?: 'some' | 'empty' | 'error';
   send?: 'ok' | 'closed' | 'invalid' | 'error' | 'slow';
+  /** Etapa da senha do backoffice: 429 recebe a mesma mensagem genérica (feature 004). */
+  signIn?: 'ok' | 'rate-limited';
+  /** Desafio do segundo fator: código recusado ou bloqueio temporário (423). */
+  challenge?: 'ok' | 'invalid' | 'locked';
 }
 
 /** Contadores do simulador (contracts/mock-api-tracking.md). */
@@ -30,6 +34,19 @@ export interface MockStats {
   messages: number;
   messageReads: number;
 }
+
+/** Contas e credenciais do simulador de autenticação (specs/004-backoffice-sign-in/contracts/auth-api.md). */
+export const STAFF = {
+  pronta: 'pronta.SIMULADA@canal.test',
+  primeiroAcesso: 'primeiro-acesso.SIMULADA@canal.test',
+  bloqueada: 'bloqueada.SIMULADA@canal.test',
+  desativada: 'desativada.SIMULADA@canal.test',
+  semPermissoes: 'sem-permissoes.SIMULADA@canal.test',
+  password: 'senha-correta-SIMULADA',
+  provisionalPassword: 'provisoria-SIMULADA',
+  totp: '123456',
+  recoveryCode: 'SIMULADA-REC-0001',
+} as const;
 
 /** Valores que o simulador devolve (contracts/mock-api.md). */
 export const MOCK_RECEIPT = {
@@ -62,5 +79,16 @@ export async function useMockSession(
     stats,
     /** A próxima leitura de mensagens traz uma mensagem nova da equipe. */
     newTeamMessage: () => request.post(`${MOCK}/__mock/new-team-message`, { headers }),
+    /** Avança o relógio do simulador (horários de expiração da sessão da equipe). */
+    advanceClock: (ms: number) =>
+      request.post(`${MOCK}/__mock/clock`, { headers, data: { advanceMs: ms } }),
+    /** Encerra todas as sessões da equipe no simulador: a próxima chamada recebe 401. */
+    revokeStaffSessions: () => request.post(`${MOCK}/__mock/auth/revoke`, { headers }),
+    authStats: async () =>
+      (await (await request.get(`${MOCK}/__mock/auth/stats`, { headers })).json()) as {
+        sessions: number;
+        crossOriginRejections: number;
+      },
+    session,
   };
 }

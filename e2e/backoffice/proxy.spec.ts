@@ -32,6 +32,23 @@ test('backoffice: o cookie emitido pela API volta nas chamadas seguintes', async
   expect(second.cookies['XSRF-TOKEN']).toBe('token-de-teste');
 });
 
+test('backoffice: Host original e a origem da escrita chegam à API (proteção por origem, AUTH-07)', async ({
+  page,
+}) => {
+  await page.goto('/login');
+  // Escrita (POST) feita pela interface: o navegador envia Sec-Fetch-Site (Chromium) ou, sem ele, Origin (Firefox em
+  // HTTP, que só envia Sec-Fetch-* em contexto seguro). A API compara Origin com o Host, por isso o proxy repassa o Host
+  // original com a porta.
+  const echo = await page.evaluate(async () => {
+    const response = await fetch('/api/admin/v1/eco', { method: 'POST', body: '{}' });
+    return (await response.json()) as { headers: Record<string, string | undefined> };
+  });
+  expect(echo.headers['host']).toBe('backoffice:8080');
+  const site = echo.headers['sec-fetch-site'];
+  if (site) expect(site).toBe('same-origin');
+  else expect(echo.headers['origin']).toBe('http://backoffice:8080');
+});
+
 test('backoffice: a CSP só permite conexões com o próprio endereço', async ({ page }) => {
   const response = await page.goto('/login');
   const csp = response?.headers()['content-security-policy'] ?? '';

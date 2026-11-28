@@ -7,6 +7,7 @@
 //   e emite um cookie XSRF-TOKEN de teste.
 import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
+import { handleAuth, newAuthState } from './auth.mjs';
 import { pathToFileURL } from 'node:url';
 
 const html = (title, body, script) =>
@@ -96,6 +97,8 @@ const DEFAULT_SCENARIO = {
   report: 'received',
   messages: 'some',
   send: 'ok',
+  signIn: 'ok', // ok | rate-limited (429 na etapa da senha, mesma mensagem genérica no front)
+  challenge: 'ok', // ok | invalid | locked (423)
 };
 
 const daysFromToday = (n) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
@@ -124,6 +127,7 @@ const sessionOf = (req) => {
       scenario: { ...DEFAULT_SCENARIO },
       submissions: 0,
       tracking: newTracking(),
+      auth: newAuthState(),
     });
   return sessions.get(id);
 };
@@ -207,6 +211,7 @@ async function handleApi(req, res, url) {
     session.scenario = { ...DEFAULT_SCENARIO };
     session.submissions = 0;
     session.tracking = newTracking();
+    session.auth = newAuthState();
     res.writeHead(204);
     res.end();
     return true;
@@ -243,6 +248,15 @@ async function handleApi(req, res, url) {
     return true;
   }
 
+  if (
+    await handleAuth(req, res, url, session.auth, {
+      json,
+      apiError,
+      readBody,
+      scenario: session.scenario,
+    })
+  )
+    return true;
   if (url.pathname === '/api/public/v1/categories' && req.method === 'GET') {
     if (session.scenario.categories === 'error')
       return (json(res, 500, apiError(500, 'Internal Server Error', 'Erro interno.')), true);

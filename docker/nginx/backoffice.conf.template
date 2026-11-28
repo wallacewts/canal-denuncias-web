@@ -35,6 +35,9 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
+        # Host original com a porta ($http_host, não $host): a proteção nativa da API contra escrita de outra origem
+        # compara Origin com o host quando o navegador não envia Sec-Fetch-Site (AUTH-07, feature 004 R9).
+        proxy_set_header Host $http_host;
     }
 
     # Configuração em tempo de execução, montada no container.

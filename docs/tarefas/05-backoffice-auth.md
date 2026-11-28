@@ -66,7 +66,7 @@ Usuário criado pelo ADMIN recebe senha provisória e precisa trocá-la no prime
 
 **Estimativa:** M · **Marco:** MVP · **Depende de:** BAUTH-01, AUTH-06, USERS-07
 
-- **Telas e componentes:** `authGuard`, `roleGuard`, serviço `CurrentUser` (signal com o resultado de `/me`), menu do
+- **Telas e componentes:** `authGuard`, guard de permissão, serviço `CurrentUser` (signal com o resultado de `/me`), menu do
   `Shell`.
 - **Endpoints:** `GET /api/admin/v1/me`.
 
@@ -74,7 +74,9 @@ Usuário criado pelo ADMIN recebe senha provisória e precisa trocá-la no prime
 
 - [ ] Toda rota dentro do `Shell` exige sessão válida. Sem sessão, vai para `/login` guardando só o caminho de
       retorno.
-- [ ] Cada rota declara os perfis que a usam (`data.roles`). O menu mostra só o que o perfil pode abrir.
+- [ ] Cada rota declara a permissão que exige, e o menu mostra só o que a pessoa pode abrir, a partir das permissões
+      efetivas devolvidas pela API em `GET /me` (USERS-07). O front não copia a matriz de perfis × telas (decisão de
+      2026-11-28, feature 004).
 - [ ] A API continua sendo a autoridade: esconder no front é conveniência, e um 403 da API é tratado (FTRV-02).
 - [ ] Testes unitários dos guards.
 

@@ -1,23 +1,20 @@
 <!--
 Sync Impact Report
-- Versão: template → 1.0.0 (primeira ratificação)
-- Princípios definidos:
-  I. Anonimato do denunciante (inegociável)
-  II. Segurança do navegador
-  III. O front não é fronteira de segurança
-  IV. Acessibilidade e clareza
-  V. Padrões Angular
-  VI. Testes
-  VII. Qualidade e entrega
-  VIII. Simplicidade
-- Seções adicionadas: Restrições técnicas, Fluxo de desenvolvimento, Governança
+- Versão: 1.0.0 → 1.0.1 (PATCH: esclarecimento de redação, sem mudar o objetivo da regra)
+- Princípios modificados:
+  II. Segurança do navegador — "com XSRF" passa a "com proteção contra falsificação de requisição (token ou
+  verificação de origem pela API)". Motivo: a API usa a proteção nativa do Nest 12 por origem (`Sec-Fetch-Site`/
+  `Origin`, AUTH-07, ADR 0053 da API), sem token; o objetivo da regra continua o mesmo. Aprovado pelo usuário em
+  2026-11-28 (analyze da feature 004 do front, achado K1).
+- Seções adicionadas: nenhuma
 - Seções removidas: nenhuma
 - Templates:
-  ✅ .specify/templates/plan-template.md (Constitution Check com os portões I a VIII)
-  ✅ .specify/templates/tasks-template.md (testes obrigatórios para regras de privacidade e segurança)
-  ✅ .specify/templates/spec-template.md (seção obrigatória de privacidade e segurança)
-  ✅ .specify/templates/checklist-template.md (sem referência a princípios; nada a mudar)
+  ✅ .specify/templates/plan-template.md (portão II com a nova redação)
+  ✅ .specify/templates/tasks-template.md, spec-template.md, checklist-template.md (sem referência ao trecho; nada a
+  mudar)
+  ✅ specs/004-backoffice-sign-in/plan.md (linha do Complexity Tracking sobre "XSRF" retirada)
 - TODOs adiados: nenhum
+- Histórico: 1.0.0 (2026-11-27) primeira ratificação, princípios I a VIII.
 -->
 
 # Constituição do Front do Canal de Denúncias
@@ -48,8 +45,9 @@ inclusive em computadores compartilhados.
   liberar domínios externos, para contornar um erro.
 - Bypass de sanitização do Angular (`bypassSecurityTrust*`) só DEVE ser usado com justificativa registrada no
   código e no plano.
-- A sessão do backoffice DEVE ficar só em cookie `HttpOnly`/`Secure`/`SameSite=Strict`, com XSRF. Nenhum token
-  DEVE ficar acessível ao JavaScript.
+- A sessão do backoffice DEVE ficar só em cookie `HttpOnly`/`Secure`/`SameSite=Strict`, com proteção contra
+  falsificação de requisição (token ou verificação de origem pela API). Nenhum token DEVE ficar acessível ao
+  JavaScript.
 - Os cabeçalhos de segurança do nginx (HSTS, `X-Frame-Options`, `Referrer-Policy: no-referrer`, `nosniff`) são
   obrigatórios.
 
@@ -142,4 +140,4 @@ acontece com os próprios dados.
   ampliar uma regra, PATCH para ajustes de redação.
 - Orientações do dia a dia ficam em `AGENTS.md` e `README.md`, que não podem contradizer esta constituição.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-27 | **Last Amended**: 2026-11-27
+**Version**: 1.0.1 | **Ratified**: 2026-11-27 | **Last Amended**: 2026-11-28
