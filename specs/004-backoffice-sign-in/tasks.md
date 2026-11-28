@@ -112,23 +112,23 @@ próprias.
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T019 [P] [US1] Unitário de `AUTH/sign-in-flow.spec.ts`: etapa vinda da API decide a rota; pular etapa pelo
+- [x] T019 [P] [US1] Unitário de `AUTH/sign-in-flow.spec.ts`: etapa vinda da API decide a rota; pular etapa pelo
       endereço → `replaceUrl`; clique duplo → uma chamada
-- [ ] T020 [P] [US1] Unitário de `AUTH/login-page.spec.ts`: 401 e 429 com a mesma mensagem e o mesmo estado da tela;
+- [x] T020 [P] [US1] Unitário de `AUTH/login-page.spec.ts`: 401 e 429 com a mesma mensagem e o mesmo estado da tela;
       senha limpa depois de cada envio; e-mail mantido; mensagem de encerramento lida do `StaffSession` e limpa
-- [ ] T021 [P] [US1] Unitário de `AUTH/mfa-challenge-page.spec.ts`: código e código de recuperação; 401 genérico; 423
+- [x] T021 [P] [US1] Unitário de `AUTH/mfa-challenge-page.spec.ts`: código e código de recuperação; 401 genérico; 423
       com mensagem de bloqueio sem motivo; sessão pendente expirada volta ao login; `autocomplete="one-time-code"` e
       `inputmode="numeric"`
-- [ ] T022 [P] [US1] E2E em `e2e/backoffice/sign-in.spec.ts`: entrada completa até o painel; mensagens idênticas para
+- [x] T022 [P] [US1] E2E em `e2e/backoffice/sign-in.spec.ts`: entrada completa até o painel; mensagens idênticas para
       as cinco falhas da etapa da senha (comparando texto e estado da tela); código de recuperação; desafio bloqueado;
       nenhum token na resposta lido pelo front, nada em URL/armazenamento/console (`privacyGuards`)
 
 ### Implementação
 
-- [ ] T023 [US1] `AUTH/sign-in-flow.ts` (escopo do componente-pai `/login`)
-- [ ] T024 [US1] `AUTH/login-page.ts` (substitui o placeholder): e-mail e senha, mensagem genérica, região `role="status"`
+- [x] T023 [US1] `AUTH/sign-in-flow.ts` (escopo do componente-pai `/login`)
+- [x] T024 [US1] `AUTH/login-page.ts` (substitui o placeholder): e-mail e senha, mensagem genérica, região `role="status"`
       para o motivo do encerramento
-- [ ] T025 [US1] `AUTH/mfa-challenge-page.ts`: código de seis dígitos, "Usar um código de recuperação", bloqueio,
+- [x] T025 [US1] `AUTH/mfa-challenge-page.ts`: código de seis dígitos, "Usar um código de recuperação", bloqueio,
       `DONE` carrega `/me` e vai para o caminho de retorno
 
 **Checkpoint**: a equipe com segundo fator já cadastrado entra no backoffice.

@@ -1,5 +1,6 @@
 import type { Routes } from '@angular/router';
 import { authGuard, permissionGuard } from './features/auth/auth.guards';
+import { stepGuard } from './features/auth/sign-in-flow';
 
 const suffix = ' | Backoffice';
 
@@ -13,6 +14,13 @@ export const routes: Routes = [
     path: 'login',
     title: 'Entrar' + suffix,
     loadComponent: () => import('./features/auth/login-page').then((m) => m.LoginPage),
+  },
+  {
+    path: 'login/codigo',
+    title: 'Código de verificação' + suffix,
+    canActivate: [stepGuard('MFA_REQUIRED')],
+    loadComponent: () =>
+      import('./features/auth/mfa-challenge-page').then((m) => m.MfaChallengePage),
   },
   {
     path: '',
