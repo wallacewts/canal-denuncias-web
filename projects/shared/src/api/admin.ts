@@ -1,8 +1,13 @@
 /*
  * Entry point `@canal/shared/api/admin`: cliente gerado de `openapi/admin.json` (rotas /api/admin/v1).
- * SÓ o backoffice pode importar. O lint reprova este import dentro de projects/portal.
+ * SÓ o backoffice pode importar: o lint reprova este import dentro de projects/portal. Os arquivos gerados ficam em
+ * `../lib/api/generated/admin/` e nunca são editados à mão (`npm run api:sync && npm run api:generate`).
  *
- * Os arquivos ficam em `../lib/api/generated/admin/` e nunca são editados à mão. Este entry point reexporta o
- * cliente quando ele for gerado (`npm run api:generate`, depende do TRV-11 da API).
+ * Quando o contrato tiver rotas, reexporte também `../lib/api/generated/admin/functions`.
  */
-export {};
+export * from '../lib/api/generated/admin/models';
+export { Api as AdminApi } from '../lib/api/generated/admin/api';
+export {
+  ApiConfiguration as AdminApiConfiguration,
+  provideApiConfiguration as provideAdminApiConfiguration,
+} from '../lib/api/generated/admin/api-configuration';

@@ -87,3 +87,17 @@ describe('credentialsInterceptor', () => {
     req.flush({});
   });
 });
+
+describe('credentialsInterceptor com o cliente gerado (caminhos com /api)', () => {
+  afterEach(() => TestBed.inject(HttpTestingController).verify());
+
+  it('portal: Bearer também em api:/api/public/v1/me/* e a URL final sem /api duplicado', () => {
+    const { http, httpTesting, session } = setup(PORTAL);
+    session.start('token-do-denunciante', new Date(Date.now() + 60_000));
+    http.get('api:/api/public/v1/me/report').subscribe();
+    const req = httpTesting.expectOne('/api/public/v1/me/report');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer token-do-denunciante');
+    expect(req.request.credentials).toBe('omit');
+    req.flush({});
+  });
+});

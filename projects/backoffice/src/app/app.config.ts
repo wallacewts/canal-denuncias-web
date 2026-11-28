@@ -1,6 +1,13 @@
 import { type ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
-import { type AppConfig, provideApi, provideAppErrorHandler, provideLocale } from '@canal/shared';
+import {
+  API_PREFIX,
+  type AppConfig,
+  provideApi,
+  provideAppErrorHandler,
+  provideLocale,
+} from '@canal/shared';
+import { provideAdminApiConfiguration } from '@canal/shared/api/admin';
 import { BACKOFFICE_API_POLICY } from './api-policy';
 import { routes } from './app.routes';
 
@@ -16,6 +23,7 @@ export function buildAppConfig(config: AppConfig): ApplicationConfig {
         withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
       ),
       provideApi(config, BACKOFFICE_API_POLICY),
+      provideAdminApiConfiguration(API_PREFIX),
     ],
   };
 }

@@ -1,7 +1,7 @@
 import type { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { ReporterSession } from '../session/reporter-session';
-import { API_PREFIX } from './api.interceptor';
+import { apiPath } from './api.interceptor';
 import { API_POLICY } from './api-policy';
 
 /**
@@ -12,7 +12,8 @@ import { API_POLICY } from './api-policy';
  * Roda antes do `apiInterceptor`, enquanto a URL ainda tem o prefixo `api:`.
  */
 export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith(API_PREFIX)) {
+  const path = apiPath(req.url);
+  if (path === null) {
     return next(req);
   }
   const policy = inject(API_POLICY);
@@ -21,7 +22,6 @@ export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req.clone({ withCredentials: true }));
   }
 
-  const path = '/' + req.url.slice(API_PREFIX.length).replace(/^\/+/, '');
   const token =
     policy.bearerFor && path.startsWith(policy.bearerFor) ? inject(ReporterSession).token() : null;
   return next(

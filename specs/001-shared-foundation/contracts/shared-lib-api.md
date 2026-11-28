@@ -5,14 +5,14 @@ a implementação fica para as tarefas.
 
 ## Configuração e HTTP
 
-| Export                                    | Uso                                                                                                                                                                   |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `loadAppConfig(url?)`                     | Já existe. Lê `/config.json` antes do bootstrap (ver [config-and-proxy.md](./config-and-proxy.md)).                                                                   |
-| `provideApi(config, policy)`              | Registra `HttpClient` com `withFetch`, XSRF e os interceptors `api`, `credentials` e `error`. `policy` é um `ApiPolicy` ([data-model.md](../data-model.md)).          |
-| `API_PREFIX` (`'api:'`)                   | Já existe. Prefixo das chamadas, trocado por `apiBaseUrl`.                                                                                                            |
-| `ProvisionalApiError`, `toApiError(body)` | Tipo interno provisório e validação em tempo de execução do corpo de erro (TRV-01). O tipo é trocado pelo modelo gerado de `openapi/public.json` na T070 (⛔ TRV-11). |
-| `NotificationService`                     | `error(notice)`, `success(text)`. Exibe avisos e anuncia aos leitores de tela.                                                                                        |
-| `provideAppErrorHandler()`                | `ErrorHandler` que não escreve objetos de erro no console.                                                                                                            |
+| Export                                       | Uso                                                                                                                                                          |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `loadAppConfig(url?)`                        | Já existe. Lê `/config.json` antes do bootstrap (ver [config-and-proxy.md](./config-and-proxy.md)).                                                          |
+| `provideApi(config, policy)`                 | Registra `HttpClient` com `withFetch`, XSRF e os interceptors `api`, `credentials` e `error`. `policy` é um `ApiPolicy` ([data-model.md](../data-model.md)). |
+| `API_PREFIX` (`'api:'`)                      | Já existe. Prefixo das chamadas, trocado por `apiBaseUrl`.                                                                                                   |
+| `ParsedApiError`, `toApiError(status, body)` | Erro lido da resposta, com tipo derivado do modelo `ApiError` gerado de `openapi/public.json` (TRV-01), validado em tempo de execução.                       |
+| `NotificationService`                        | `error(notice)`, `success(text)`. Exibe avisos e anuncia aos leitores de tela.                                                                               |
+| `provideAppErrorHandler()`                   | `ErrorHandler` que não escreve objetos de erro no console.                                                                                                   |
 
 ## Cliente gerado
 

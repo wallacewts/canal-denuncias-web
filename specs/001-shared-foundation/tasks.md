@@ -205,18 +205,19 @@ teste de descarte ao sair da rota.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T065 [P] [US5] Testes do `api:sync` em `scripts/api-sync.test.mjs` (`node --test`): copia os dois arquivos de um diretório de origem; falha se `public.json` ou `admin.json` faltar ou não for JSON válido; nunca acessa a rede
-- [ ] T066 [P] [US5] Teste do padrão de estado com escopo de rota em `projects/shared/src/lib/state/screen-state.spec.ts`: um serviço fornecido no componente de rota é destruído e zera o estado sensível ao navegar para outra rota
+- [x] T065 [P] [US5] Testes do `api:sync` em `scripts/api-sync.test.mjs` (`node --test`): copia os dois arquivos de um diretório de origem; falha se `public.json` ou `admin.json` faltar ou não for JSON válido; nunca acessa a rede
+- [x] T066 [P] [US5] Teste do padrão de estado com escopo de rota em `projects/shared/src/lib/state/screen-state.spec.ts`: um serviço fornecido no componente de rota é destruído e zera o estado sensível ao navegar para outra rota
 
 ### Implementation for User Story 5
 
-- [ ] T067 [P] [US5] Implementar `scripts/api-sync.mjs` (padrão `../canal-denuncias-api/openapi/`, opção `--from <dir>` para o artefato do CI da API) e os scripts `api:sync`, `api:generate` e `api:check` em `package.json`
-- [ ] T068 [P] [US5] Criar `ng-openapi-gen.public.json` (entrada `openapi/public.json`, saída `projects/shared/src/lib/api/generated/public`) e `ng-openapi-gen.admin.json` (entrada `openapi/admin.json`, saída `.../generated/admin`), ambos com `rootUrl` `api:`, sem módulo e com Observables
-- [ ] T069 [US5] ⛔ Bloqueada: TRV-11 (`npm run openapi:export` na API). Rodar `npm run api:sync` e `npm run api:generate`, versionar `openapi/public.json`, `openapi/admin.json` e o código gerado, e reexportar os clientes em `projects/shared/src/api/public.ts` e `projects/shared/src/api/admin.ts`
-- [ ] T070 [US5] ⛔ Bloqueada: TRV-11. Trocar `ProvisionalApiError` pelo modelo de erro gerado de `openapi/public.json` em `projects/shared/src/lib/http/api-error.ts`, remover o tipo provisório e manter verdes os testes de `api-error.spec.ts` e `error.interceptor.spec.ts`
-- [ ] T071 [US5] ⛔ Bloqueada: TRV-11. Implementar `scripts/api-check.mjs` (regera sem rede e roda `git diff --exit-code` em `openapi/` e `generated/`) e adicioná-lo ao job `quality` de `.github/workflows/ci.yml`
-- [ ] T072 [US5] Implementar o exemplo do padrão de estado (serviço com signals fornecido no componente de rota, com `clear()` em `ngOnDestroy`) em `projects/shared/src/lib/state/screen-state.ts` e documentar o padrão e o critério para adotar `@ngrx/signals` (research.md, R2) em `projects/shared/README.md`
+- [x] T067 [P] [US5] Implementar `scripts/api-sync.mjs` (padrão `../canal-denuncias-api/openapi/`, opção `--from <dir>` para o artefato do CI da API) e os scripts `api:sync`, `api:generate` e `api:check` em `package.json`
+- [x] T068 [P] [US5] Criar `ng-openapi-gen.public.json` (entrada `openapi/public.json`, saída `projects/shared/src/lib/api/generated/public`) e `ng-openapi-gen.admin.json` (entrada `openapi/admin.json`, saída `.../generated/admin`), ambos com `rootUrl` `api:`, sem módulo e com Observables
+- [x] T069 [US5] ⛔ Bloqueada: TRV-11 (`npm run openapi:export` na API). Rodar `npm run api:sync` e `npm run api:generate`, versionar `openapi/public.json`, `openapi/admin.json` e o código gerado, e reexportar os clientes em `projects/shared/src/api/public.ts` e `projects/shared/src/api/admin.ts`
+- [x] T070 [US5] ⛔ Bloqueada: TRV-11. Trocar `ProvisionalApiError` pelo modelo de erro gerado de `openapi/public.json` em `projects/shared/src/lib/http/api-error.ts`, remover o tipo provisório e manter verdes os testes de `api-error.spec.ts` e `error.interceptor.spec.ts`
+- [x] T071 [US5] ⛔ Bloqueada: TRV-11. Implementar `scripts/api-check.mjs` (regera sem rede e roda `git diff --exit-code` em `openapi/` e `generated/`) e adicioná-lo ao job `quality` de `.github/workflows/ci.yml`
+- [x] T072 [US5] Implementar o exemplo do padrão de estado (serviço com signals fornecido no componente de rota, com `clear()` em `ngOnDestroy`) em `projects/shared/src/lib/state/screen-state.ts` e documentar o padrão e o critério para adotar `@ngrx/signals` (research.md, R2) em `projects/shared/README.md`
 - [ ] T073 [US5] Registrar as decisões técnicas desta feature (gerador `ng-openapi-gen`, estado com signals, Playwright em container, opção A do e2e) em `../canal-denuncias-api/docs/adr/README.md`, com os próximos números livres no momento da implementação (a partir de D34, porque D27 a D33 estão reservados para o backend), conferindo o arquivo antes de escrever. Só roda depois que o backend tiver registrado as decisões dele
+  - **Adiada para o Polish** (instrução do coordenador): roda depois que o backend registrar D27 a D33.
 
 **Checkpoint**: todas as user stories funcionando. Só as tarefas ⛔ dependem do backend.
 
@@ -251,7 +252,7 @@ teste de descarte ao sair da rota.
 | Tarefa | Espera                                                          |
 | ------ | --------------------------------------------------------------- |
 | T058   | AUTH-07 (CSRF/CORS) e a primeira ação administrativa (BAUTH-01) |
-| T069   | TRV-11 (`npm run openapi:export` gravando `openapi/*.json`)     |
+| T069   | TRV-11 (`npm run openapi:export` gravando `openapi/*.json`) ✅  |
 | T070   | TRV-11                                                          |
 | T071   | TRV-11                                                          |
 

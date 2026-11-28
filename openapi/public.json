@@ -1,0 +1,83 @@
+{
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "additionalProperties": false,
+        "description": "Corpo de toda resposta de erro. Nunca contém valores recebidos na requisição.",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["path", "code", "message"],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            ]
+          },
+          "requestId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "statusCode": {
+            "maximum": 599,
+            "minimum": 400,
+            "type": "integer"
+          }
+        },
+        "required": ["statusCode", "error", "message", "requestId"],
+        "type": "object"
+      },
+      "Page": {
+        "additionalProperties": false,
+        "description": "Resposta paginada por cursor. Entrada: ?limit=1..100 (padrão 20)&after=<nextCursor>.",
+        "properties": {
+          "items": {
+            "items": {},
+            "maxItems": 100,
+            "type": "array"
+          },
+          "nextCursor": {
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "type": ["string", "null"]
+          }
+        },
+        "required": ["items", "nextCursor"],
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {},
+    "description": "",
+    "title": "Canal de Denúncias API (public)",
+    "version": "0.0.1"
+  },
+  "openapi": "3.0.0",
+  "paths": {},
+  "servers": [],
+  "tags": [
+    {
+      "name": "public"
+    }
+  ]
+}

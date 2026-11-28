@@ -5,8 +5,9 @@ import {
   withXsrfConfiguration,
 } from '@angular/common/http';
 import type { EnvironmentProviders, Provider } from '@angular/core';
+import { provideApiConfiguration as providePublicApiConfiguration } from '../api/generated/public/api-configuration';
 import { APP_CONFIG, type AppConfig } from '../config/app-config';
-import { apiInterceptor } from './api.interceptor';
+import { API_PREFIX, apiInterceptor } from './api.interceptor';
 import { API_POLICY, type ApiPolicy } from './api-policy';
 import { credentialsInterceptor } from './credentials.interceptor';
 import { errorInterceptor } from './error.interceptor';
@@ -23,6 +24,8 @@ export function provideApi(
   return [
     { provide: APP_CONFIG, useValue: config },
     { provide: API_POLICY, useValue: policy },
+    // O cliente gerado (público) chama a API com o prefixo api:, para passar pelos mesmos interceptors.
+    providePublicApiConfiguration(API_PREFIX),
     provideHttpClient(
       withFetch(),
       // Ordem importa: credenciais e erros leem o prefixo api:, então rodam antes da troca do prefixo pela URL base.

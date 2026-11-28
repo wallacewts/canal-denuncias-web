@@ -31,6 +31,10 @@ jobs:
       - run: npm run lint
       - name: Regras de privacidade do lint continuam valendo
         run: npm run lint:rules
+      - name: Testes dos scripts (api:sync)
+        run: npm run test:scripts
+      - name: Cliente da API em dia com openapi/ (gerado sem rede)
+        run: npm run api:check
       - run: npm test
       - run: npm run build
       - name: Build sem source maps e sem referência externa

@@ -31,14 +31,9 @@ por configuração).
 
 Corpo padrão de erro da API (TRV-01).
 
-**Tipagem em duas etapas** (constituição, princípio V: formatos da API não são escritos à mão):
-
-1. **Agora**: `toApiError(unknown)` valida o corpo em tempo de execução e devolve um tipo interno
-   `ProvisionalApiError`, marcado no código como provisório. Ele descreve só o que a interface precisa ler, sem
-   pretender ser o modelo da API.
-2. **Depois do TRV-11**: o tipo interno é trocado pelo modelo de erro gerado de `openapi/public.json`, e o
-   `ProvisionalApiError` é removido. A validação em tempo de execução continua, porque a resposta pode vir fora do
-   formato.
+**Tipagem**: `ParsedApiError`, derivado do modelo `ApiError` gerado de `openapi/public.json` (constituição, princípio V).
+`toApiError(status, body)` valida o corpo em tempo de execução, porque a resposta pode vir fora do formato (proxy, falha
+de rede). O tipo provisório `ProvisionalApiError` foi removido na T070.
 
 | Campo        | Tipo                 | Regra                                                                             |
 | ------------ | -------------------- | --------------------------------------------------------------------------------- |

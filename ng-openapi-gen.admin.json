@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/ng-openapi-gen/ng-openapi-gen-schema.json",
+  "input": "openapi/admin.json",
+  "output": "projects/shared/src/lib/api/generated/admin",
+  "removeStaleFiles": true,
+  "ignoreUnusedModels": false,
+  "promises": false,
+  "silent": true
+}

@@ -15,7 +15,11 @@
     "prepare": "husky",
     "e2e": "sh scripts/e2e.sh",
     "lint:rules": "node scripts/check-lint-rules.mjs",
-    "check:build": "node scripts/check-build-output.mjs"
+    "check:build": "node scripts/check-build-output.mjs",
+    "api:sync": "node scripts/api-sync.mjs",
+    "api:generate": "ng-openapi-gen -c ng-openapi-gen.public.json && ng-openapi-gen -c ng-openapi-gen.admin.json",
+    "api:check": "node scripts/api-check.mjs",
+    "test:scripts": "node --test scripts/*.test.mjs"
   },
   "private": true,
   "dependencies": {
