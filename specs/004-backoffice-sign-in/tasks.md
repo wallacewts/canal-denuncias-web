@@ -201,19 +201,19 @@ mostra dados.
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T038 [P] [US4] Unitário de `projects/backoffice/src/app/layout/session-expiry-banner.spec.ts`: textos dos dois
+- [x] T038 [P] [US4] Unitário de `projects/backoffice/src/app/layout/session-expiry-banner.spec.ts`: textos dos dois
       avisos, `role="alert"`, foco não roubado, "Continuar" só no de inatividade
-- [ ] T039 [P] [US4] E2E em `e2e/backoffice/session-expiry.spec.ts` (relógio controlado do Playwright e do simulador):
+- [x] T039 [P] [US4] E2E em `e2e/backoffice/session-expiry.spec.ts` (relógio controlado do Playwright e do simulador):
       aviso de inatividade e "Continuar" (um `GET /me`); expiração por inatividade; aviso e encerramento absolutos; 401
       forçado; "Sair" com a chamada falhando ainda limpa; duas abas (saída e atividade); voltar depois de sair; resposta
       atrasada depois do encerramento descartada; nenhum dado de denúncia depois de cada encerramento
-- [ ] T040 [P] [US4] E2E em `e2e/backoffice/cross-origin.spec.ts`: escrita administrativa vinda de outra origem é
+- [x] T040 [P] [US4] E2E em `e2e/backoffice/cross-origin.spec.ts`: escrita administrativa vinda de outra origem é
       recusada pelo simulador e a feita pela interface (mesma origem, pelo proxy) passa (FR-026)
 
 ### Implementação
 
-- [ ] T041 [US4] `projects/backoffice/src/app/layout/session-expiry-banner.ts` e ligação no `Shell`
-- [ ] T042 [US4] Botão "Sair" no `Shell` chamando `POST /auth/sign-out` e `StaffSession.end('signed-out')` mesmo em
+- [x] T041 [US4] `projects/backoffice/src/app/layout/session-expiry-banner.ts` e ligação no `Shell`
+- [x] T042 [US4] Botão "Sair" no `Shell` chamando `POST /auth/sign-out` e `StaffSession.end('signed-out')` mesmo em
       falha
 
 **Checkpoint**: nenhuma sessão esquecida expõe denúncias.

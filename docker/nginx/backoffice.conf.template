@@ -38,6 +38,9 @@ server {
         # Host original com a porta ($http_host, não $host): a proteção nativa da API contra escrita de outra origem
         # compara Origin com o host quando o navegador não envia Sec-Fetch-Site (AUTH-07, feature 004 R9).
         proxy_set_header Host $http_host;
+        # Date da API, não o do nginx: o front corrige a diferença de relógio comparando esse Date com os horários de
+        # expiração da sessão, que vêm do relógio da API (feature 004 R3).
+        proxy_pass_header Date;
     }
 
     # Configuração em tempo de execução, montada no container.

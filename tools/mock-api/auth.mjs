@@ -247,6 +247,9 @@ export async function handleAuth(req, res, url, auth, helpers) {
     `${ADMIN}/me/password`,
   ]);
   if (!authRoutes.has(path)) return false;
+  // O front corrige a diferença de relógio pelo cabeçalho Date (R3): ele acompanha o relógio simulado, como na API real
+  // o Date acompanha os horários de expiração.
+  res.setHeader('Date', new Date(now(auth)).toUTCString());
 
   if (isCrossOriginWrite(req)) {
     auth.crossOriginRejections += 1;

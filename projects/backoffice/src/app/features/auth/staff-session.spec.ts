@@ -135,6 +135,18 @@ describe('StaffSession (R1 a R3)', () => {
     expect(s.consumeEndReason()).toBe('absolute');
   });
 
+  it('inatividade limitada pelo horário absoluto (API corta idleExpiresAt): vale o aviso absoluto', () => {
+    const s = session();
+    s.establish(user(Date.now(), 9 * MIN, 9 * MIN), Date.now());
+    vi.advanceTimersByTime(7 * MIN);
+    expect(s.warning()).toBeNull();
+    vi.advanceTimersByTime(MIN);
+    expect(s.warning()).toBe('absolute');
+    expect(s.consumeEndReason()).toBeNull();
+    vi.advanceTimersByTime(MIN);
+    expect(s.consumeEndReason()).toBe('absolute');
+  });
+
   it('corrige o relógio local pelo horário do servidor', () => {
     const s = session();
     const serverNow = Date.now() + 10 * MIN; // relógio local 10 min atrasado

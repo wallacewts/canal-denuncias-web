@@ -210,11 +210,14 @@ export class StaffSession implements OnDestroy {
     this.cancelTimer();
     if (!this.userState() || this.idleWindowMs === null || this.absoluteAtLocal === null) return;
     const now = Date.now();
-    const idleEnd = this.lastActivityLocal + this.idleWindowMs - IDLE_MARGIN_MS;
     const absoluteEnd = this.absoluteAtLocal;
+    const absoluteWarn = absoluteEnd - WARN_BEFORE_MS;
+    // A API pode cortar `idleExpiresAt` no limite absoluto. Se o fim por inatividade (já com a margem) cai depois do aviso
+    // absoluto, a sessão no servidor dura até o limite absoluto de qualquer jeito: vale só o aviso e o fim absolutos.
+    const rawIdleEnd = this.lastActivityLocal + this.idleWindowMs - IDLE_MARGIN_MS;
+    const idleEnd = rawIdleEnd >= absoluteWarn ? Infinity : rawIdleEnd;
     if (now >= absoluteEnd) return this.end('absolute');
     if (now >= idleEnd) return this.end('idle');
-    const absoluteWarn = absoluteEnd - WARN_BEFORE_MS;
     const idleWarn = idleEnd - WARN_BEFORE_MS;
     if (now >= absoluteWarn) this.warningState.set('absolute');
     else if (now >= idleWarn) this.warningState.set('idle');

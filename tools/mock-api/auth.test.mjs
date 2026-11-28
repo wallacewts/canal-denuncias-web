@@ -219,6 +219,19 @@ test('expiração por inatividade e absoluta seguem o relógio do simulador', as
   assert.fail('não expirou em 8 horas');
 });
 
+test('o cabeçalho Date das rotas de autenticação acompanha o relógio simulado', async () => {
+  const sid = await signedIn();
+  await call('POST', '/__mock/clock', { body: { advanceMs: 10 * 60_000 } });
+  const me = await call('GET', `${ADMIN}/me`, { sid });
+  const date = Date.parse(me.res.headers.get('date'));
+  assert.ok(Math.abs(date - (Date.now() + 10 * 60_000)) < 5_000);
+  const window = Date.parse(me.body.idleExpiresAt) - date;
+  assert.ok(
+    window > 14 * 60_000 && window <= 15 * 60_000 + 1_000,
+    'janela de 15 min no relógio da API',
+  );
+});
+
 test('sair encerra a sessão e apaga o cookie; revogação em massa para testes de 401', async () => {
   const sid = await signedIn();
   const out = await call('POST', `${ADMIN}/auth/sign-out`, { sid });

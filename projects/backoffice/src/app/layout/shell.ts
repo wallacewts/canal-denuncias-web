@@ -8,7 +8,9 @@ import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { map } from 'rxjs';
+import { AuthApi } from '../features/auth/auth.api';
 import { StaffSession } from '../features/auth/staff-session';
+import { SessionExpiryBanner } from './session-expiry-banner';
 
 interface NavItem {
   path: string;
@@ -34,6 +36,7 @@ const NARROW = '(max-width: 959.98px)';
     RouterLink,
     RouterLinkActive,
     RouterOutlet,
+    SessionExpiryBanner,
   ],
   template: `
     <mat-toolbar class="toolbar">
@@ -49,8 +52,10 @@ const NARROW = '(max-width: 959.98px)';
           <mat-icon fontSet="material-symbols-outlined" aria-hidden="true">menu</mat-icon>
         </button>
       }
-      <span>Canal de Denúncias · Backoffice</span>
+      <span class="title">Canal de Denúncias · Backoffice</span>
+      <button mat-button type="button" (click)="signOut()">Sair</button>
     </mat-toolbar>
+    <app-session-expiry-banner (signOut)="signOut()" />
     <mat-sidenav-container class="container">
       <mat-sidenav id="menu-principal" [mode]="narrow() ? 'over' : 'side'" [opened]="!narrow()">
         <mat-nav-list aria-label="Menu">
@@ -85,6 +90,9 @@ const NARROW = '(max-width: 959.98px)';
       min-height: var(--mat-toolbar-standard-height, 64px);
       white-space: normal;
     }
+    .title {
+      flex: 1;
+    }
     .container {
       flex: 1;
     }
@@ -103,6 +111,7 @@ export class Shell {
   );
 
   protected readonly session = inject(StaffSession);
+  private readonly api = inject(AuthApi);
   private readonly children = inject(ActivatedRoute).routeConfig?.children ?? [];
 
   protected readonly nav = computed<NavItem[]>(() => {
@@ -116,4 +125,10 @@ export class Shell {
       })
       .map((route) => ({ path: route.path ?? '', label: route.data?.['nav'] as string }));
   });
+
+  /** "Sair" (BAUTH-06): pede a saída à API e limpa a sessão no front mesmo se a chamada falhar. */
+  protected signOut(): void {
+    const end = () => this.session.end('signed-out');
+    this.api.signOut().subscribe({ complete: end, error: end });
+  }
 }
