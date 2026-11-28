@@ -190,9 +190,9 @@ a US1.
 
 **Independent Test**: abrir `/` e conferir textos, links e acessibilidade, sem depender da API.
 
-- [ ] T045 [P] [US3] `e2e/portal/home.spec.ts` (escrever antes): o que relatar, quem pode relatar, as garantias, a
+- [x] T045 [P] [US3] `e2e/portal/home.spec.ts` (escrever antes): o que relatar, quem pode relatar, as garantias, a
       recomendação de dispositivo e rede pessoais, links para `/nova-denuncia/tipo` e `/consultar`, axe
-- [ ] T046 [US3] `projects/portal/src/app/features/home/home-page.ts`
+- [x] T046 [US3] `projects/portal/src/app/features/home/home-page.ts`
 
 ---
 
@@ -287,7 +287,7 @@ Depois: T031 diálogo do aviso, T033 receipt-file; em seguida T032 review-page e
 
 Achados de baixa severidade do analyze de 2026-11-28, a resolver durante o implement:
 
-- **C3**: incluir a página inicial (`/`) no teste de zoom de 200% e 320 px (T025 ou T045).
+- **C3** (resolvida na T045): a página inicial (`/`) entra no teste de zoom de 200% e 320 px.
 - **C4** (resolvida na T035): asserção de que `/nova-denuncia/anexos` e `/nova-denuncia/identificacao` não exibem a etapa.
 - **C5**: SC-001 (menos de 5 minutos, sem ajuda) fica como validação manual no `quickstart.md`.
 - **U2**: caminho do diálogo da T031 (`projects/portal/src/app/features/privacy/privacy-notice-dialog.ts`) e os arquivos de
