@@ -9,7 +9,13 @@ describe('apiInterceptor', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideApi({ apiBaseUrl: '/api' }), provideHttpClientTesting()],
+      providers: [
+        provideApi(
+          { apiBaseUrl: '/api' },
+          { withCredentials: true, bearerFor: null, onUnauthenticated: () => undefined },
+        ),
+        provideHttpClientTesting(),
+      ],
     });
     http = TestBed.inject(HttpClient);
     httpTesting = TestBed.inject(HttpTestingController);

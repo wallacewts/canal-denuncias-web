@@ -12,12 +12,12 @@
 
 | Item                                        | Portal                                                 | Backoffice                              |
 | ------------------------------------------- | ------------------------------------------------------ | --------------------------------------- |
-| `location /api/`                            | `proxy_pass ${API_UPSTREAM}`                           | `proxy_pass ${API_UPSTREAM}`            |
+| `location /api/`                            | `proxy_pass ${APP_API_UPSTREAM}`                       | `proxy_pass ${APP_API_UPSTREAM}`        |
 | Log de acesso                               | desligado (`access_log off`)                           | ligado                                  |
 | `X-Forwarded-For`, `X-Real-IP`, `Forwarded` | **removidos** (enviados vazios)                        | IP real repassado (auditoria da equipe) |
 | Cookies                                     | o portal não envia (política `withCredentials: false`) | repassados                              |
 
-- `API_UPSTREAM`: variável de ambiente. No compose local, `http://host.docker.internal:3000` com
+- `APP_API_UPSTREAM`: variável de ambiente. No compose local, `http://host.docker.internal:3000` com
   `extra_hosts: ["host.docker.internal:host-gateway"]`.
 - A API continua vendo os caminhos `/api/public/v1/*` e `/api/admin/v1/*`.
 

@@ -1,0 +1,50 @@
+# Testes de ponta a ponta. Use: npm run e2e (scripts/e2e.sh).
+# O Playwright roda na imagem oficial, na mesma rede dos apps. Nenhuma porta é publicada no host.
+services:
+  portal:
+    ports: !reset []
+    environment:
+      # Endereço da API atrás do proxy /api (usado a partir da US4). Nos e2e, o servidor de eco.
+      APP_API_UPSTREAM: http://e2e-api:3000
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1']
+      interval: 2s
+      retries: 30
+
+  backoffice:
+    ports: !reset []
+    environment:
+      APP_API_UPSTREAM: http://e2e-api:3000
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1']
+      interval: 2s
+      retries: 30
+
+  e2e-api:
+    image: node:26-alpine
+    working_dir: /work
+    volumes:
+      - ./e2e/support:/work:ro
+    command: ['node', 'echo-api.mjs']
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:3000/fixture/clean >/dev/null || exit 1']
+      interval: 2s
+      retries: 30
+
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.65.1-noble
+    working_dir: /work
+    # Mesmo usuário do host, para o relatório não ficar com dono root.
+    user: '${E2E_UID:-1000}:${E2E_GID:-1000}'
+    ipc: host
+    environment:
+      HOME: /tmp
+      CI: ${CI:-}
+      npm_config_update_notifier: 'false'
+    volumes:
+      - .:/work
+    depends_on:
+      portal: { condition: service_healthy }
+      backoffice: { condition: service_healthy }
+      e2e-api: { condition: service_healthy }
+    command: ['npx', '--no-install', 'playwright', 'test', '-c', 'e2e/playwright.config.ts']

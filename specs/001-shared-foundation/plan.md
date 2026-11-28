@@ -81,7 +81,7 @@ Confira cada portão contra `.specify/memory/constitution.md`. Marque ✅ ou exp
       (opção A confirmada; ver spec, Clarifications, e research.md, R9).
 - [x] **VII. Qualidade** ✅: lint, testes e build dos dois apps no CI. Orçamento do bundle do portal reduzido para
       400/500 kB. Build sem source maps. Job de e2e no CI. Nenhum segredo: os contratos `openapi/*.json` são públicos, e
-      `API_UPSTREAM` não é segredo.
+      `APP_API_UPSTREAM` não é segredo.
 - [x] **VIII. Simplicidade** ✅: nenhuma dependência de runtime nova. `@ngrx/signals` fica de fora até haver necessidade
       real. `ng-openapi-gen` foi escolhido pela menor cadeia de dependências. Nenhuma das ferramentas novas faz
       requisição externa em uso (o Playwright baixa navegadores só na imagem do container, não no app).
@@ -153,7 +153,7 @@ docker/
 ├── nginx/backoffice.conf.template       # + location /api/ com IP real
 ├── nginx/security-headers.inc.template  # connect-src 'self'
 └── config/{portal,backoffice}.json      # apiBaseUrl "/api"
-docker-compose.yml                       # API_UPSTREAM, extra_hosts host-gateway
+docker-compose.yml                       # APP_API_UPSTREAM, extra_hosts host-gateway
 docker-compose.e2e.yml                   # serviço e2e com a imagem do Playwright
 
 e2e/

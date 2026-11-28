@@ -1,0 +1,22 @@
+import { InjectionToken } from '@angular/core';
+
+/**
+ * Política de credenciais de cada app. Fica no código do app, e não no config.json, para que não possa ser trocada por
+ * configuração (data-model.md, ApiPolicy).
+ */
+export interface ApiPolicy {
+  /** O backoffice envia o cookie de sessão da equipe. O portal nunca envia cookies. */
+  readonly withCredentials: boolean;
+  /**
+   * Prefixo de rota (sem o `api:`) em que o token do denunciante vai no cabeçalho `Authorization: Bearer`.
+   * Portal: `/public/v1/me/`. Backoffice: `null`.
+   */
+  readonly bearerFor: string | null;
+  /**
+   * Ação quando a API responde 401. Roda num contexto de injeção, então pode usar `inject(Router)`.
+   * Portal: limpar a sessão do denunciante e ir para `/consultar`. Backoffice: ir para `/login`.
+   */
+  readonly onUnauthenticated: () => void;
+}
+
+export const API_POLICY = new InjectionToken<ApiPolicy>('API_POLICY');

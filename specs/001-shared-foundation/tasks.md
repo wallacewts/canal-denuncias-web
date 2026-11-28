@@ -44,16 +44,16 @@ estrutura de e2e com as guardas de privacidade, usada pelos testes de US1, US3, 
 
 **⚠️ CRITICAL**: nenhuma user story começa antes desta fase.
 
-- [ ] T004 Criar o tipo `ApiPolicy` (`withCredentials`, `bearerFor`, `onUnauthenticated`) em `projects/shared/src/lib/http/api-policy.ts`, conforme `data-model.md`, e exportá-lo em `projects/shared/src/public-api.ts`
-- [ ] T005 Alterar `provideApi(config)` para `provideApi(config, policy)` em `projects/shared/src/lib/http/provide-api.ts`, registrando a política num `InjectionToken` `API_POLICY`, sem mudar ainda o comportamento dos interceptors
-- [ ] T006 [P] Definir `PORTAL_API_POLICY` (`withCredentials: false`, `bearerFor: '/public/v1/me/'`) em `projects/portal/src/app/api-policy.ts` e passá-la em `projects/portal/src/app/app.config.ts`
-- [ ] T007 [P] Definir `BACKOFFICE_API_POLICY` (`withCredentials: true`, `bearerFor: null`) em `projects/backoffice/src/app/api-policy.ts` e passá-la em `projects/backoffice/src/app/app.config.ts`
-- [ ] T008 Criar `e2e/playwright.config.ts` com os projetos `chromium` e `firefox`, `baseURL` por projeto de app (`http://portal:8080`, `http://backoffice:8080`), sem `bypassCSP`, relatório em `e2e/report/`
-- [ ] T009 Criar o serviço `e2e-api` (servidor de eco em Node que devolve método, caminho, cabeçalhos e cookies recebidos, e emite um cookie `XSRF-TOKEN` de teste) em `e2e/support/echo-api.mjs`, para os testes do proxy não dependerem da API real
-- [ ] T010 Criar `docker-compose.e2e.yml` com o serviço `e2e` (imagem `mcr.microsoft.com/playwright:v1.65.1-noble`, monta o repositório, roda `npx playwright test -c e2e/playwright.config.ts`) e o serviço `e2e-api` (`node:26-alpine` rodando `e2e/support/echo-api.mjs`), com `API_UPSTREAM` dos apps apontando para `http://e2e-api:3000` neste override
-- [ ] T011 Criar a fixture `privacyGuards` em `e2e/fixtures/privacy-guards.ts` com as cinco guardas de `contracts/e2e-privacy-guards.md`: rede fora da origem, valor sensível na URL (`trackSensitive`), evento `securitypolicyviolation` registrado via `addInitScript` e mensagens de CSP/Trusted Types no console, armazenamento não vazio ao fim (`localStorage`, `sessionStorage`, `indexedDB.databases()`), e `console.error` do app
-- [ ] T012 Criar testes da própria fixture em `e2e/fixtures/privacy-guards.spec.ts`, provando que cada guarda reprova (página de teste servida pelo `e2e-api` que faz requisição externa, grava no `localStorage`, coloca valor na URL e viola a CSP)
-- [ ] T013 Adicionar o script `e2e` em `package.json` (`docker compose -f docker-compose.yml -f docker-compose.e2e.yml up --build --abort-on-container-exit --exit-code-from e2e`) e o job `e2e` em `.github/workflows/ci.yml`, publicando `e2e/report/` como artefato
+- [x] T004 Criar o tipo `ApiPolicy` (`withCredentials`, `bearerFor`, `onUnauthenticated`) em `projects/shared/src/lib/http/api-policy.ts`, conforme `data-model.md`, e exportá-lo em `projects/shared/src/public-api.ts`
+- [x] T005 Alterar `provideApi(config)` para `provideApi(config, policy)` em `projects/shared/src/lib/http/provide-api.ts`, registrando a política num `InjectionToken` `API_POLICY`, sem mudar ainda o comportamento dos interceptors
+- [x] T006 [P] Definir `PORTAL_API_POLICY` (`withCredentials: false`, `bearerFor: '/public/v1/me/'`) em `projects/portal/src/app/api-policy.ts` e passá-la em `projects/portal/src/app/app.config.ts`
+- [x] T007 [P] Definir `BACKOFFICE_API_POLICY` (`withCredentials: true`, `bearerFor: null`) em `projects/backoffice/src/app/api-policy.ts` e passá-la em `projects/backoffice/src/app/app.config.ts`
+- [x] T008 Criar `e2e/playwright.config.ts` com os projetos `chromium` e `firefox`, `baseURL` por projeto de app (`http://portal:8080`, `http://backoffice:8080`), sem `bypassCSP`, relatório em `e2e/report/`
+- [x] T009 Criar o serviço `e2e-api` (servidor de eco em Node que devolve método, caminho, cabeçalhos e cookies recebidos, e emite um cookie `XSRF-TOKEN` de teste) em `e2e/support/echo-api.mjs`, para os testes do proxy não dependerem da API real
+- [x] T010 Criar `docker-compose.e2e.yml` com o serviço `e2e` (imagem `mcr.microsoft.com/playwright:v1.65.1-noble`, monta o repositório, roda `npx playwright test -c e2e/playwright.config.ts`) e o serviço `e2e-api` (`node:26-alpine` rodando `e2e/support/echo-api.mjs`), com `APP_API_UPSTREAM` dos apps apontando para `http://e2e-api:3000` neste override
+- [x] T011 Criar a fixture `privacyGuards` em `e2e/fixtures/privacy-guards.ts` com as cinco guardas de `contracts/e2e-privacy-guards.md`: rede fora da origem, valor sensível na URL (`trackSensitive`), evento `securitypolicyviolation` registrado via `addInitScript` e mensagens de CSP/Trusted Types no console, armazenamento não vazio ao fim (`localStorage`, `sessionStorage`, `indexedDB.databases()`), e `console.error` do app
+- [x] T012 Criar testes da própria fixture em `e2e/fixtures/privacy-guards.spec.ts`, provando que cada guarda reprova (página de teste servida pelo `e2e-api` que faz requisição externa, grava no `localStorage`, coloca valor na URL e viola a CSP)
+- [x] T013 Adicionar o script `e2e` em `package.json` (`docker compose -f docker-compose.yml -f docker-compose.e2e.yml up --build --abort-on-container-exit --exit-code-from e2e`) e o job `e2e` em `.github/workflows/ci.yml`, publicando `e2e/report/` como artefato
 
 **Checkpoint**: os apps compilam com a política, e `npm run e2e` roda a suíte da própria fixture.
 
@@ -179,12 +179,12 @@ com o IP repassado.
 
 ### Implementation for User Story 4
 
-- [ ] T059 [P] [US4] Adicionar `location /api/` em `docker/nginx/portal.conf.template`, com `proxy_pass ${API_UPSTREAM}`, `proxy_set_header` vazio para `X-Forwarded-For`, `X-Real-IP` e `Forwarded`, sem repassar `Cookie` e mantendo `access_log off`
-- [ ] T060 [P] [US4] Adicionar `location /api/` em `docker/nginx/backoffice.conf.template`, com `proxy_pass ${API_UPSTREAM}` e `X-Forwarded-For`, `X-Real-IP` e `X-Forwarded-Proto` repassados
-- [ ] T061 [US4] Fixar `connect-src 'self'` em `docker/nginx/security-headers.inc.template`, remover `APP_CSP_CONNECT_SRC` e garantir no `Dockerfile` que o `envsubst` da imagem substitui só `API_UPSTREAM` (via `NGINX_ENVSUBST_FILTER`), preservando `$request_id` e as variáveis do nginx
+- [ ] T059 [P] [US4] Adicionar `location /api/` em `docker/nginx/portal.conf.template`, com `proxy_pass ${APP_API_UPSTREAM}`, `proxy_set_header` vazio para `X-Forwarded-For`, `X-Real-IP` e `Forwarded`, sem repassar `Cookie` e mantendo `access_log off`
+- [ ] T060 [P] [US4] Adicionar `location /api/` em `docker/nginx/backoffice.conf.template`, com `proxy_pass ${APP_API_UPSTREAM}` e `X-Forwarded-For`, `X-Real-IP` e `X-Forwarded-Proto` repassados
+- [ ] T061 [US4] Fixar `connect-src 'self'` em `docker/nginx/security-headers.inc.template`, remover `APP_CSP_CONNECT_SRC` e manter no `Dockerfile` o `NGINX_ENVSUBST_FILTER=APP_` (o `envsubst` só substitui variáveis `APP_*`, como `APP_API_UPSTREAM`), preservando `$request_id` e as variáveis do nginx
 - [ ] T062 [P] [US4] Trocar `apiBaseUrl` para `"/api"` em `docker/config/portal.json`, `docker/config/backoffice.json`, `projects/portal/public/config.json` e `projects/backoffice/public/config.json`, e conferir que `proxy.conf.json` repassa `/api` para `http://localhost:3000` no `ng serve`
-- [ ] T063 [US4] Em `docker-compose.yml`, trocar `APP_CSP_CONNECT_SRC` por `API_UPSTREAM: http://host.docker.internal:3000` nos dois serviços e adicionar `extra_hosts: ["host.docker.internal:host-gateway"]`
-- [ ] T064 [US4] Atualizar a seção do ambiente local em `README.md`: proxy `/api`, `API_UPSTREAM`, remoção do CORS entre domínios e o que o proxy do portal remove
+- [ ] T063 [US4] Em `docker-compose.yml`, trocar `APP_CSP_CONNECT_SRC` por `APP_API_UPSTREAM: http://host.docker.internal:3000` nos dois serviços e adicionar `extra_hosts: ["host.docker.internal:host-gateway"]`
+- [ ] T064 [US4] Atualizar a seção do ambiente local em `README.md`: proxy `/api`, `APP_API_UPSTREAM`, remoção do CORS entre domínios e o que o proxy do portal remove
 
 **Checkpoint**: o compose local se comporta como produção. O teste do XSRF fica pendente até o AUTH-07.
 

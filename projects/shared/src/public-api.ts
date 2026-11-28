@@ -3,5 +3,6 @@
  */
 export * from './lib/config/app-config';
 export * from './lib/http/api.interceptor';
+export * from './lib/http/api-policy';
 export * from './lib/http/provide-api';
 export * from './lib/ui/page-placeholder';

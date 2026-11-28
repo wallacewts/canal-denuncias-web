@@ -7,15 +7,20 @@ import {
 import type { EnvironmentProviders, Provider } from '@angular/core';
 import { APP_CONFIG, type AppConfig } from '../config/app-config';
 import { apiInterceptor } from './api.interceptor';
+import { API_POLICY, type ApiPolicy } from './api-policy';
 
 /**
- * HttpClient configurado para a API do canal.
+ * HttpClient configurado para a API do canal, com a política de credenciais do app.
  * O token CSRF é lido pelo próprio Angular do cookie XSRF-TOKEN e reenviado no cabeçalho X-XSRF-TOKEN
  * (só funciona com a API no mesmo domínio, que é o desenho de produção).
  */
-export function provideApi(config: AppConfig): (Provider | EnvironmentProviders)[] {
+export function provideApi(
+  config: AppConfig,
+  policy: ApiPolicy,
+): (Provider | EnvironmentProviders)[] {
   return [
     { provide: APP_CONFIG, useValue: config },
+    { provide: API_POLICY, useValue: policy },
     provideHttpClient(
       withFetch(),
       withInterceptors([apiInterceptor]),

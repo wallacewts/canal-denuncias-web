@@ -123,7 +123,7 @@ e a guarda de CSP continua ativa nos demais projetos. Essa saída fica registrad
 ## R4. Mesmo endereço no ambiente local (FTRV-04)
 
 **Decision**: o nginx de cada app passa a ter `location /api/`, que repassa para a API pelo endereço da variável de
-ambiente `API_UPSTREAM`. No compose local, o valor é `http://host.docker.internal:3000`, com `extra_hosts:
+ambiente `APP_API_UPSTREAM`. No compose local, o valor é `http://host.docker.internal:3000`, com `extra_hosts:
 host-gateway` para funcionar no Linux. O `config.json` dos dois apps passa a `"apiBaseUrl": "/api"`, e a CSP volta a
 `connect-src 'self'`.
 
