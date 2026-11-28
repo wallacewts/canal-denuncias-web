@@ -90,5 +90,18 @@ PASSWORD_CHANGE_REQUIRED` nas demais rotas enquanto a troca está pendente; `403
   nenhum `__Host-sid`), a tela interna sem sessão (vai ao login sem mensagem) e a proteção por origem (outra origem
   recusada com 403; a mesma escrita pela página passa). Os fluxos com usuário estão escritos e esperam uma conta de
   teste; o `create-admin` da API só aceita a senha em terminal interativo.
-- **Não verificado ainda**: se o Chromium aceita o cookie `Secure` (`__Host-sid`) em `http://backoffice:8080` tratado
-  como origem segura; só o fluxo com usuário mostra isso.
+- **Cookie `__Host-sid`**: o Chromium **não** guarda o cookie `Secure` numa resposta HTTP, mesmo com
+  `http://backoffice:8080` tratado como origem segura (o login respondia 200 com o cookie, e a chamada seguinte ia sem
+  ele e recebia 401). Não é divergência da API (o contrato diz que o cookie é sempre `Secure`; produção é HTTPS). O
+  `npm run e2e:api` passou a servir o backoffice por HTTPS (`backoffice-tls`, Caddy com certificado da CA interna, só no
+  teste); com isso o cookie é aceito com `HttpOnly`, `Secure`, `SameSite=Strict` e `Path=/`, e muda depois do segundo
+  fator.
+- **Fluxos com usuário (T048)**: com uma conta criada pelo `create-admin --force`, passou o primeiro acesso completo:
+  a API pede a troca de senha antes do cadastro (ordem do contrato para quem não tem autenticador), cadastro com o
+  segredo da tela e TOTP calculado no teste, 10 códigos, painel com o menu das permissões do `/me`, perfil com os 422
+  `PASSWORD_SAME_AS_CURRENT` e `CURRENT_PASSWORD_INVALID` no campo, troca com sucesso (volta à senha original), saída,
+  código errado no campo (422 `MFA_CODE_INVALID`) e nova entrada. Credenciais só por variável de ambiente; nada delas
+  no repositório nem nos artefatos.
+- **Para rodar de novo**: o autenticador da conta de teste ficou cadastrado e o segredo não foi guardado. Para repetir
+  o primeiro acesso, um administrador redefine o segundo fator da conta (USERS-06) ou cria outra conta de teste. Para
+  rodar os testes de entrada com autenticador, informe o segredo em `E2E_API_TOTP_SECRET`.

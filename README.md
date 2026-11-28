@@ -85,7 +85,8 @@ seguras). O host não precisa suportar o Playwright. Pré-requisito: `npm ci`.
 
 **Contra a API real:** com a API do `canal-denuncias-api` rodando no host (`docker compose --profile app up -d`, porta
 3000), `npm run e2e:api` roda só `e2e/backoffice-api/`, com o proxy `/api` do backoffice apontando para ela e o cookie
-real `__Host-sid`. Os fluxos com usuário pedem uma conta de teste em `E2E_API_EMAIL` e `E2E_API_PASSWORD` (e
+real `__Host-sid`. Nesse modo o backoffice é servido por HTTPS (`https://backoffice-tls:8443`, certificado de teste),
+porque o Chromium não guarda o cookie `Secure` numa resposta HTTP. Os fluxos com usuário pedem uma conta de teste em `E2E_API_EMAIL` e `E2E_API_PASSWORD` (e
 `E2E_API_TOTP_SECRET` se o autenticador já estiver cadastrado).
 
 ```text

@@ -12,7 +12,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const againstRealApi = process.env['E2E_TARGET'] === 'api';
 const areas: Record<string, { testDir: string; baseURL: string }> = againstRealApi
-  ? { 'backoffice-api': { testDir: './backoffice-api', baseURL: 'http://backoffice:8080' } }
+  ? { 'backoffice-api': { testDir: './backoffice-api', baseURL: 'https://backoffice-tls:8443' } }
   : {
       fixture: { testDir: './fixtures', baseURL: 'http://e2e-api:3000' },
       portal: { testDir: './portal', baseURL: 'http://portal:8080' },
@@ -62,7 +62,12 @@ export default defineConfig({
     enabledBrowsers.map((browser) => ({
       name: `${area}-${browser}`,
       testDir,
-      use: { ...browsers[browser], baseURL },
+      // Contra a API real o backoffice vem por HTTPS com certificado de teste (docker-compose.e2e-api.yml).
+      use: {
+        ...browsers[browser],
+        baseURL,
+        ...(againstRealApi ? { ignoreHTTPSErrors: true } : {}),
+      },
     })),
   ),
 });

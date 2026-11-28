@@ -250,11 +250,12 @@ mostra o aviso de sessão renovada e outras sessões encerradas.
 - [x] T047 Conferir o simulador contra `openapi/admin.json`: `nextStep`, horários, `abilities` (formato), 423 do
       desafio, 422 da troca de senha (`CURRENT_PASSWORD_INVALID` e códigos da política), formato `recurso.ação` das
       abilities, QR code PNG, cookie e proteção por origem
-- [ ] T048 ⛔ Rodar os e2e desta feature contra a API real (compose com a API), com o cookie `__Host-sid` por HTTPS
-      — **Parcial (2026-11-28):** `npm run e2e:api` roda `e2e/backoffice-api/` com o proxy apontando para a API real.
-      Passam os testes sem usuário (login com credencial inválida, tela interna sem sessão, proteção por origem). Os
-      fluxos com usuário estão escritos e esperam uma conta de teste (`E2E_API_EMAIL`, `E2E_API_PASSWORD` e, com
-      autenticador, `E2E_API_TOTP_SECRET`): o `create-admin` da API só aceita senha em terminal interativo.
+- [x] T048 Rodar os e2e desta feature contra a API real (compose com a API), com o cookie `__Host-sid` por HTTPS
+      — **Feito (2026-11-28):** `npm run e2e:api` (Chromium) com o backoffice por HTTPS (`backoffice-tls`, Caddy com
+      certificado de teste) na frente do nginx: sem HTTPS, o Chromium não guarda o `__Host-sid` (Secure). Passaram os
+      testes sem usuário e o primeiro acesso completo de uma conta criada pelo `create-admin` (troca de senha,
+      cadastro do autenticador, códigos, painel, perfil com 422 no campo, saída, código errado no campo e nova
+      entrada). Os testes que precisam do segredo do autenticador ficam pulados (o segredo não é guardado).
 - [x] T049 AUTH-07. Atualizar a T058 da feature 001 em `specs/001-shared-foundation/tasks.md`: em vez do cabeçalho
       `X-XSRF-TOKEN`, provar contra a API real que escrita administrativa de outra origem é recusada e a da interface
       passa; avaliar a remoção do `withXsrfConfiguration` inerte com decisão registrada — **removido (D63)**: o

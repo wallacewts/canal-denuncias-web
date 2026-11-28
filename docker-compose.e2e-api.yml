@@ -1,7 +1,31 @@
 # e2e do backoffice contra a API real (T048 da feature 004). Use: npm run e2e:api (scripts/e2e-api.sh), com a API do
 # repositório canal-denuncias-api rodando no host (docker compose --profile app up, porta 3000).
-# Aplicado por cima de docker-compose.yml e docker-compose.e2e.yml: só o proxy /api do backoffice muda de destino.
+# Aplicado por cima de docker-compose.yml e docker-compose.e2e.yml: o proxy /api do backoffice aponta para a API real, e
+# o backoffice é servido por HTTPS (backoffice-tls), porque o cookie real `__Host-sid` é sempre Secure e o Chromium não o
+# guarda numa resposta HTTP, mesmo com a origem tratada como segura (T048).
 services:
+  backoffice-tls:
+    image: caddy:2.10-alpine
+    # Certificado da CA interna do Caddy (só para o teste; o Playwright ignora o erro de certificado). O Host original
+    # (backoffice-tls:8443) chega ao nginx do backoffice e dele à API, que compara o Origin com o Host.
+    command:
+      [
+        'caddy',
+        'reverse-proxy',
+        '--from',
+        'https://backoffice-tls:8443',
+        '--to',
+        'http://backoffice:8080',
+        '--internal-certs',
+        '--disable-redirects',
+      ]
+    depends_on:
+      backoffice: { condition: service_healthy }
+    healthcheck:
+      test: ['CMD-SHELL', 'nc -z 127.0.0.1 8443 || exit 1']
+      interval: 2s
+      retries: 30
+
   backoffice:
     environment:
       APP_API_UPSTREAM: http://host.docker.internal:3000
@@ -9,6 +33,8 @@ services:
       - 'host.docker.internal:host-gateway'
 
   e2e:
+    depends_on:
+      backoffice-tls: { condition: service_healthy }
     environment:
       E2E_TARGET: api
       # Conta de teste da API real (opcional). Sem ela, rodam só os testes que não precisam de usuário.
