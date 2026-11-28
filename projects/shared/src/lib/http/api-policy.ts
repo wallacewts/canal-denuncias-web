@@ -5,6 +5,8 @@ import { InjectionToken } from '@angular/core';
  * configuração (data-model.md, ApiPolicy).
  */
 export interface ApiPolicy {
+  /** App dono da política. Define, por exemplo, o texto da mensagem de sessão expirada. */
+  readonly audience: 'portal' | 'backoffice';
   /** O backoffice envia o cookie de sessão da equipe. O portal nunca envia cookies. */
   readonly withCredentials: boolean;
   /**

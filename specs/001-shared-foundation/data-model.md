@@ -20,11 +20,12 @@ Configuração carregada de `/config.json` antes do bootstrap (já existe em `pr
 Política de credenciais de cada app, definida no código do app (não no `config.json`, para que não possa ser trocada
 por configuração).
 
-| Campo               | Tipo                      | Portal                       | Backoffice |
-| ------------------- | ------------------------- | ---------------------------- | ---------- |
-| `withCredentials`   | `boolean`                 | `false`                      | `true`     |
-| `bearerFor`         | prefixo de rota ou `null` | `/public/v1/me/`             | `null`     |
-| `onUnauthenticated` | ação de navegação         | limpar sessão → `/consultar` | `/login`   |
+| Campo               | Tipo                       | Portal                       | Backoffice     |
+| ------------------- | -------------------------- | ---------------------------- | -------------- |
+| `audience`          | `'portal' \| 'backoffice'` | `'portal'`                   | `'backoffice'` |
+| `withCredentials`   | `boolean`                  | `false`                      | `true`         |
+| `bearerFor`         | prefixo de rota ou `null`  | `/public/v1/me/`             | `null`         |
+| `onUnauthenticated` | ação de navegação          | limpar sessão → `/consultar` | `/login`       |
 
 ## ApiError
 

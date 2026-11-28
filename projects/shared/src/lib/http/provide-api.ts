@@ -9,6 +9,7 @@ import { APP_CONFIG, type AppConfig } from '../config/app-config';
 import { apiInterceptor } from './api.interceptor';
 import { API_POLICY, type ApiPolicy } from './api-policy';
 import { credentialsInterceptor } from './credentials.interceptor';
+import { errorInterceptor } from './error.interceptor';
 
 /**
  * HttpClient configurado para a API do canal, com a política de credenciais do app.
@@ -24,8 +25,8 @@ export function provideApi(
     { provide: API_POLICY, useValue: policy },
     provideHttpClient(
       withFetch(),
-      // Ordem importa: credenciais primeiro (lê o prefixo api:), depois a troca do prefixo pela URL base.
-      withInterceptors([credentialsInterceptor, apiInterceptor]),
+      // Ordem importa: credenciais e erros leem o prefixo api:, então rodam antes da troca do prefixo pela URL base.
+      withInterceptors([credentialsInterceptor, errorInterceptor, apiInterceptor]),
       withXsrfConfiguration({ cookieName: 'XSRF-TOKEN', headerName: 'X-XSRF-TOKEN' }),
     ),
   ];

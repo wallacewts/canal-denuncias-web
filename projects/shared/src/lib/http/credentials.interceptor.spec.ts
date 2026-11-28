@@ -6,11 +6,13 @@ import type { ApiPolicy } from './api-policy';
 import { provideApi } from './provide-api';
 
 const PORTAL: ApiPolicy = {
+  audience: 'portal',
   withCredentials: false,
   bearerFor: '/public/v1/me/',
   onUnauthenticated: () => undefined,
 };
 const BACKOFFICE: ApiPolicy = {
+  audience: 'backoffice',
   withCredentials: true,
   bearerFor: null,
   onUnauthenticated: () => undefined,

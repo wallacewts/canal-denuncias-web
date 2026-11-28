@@ -12,7 +12,12 @@ describe('apiInterceptor', () => {
       providers: [
         provideApi(
           { apiBaseUrl: '/api' },
-          { withCredentials: true, bearerFor: null, onUnauthenticated: () => undefined },
+          {
+            audience: 'backoffice',
+            withCredentials: true,
+            bearerFor: null,
+            onUnauthenticated: () => undefined,
+          },
         ),
         provideHttpClientTesting(),
       ],

@@ -1,6 +1,6 @@
 import { type ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
-import { type AppConfig, provideApi } from '@canal/shared';
+import { type AppConfig, provideApi, provideAppErrorHandler } from '@canal/shared';
 import { BACKOFFICE_API_POLICY } from './api-policy';
 import { routes } from './app.routes';
 
@@ -8,6 +8,7 @@ export function buildAppConfig(config: AppConfig): ApplicationConfig {
   return {
     providers: [
       provideBrowserGlobalErrorListeners(),
+      provideAppErrorHandler(),
       provideRouter(
         routes,
         withComponentInputBinding(),

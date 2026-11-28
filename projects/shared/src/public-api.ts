@@ -9,3 +9,6 @@ export * from './lib/http/provide-api';
 export * from './lib/ui/page-placeholder';
 export * from './lib/session/reporter-session';
 export * from './lib/ui/sensitive-input.directive';
+export * from './lib/http/api-error';
+export * from './lib/notifications/notification.service';
+export * from './lib/errors/app-error-handler';

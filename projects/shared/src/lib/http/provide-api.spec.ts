@@ -6,6 +6,7 @@ import { provideApi } from './provide-api';
 describe('provideApi', () => {
   it('registra a configuração e a política de credenciais do app', () => {
     const policy: ApiPolicy = {
+      audience: 'portal',
       withCredentials: false,
       bearerFor: '/public/v1/me/',
       onUnauthenticated: () => undefined,

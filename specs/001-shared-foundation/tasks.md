@@ -110,21 +110,21 @@ tabela.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T028 [P] [US2] Testes de `toApiError` em `projects/shared/src/lib/http/api-error.spec.ts`: corpo padrão (`statusCode`, `error`, `message`, `requestId`), resposta sem corpo, corpo fora do formato e falha de rede (status 0)
-- [ ] T029 [P] [US2] Testes do `errorInterceptor` em `projects/shared/src/lib/http/error.interceptor.spec.ts`: uma asserção por linha de `contracts/error-messages.md` (0, 400, 401, 403, 404, 409, 410, 429, 5xx), sufixo "Código para o suporte: …" só quando há `requestId`, o `message` da API nunca exibido, `onUnauthenticated` chamado no 401 e nenhum `console.*` chamado (espiões)
-- [ ] T030 [P] [US2] Testes de `NotificationService` em `projects/shared/src/lib/notifications/notification.service.spec.ts`: erro com `politeness: 'assertive'`, sucesso com `'polite'`, texto anunciado pelo `LiveAnnouncer`
-- [ ] T031 [P] [US2] Testes de `AppErrorHandler` em `projects/shared/src/lib/errors/app-error-handler.spec.ts`: um erro não tratado não chama `console.*` com o objeto de erro nem com corpo HTTP
-- [ ] T032 [P] [US2] Testes das ações de 401 por app: em `projects/portal/src/app/api-policy.spec.ts`, limpa `ReporterSession` e navega para `/consultar`, sem protocolo ou chave na URL; em `projects/backoffice/src/app/api-policy.spec.ts`, navega para `/login`
+- [x] T028 [P] [US2] Testes de `toApiError` em `projects/shared/src/lib/http/api-error.spec.ts`: corpo padrão (`statusCode`, `error`, `message`, `requestId`), resposta sem corpo, corpo fora do formato e falha de rede (status 0)
+- [x] T029 [P] [US2] Testes do `errorInterceptor` em `projects/shared/src/lib/http/error.interceptor.spec.ts`: uma asserção por linha de `contracts/error-messages.md` (0, 400, 401, 403, 404, 409, 410, 429, 5xx), sufixo "Código para o suporte: …" só quando há `requestId`, o `message` da API nunca exibido, `onUnauthenticated` chamado no 401 e nenhum `console.*` chamado (espiões)
+- [x] T030 [P] [US2] Testes de `NotificationService` em `projects/shared/src/lib/notifications/notification.service.spec.ts`: erro com `politeness: 'assertive'`, sucesso com `'polite'`, texto anunciado pelo `LiveAnnouncer`
+- [x] T031 [P] [US2] Testes de `AppErrorHandler` em `projects/shared/src/lib/errors/app-error-handler.spec.ts`: um erro não tratado não chama `console.*` com o objeto de erro nem com corpo HTTP
+- [x] T032 [P] [US2] Testes das ações de 401 por app: em `projects/portal/src/app/api-policy.spec.ts`, limpa `ReporterSession` e navega para `/consultar`, sem protocolo ou chave na URL; em `projects/backoffice/src/app/api-policy.spec.ts`, navega para `/login`
 
 ### Implementation for User Story 2
 
-- [ ] T033 [P] [US2] Implementar `toApiError(unknown)` com validação em tempo de execução e o tipo interno `ProvisionalApiError` (comentário `// PROVISÓRIO: trocar pelo modelo gerado de openapi/public.json (TRV-11)`) em `projects/shared/src/lib/http/api-error.ts`, conforme `data-model.md`
-- [ ] T034 [P] [US2] Implementar a tabela de mensagens em `projects/shared/src/lib/http/error-messages.ts`, com os textos exatos de `contracts/error-messages.md`
-- [ ] T035 [P] [US2] Implementar `NotificationService` (snackbar do Material e `LiveAnnouncer` do CDK) em `projects/shared/src/lib/notifications/notification.service.ts`
-- [ ] T036 [US2] Implementar `errorInterceptor` em `projects/shared/src/lib/http/error.interceptor.ts` e registrá-lo em `projects/shared/src/lib/http/provide-api.ts`, depois do interceptor de credenciais. Espera a T021, porque as duas alteram `provide-api.ts`
-- [ ] T037 [US2] Implementar `AppErrorHandler` e `provideAppErrorHandler()` em `projects/shared/src/lib/errors/app-error-handler.ts` e usá-lo em `projects/portal/src/app/app.config.ts` e `projects/backoffice/src/app/app.config.ts`
-- [ ] T038 [US2] Implementar `onUnauthenticated` nas políticas: limpar `ReporterSession` e navegar para `/consultar` em `projects/portal/src/app/api-policy.ts`; navegar para `/login` em `projects/backoffice/src/app/api-policy.ts`
-- [ ] T039 [US2] Exportar `ProvisionalApiError`, `toApiError`, `NotificationService` e `provideAppErrorHandler` em `projects/shared/src/public-api.ts`
+- [x] T033 [P] [US2] Implementar `toApiError(unknown)` com validação em tempo de execução e o tipo interno `ProvisionalApiError` (comentário `// PROVISÓRIO: trocar pelo modelo gerado de openapi/public.json (TRV-11)`) em `projects/shared/src/lib/http/api-error.ts`, conforme `data-model.md`
+- [x] T034 [P] [US2] Implementar a tabela de mensagens em `projects/shared/src/lib/http/error-messages.ts`, com os textos exatos de `contracts/error-messages.md`
+- [x] T035 [P] [US2] Implementar `NotificationService` (snackbar do Material e `LiveAnnouncer` do CDK) em `projects/shared/src/lib/notifications/notification.service.ts`
+- [x] T036 [US2] Implementar `errorInterceptor` em `projects/shared/src/lib/http/error.interceptor.ts` e registrá-lo em `projects/shared/src/lib/http/provide-api.ts`, depois do interceptor de credenciais. Espera a T021, porque as duas alteram `provide-api.ts`
+- [x] T037 [US2] Implementar `AppErrorHandler` e `provideAppErrorHandler()` em `projects/shared/src/lib/errors/app-error-handler.ts` e usá-lo em `projects/portal/src/app/app.config.ts` e `projects/backoffice/src/app/app.config.ts`
+- [x] T038 [US2] Implementar `onUnauthenticated` nas políticas: limpar `ReporterSession` e navegar para `/consultar` em `projects/portal/src/app/api-policy.ts`; navegar para `/login` em `projects/backoffice/src/app/api-policy.ts`
+- [x] T039 [US2] Exportar `ProvisionalApiError`, `toApiError`, `NotificationService` e `provideAppErrorHandler` em `projects/shared/src/public-api.ts`
 
 **Checkpoint**: US1 e US2 funcionam juntas, com o mesmo tratamento de erro nos dois apps.
 
