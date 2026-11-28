@@ -20,8 +20,24 @@ describe('App (portal)', () => {
     expect(text).toContain('Aviso de privacidade');
   });
 
-  it('define as 8 telas do portal', () => {
-    const screens = routes.filter((r) => r.loadComponent).length;
-    expect(screens).toBe(8);
+  it('define as 8 telas do portal, com o envio como rota-pai e sem anexos nem identificação', () => {
+    const paths = routes.flatMap((r) => [
+      r.path,
+      ...(r.children ?? []).map((c) => `${r.path}/${c.path}`),
+    ]);
+    for (const screen of [
+      '',
+      'privacidade',
+      'nova-denuncia/tipo',
+      'nova-denuncia/revisao',
+      'nova-denuncia/protocolo',
+      'consultar',
+      'acompanhamento',
+      'ajuda',
+    ]) {
+      expect(paths).toContain(screen);
+    }
+    expect(paths).not.toContain('nova-denuncia/anexos');
+    expect(paths).not.toContain('nova-denuncia/identificacao');
   });
 });

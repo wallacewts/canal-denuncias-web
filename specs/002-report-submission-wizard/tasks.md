@@ -49,36 +49,36 @@ rota-pai do fluxo. **Nenhuma user story começa antes desta fase.**
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T005 [P] Teste `scripts/check-build-output.test.mjs`: um `dist` falso com `DV-SIMUL`, `SIMULADA`, `__mock` ou
+- [x] T005 [P] Teste `scripts/check-build-output.test.mjs`: um `dist` falso com `DV-SIMUL`, `SIMULADA`, `__mock` ou
       `mock-api` reprova; um `dist` limpo passa
-- [ ] T006 [P] Teste `tools/mock-api/server.test.mjs` (node --test): categorias `ok`/`empty`/`error`; envio
+- [x] T006 [P] Teste `tools/mock-api/server.test.mjs` (node --test): categorias `ok`/`empty`/`error`; envio
       `ok`/`invalid`/`error`/`slow`; 400 para campo fora do contrato ou limite estourado **sem repetir o valor**
       (inclusive texto curto); contador de envios; `reset`
-- [ ] T007 [P] Testes `FLOW/report-submission.types.spec.ts`: `toCategories` e `toReceipt` aceitam o formato válido e
+- [x] T007 [P] Testes `FLOW/report-submission.types.spec.ts`: `toCategories` e `toReceipt` aceitam o formato válido e
       recusam o malformado (campo ausente, tipo errado, lista com item inválido)
-- [ ] T008 [P] Testes `FLOW/to-submission.spec.ts`: só os campos previstos; `occurredOn` como `AAAA-MM-DD` ou
+- [x] T008 [P] Testes `FLOW/to-submission.spec.ts`: só os campos previstos; `occurredOn` como `AAAA-MM-DD` ou
       `AAAA-MM`; opcionais vazios omitidos; nenhum campo de identificação
-- [ ] T009 [P] Testes `FLOW/report-draft.state.spec.ts`: limites exatos (99/100 e 10.000/10.001 na descrição,
+- [x] T009 [P] Testes `FLOW/report-draft.state.spec.ts`: limites exatos (99/100 e 10.000/10.001 na descrição,
       2.000/2.001 nos demais textos, 20/21 envolvidos); data e mês futuros recusados; validade por subgrupo; "rascunho
       com dados"; `clear()` volta ao estado inicial
-- [ ] T010 [P] Testes `FLOW/report-submission.api.spec.ts` (`HttpTestingController`): `GET api:/public/v1/categories`
+- [x] T010 [P] Testes `FLOW/report-submission.api.spec.ts` (`HttpTestingController`): `GET api:/public/v1/categories`
       e `POST api:/public/v1/reports` sem credenciais (política do portal) e com a resposta validada
 
 ### Implementação
 
-- [ ] T011 Sentinelas do simulador em `scripts/check-build-output.mjs` e o novo teste incluído em `test:scripts`
+- [x] T011 Sentinelas do simulador em `scripts/check-build-output.mjs` e o novo teste incluído em `test:scripts`
       (`package.json`)
-- [ ] T012 Rotas e cenários de `contracts/mock-api.md` em `tools/mock-api/server.mjs` (categorias, envio com a
+- [x] T012 Rotas e cenários de `contracts/mock-api.md` em `tools/mock-api/server.mjs` (categorias, envio com a
       validação de REP-02, `/__mock/scenario`, `/__mock/stats`, `/__mock/reset`), sem nunca registrar o corpo recebido
-- [ ] T013 [P] Tipos provisórios e validação em tempo de execução em `FLOW/report-submission.types.ts`, marcados como
+- [x] T013 [P] Tipos provisórios e validação em tempo de execução em `FLOW/report-submission.types.ts`, marcados como
       provisórios no código
-- [ ] T014 [P] Montagem do corpo em `FLOW/to-submission.ts`
-- [ ] T015 `FLOW/report-draft.state.ts`: `FormGroup` tipado com subgrupos por etapa, validadores de REP-02, "rascunho
+- [x] T014 [P] Montagem do corpo em `FLOW/to-submission.ts`
+- [x] T015 `FLOW/report-draft.state.ts`: `FormGroup` tipado com subgrupos por etapa, validadores de REP-02, "rascunho
       com dados" e descarte no `ngOnDestroy`
-- [ ] T016 `FLOW/report-submission.api.ts` com os tipos provisórios
-- [ ] T017 [P] Tabela única de etapas em `FLOW/wizard-steps.ts` (caminho, título, obrigatória, subgrupo)
-- [ ] T018 [P] `FLOW/receipt.state.ts`: comprovante e `acknowledged`, descartado no `ngOnDestroy`
-- [ ] T019 Reestruturar `projects/portal/src/app/app.routes.ts`: rota-pai `nova-denuncia` com `FLOW/new-report-flow.ts`
+- [x] T016 `FLOW/report-submission.api.ts` com os tipos provisórios
+- [x] T017 [P] Tabela única de etapas em `FLOW/wizard-steps.ts` (caminho, título, obrigatória, subgrupo)
+- [x] T018 [P] `FLOW/receipt.state.ts`: comprovante e `acknowledged`, descartado no `ngOnDestroy`
+- [x] T019 Reestruturar `projects/portal/src/app/app.routes.ts`: rota-pai `nova-denuncia` com `FLOW/new-report-flow.ts`
       (substitui `new-report-wizard.ts`) fornecendo `ReportDraftState` e `ReceiptState`; `revisao` e `protocolo` como
       filhas; remover `anexos` e `identificacao` (apagar `FLOW/steps/attachments-step.ts` e
       `FLOW/steps/identification-step.ts`); atualizar `e2e/portal/routes.ts`; e2e de rotas, acessibilidade e layout

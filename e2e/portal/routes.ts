@@ -6,8 +6,6 @@ export const PORTAL_ROUTES = [
   '/nova-denuncia/categoria',
   '/nova-denuncia/relato',
   '/nova-denuncia/envolvidos',
-  '/nova-denuncia/anexos',
-  '/nova-denuncia/identificacao',
   '/nova-denuncia/revisao',
   '/nova-denuncia/protocolo',
   '/consultar',

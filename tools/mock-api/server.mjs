@@ -4,6 +4,7 @@
 // - /fixture/*: páginas que violam cada guarda de privacidade, para testar a própria fixture.
 // - qualquer outra rota: devolve método, caminho, cabeçalhos e cookies recebidos (testes do proxy /api)
 //   e emite um cookie XSRF-TOKEN de teste.
+import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import { pathToFileURL } from 'node:url';
 
@@ -46,8 +47,179 @@ function parseCookies(header = '') {
   );
 }
 
-function handle(req, res) {
+// ---------------------------------------------------------------------------------------------------------------
+// Rotas simuladas da API (CAT-01 e REP-02 do backlog da API), até elas existirem no contrato OpenAPI.
+// Todo valor aqui é um sentinela (SIMULADA, DV-SIMUL): o check:build reprova o build que contiver algum deles.
+// ---------------------------------------------------------------------------------------------------------------
+
+const CATEGORIES = [
+  {
+    code: 'SIMULADA_VAZAMENTO',
+    name: 'Vazamento de dados',
+    description:
+      'Dados da empresa, de clientes ou de colaboradores expostos ou acessados indevidamente.',
+  },
+  {
+    code: 'SIMULADA_PRATICA',
+    name: 'Prática inadequada de segurança',
+    description:
+      'Senhas compartilhadas, acessos sem necessidade, dados guardados ou enviados sem proteção.',
+  },
+  {
+    code: 'SIMULADA_ATIVIDADE',
+    name: 'Atividade suspeita',
+    description: null,
+  },
+];
+
+const RECEIPT = { protocol: 'DV-SIMUL-ADO00', accessKey: 'SIMULADA-K7Q2-M9XR-4TPA-W3ZN' };
+
+const REPORTER_TYPES = ['EMPLOYEE', 'PARTNER', 'THIRD_PARTY'];
+const DATA_TYPES = ['PERSONAL', 'FINANCIAL', 'CREDENTIALS', 'OTHER'];
+const OPTIONAL_TEXTS = ['location', 'affectedSystems', 'howKnown', 'evidenceNotes'];
+const ALLOWED_FIELDS = new Set([
+  'reporterType',
+  'categoryCode',
+  'description',
+  'occurredOn',
+  'dataTypes',
+  'involved',
+  ...OPTIONAL_TEXTS,
+]);
+
+const DEFAULT_SCENARIO = { categories: 'ok', submit: 'ok' };
+let scenario = { ...DEFAULT_SCENARIO };
+let submissions = 0;
+
+const json = (res, status, body, headers = {}) => {
+  res.writeHead(status, { 'Content-Type': 'application/json', ...headers });
+  res.end(JSON.stringify(body));
+};
+
+/** Corpo de erro no formato ApiError da API: nunca contém valores recebidos. */
+const apiError = (status, error, message) => ({
+  statusCode: status,
+  error,
+  message,
+  requestId: randomUUID(),
+});
+
+const isText = (v, max) => typeof v === 'string' && v.length <= max;
+
+/** Valida o corpo como REP-02. Devolve as issues (código e caminho), nunca o valor recebido. */
+function validateSubmission(body) {
+  const issues = [];
+  const issue = (path, code) => issues.push({ path, code, message: `Campo inválido: ${path}` });
+  if (typeof body !== 'object' || body === null || Array.isArray(body))
+    return [{ path: '', code: 'invalid_type', message: 'Corpo inválido' }];
+  for (const key of Object.keys(body)) if (!ALLOWED_FIELDS.has(key)) issue(key, 'unrecognized_key');
+  if (!REPORTER_TYPES.includes(body.reporterType)) issue('reporterType', 'invalid_value');
+  if (
+    typeof body.categoryCode !== 'string' ||
+    !CATEGORIES.some((c) => c.code === body.categoryCode)
+  )
+    issue('categoryCode', 'invalid_value');
+  if (
+    typeof body.description !== 'string' ||
+    body.description.length < 100 ||
+    body.description.length > 10_000
+  )
+    issue('description', 'invalid_length');
+  for (const key of OPTIONAL_TEXTS)
+    if (key in body && !isText(body[key], 2_000)) issue(key, 'invalid_length');
+  if (
+    'occurredOn' in body &&
+    !(typeof body.occurredOn === 'string' && /^\d{4}-\d{2}(-\d{2})?$/.test(body.occurredOn))
+  )
+    issue('occurredOn', 'invalid_format');
+  if (
+    'dataTypes' in body &&
+    !(Array.isArray(body.dataTypes) && body.dataTypes.every((t) => DATA_TYPES.includes(t)))
+  )
+    issue('dataTypes', 'invalid_value');
+  if ('involved' in body) {
+    const ok =
+      Array.isArray(body.involved) &&
+      body.involved.length <= 20 &&
+      body.involved.every(
+        (p) =>
+          typeof p === 'object' &&
+          p !== null &&
+          Object.keys(p).every((k) => k === 'name' || k === 'role') &&
+          (!('name' in p) || isText(p.name, 2_000)) &&
+          (!('role' in p) || isText(p.role, 2_000)),
+      );
+    if (!ok) issue('involved', 'invalid_value');
+  }
+  return issues;
+}
+
+const readBody = (req) =>
+  new Promise((resolve) => {
+    let data = '';
+    req.on('data', (chunk) => (data += chunk));
+    req.on('end', () => resolve(data));
+  });
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+/** Trata as rotas da API simulada e de controle. Devolve false se a rota não for dela. */
+async function handleApi(req, res, url) {
+  if (url.pathname === '/__mock/reset' && req.method === 'POST') {
+    scenario = { ...DEFAULT_SCENARIO };
+    submissions = 0;
+    res.writeHead(204);
+    res.end();
+    return true;
+  }
+  if (url.pathname === '/__mock/scenario' && req.method === 'POST') {
+    try {
+      const body = JSON.parse(await readBody(req));
+      scenario = { ...scenario, ...body };
+    } catch {
+      return (json(res, 400, { error: 'cenário inválido' }), true);
+    }
+    return (json(res, 200, scenario), true);
+  }
+  if (url.pathname === '/__mock/stats' && req.method === 'GET') {
+    return (json(res, 200, { submissions }), true);
+  }
+
+  if (url.pathname === '/api/public/v1/categories' && req.method === 'GET') {
+    if (scenario.categories === 'error')
+      return (json(res, 500, apiError(500, 'Internal Server Error', 'Erro interno.')), true);
+    if (scenario.categories === 'empty') return (json(res, 200, []), true);
+    return (json(res, 200, CATEGORIES, { 'Cache-Control': 'public, max-age=60' }), true);
+  }
+
+  if (url.pathname === '/api/public/v1/reports' && req.method === 'POST') {
+    const raw = await readBody(req); // nunca registrado em log
+    submissions += 1;
+    let body;
+    try {
+      body = JSON.parse(raw);
+    } catch {
+      return (json(res, 400, apiError(400, 'Bad Request', 'Corpo da requisição inválido.')), true);
+    }
+    if (scenario.submit === 'error')
+      return (json(res, 500, apiError(500, 'Internal Server Error', 'Erro interno.')), true);
+    const issues =
+      scenario.submit === 'invalid'
+        ? [{ path: 'description', code: 'invalid_length', message: 'Campo inválido: description' }]
+        : validateSubmission(body);
+    if (issues.length) return (json(res, 400, apiError(400, 'Bad Request', issues)), true);
+    if (scenario.submit === 'slow') await new Promise((r) => setTimeout(r, 2_000));
+    return (
+      json(res, 201, { ...RECEIPT, receivedOn: today() }, { 'Cache-Control': 'no-store' }),
+      true
+    );
+  }
+  return false;
+}
+
+async function handle(req, res) {
   const url = new URL(req.url ?? '/', 'http://e2e-api');
+  if (await handleApi(req, res, url)) return;
   const fixture = url.pathname.match(/^\/fixture\/(\w+)(\.js)?$/);
 
   if (fixture && fixture[2] && scripts[fixture[1]]) {
