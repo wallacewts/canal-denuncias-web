@@ -77,3 +77,18 @@ nginx, CSP com nonce e Trusted Types, contra o servidor simulado (`tools/mock-ap
 PASSWORD_CHANGE_REQUIRED` nas demais rotas enquanto a troca está pendente; `403 STEP_NOT_ALLOWED` em rota de etapa
   fora de hora.
 - **Bundle inicial**: ver `specs/004-backoffice-sign-in/plan.md` (T051).
+
+## Integração com a API real (T046 a T049, 2026-11-28)
+
+- **Contrato**: `openapi/admin.json` da API `21df70c`, cliente gerado em `@canal/shared/api/admin`. As 12 permissões do
+  `/me` cobrem todas as `data.ability` das rotas.
+- **Diferenças achadas entre o simulador e a API, corrigidas no front e no simulador** (nenhuma exigiu mudar a API): o
+  código de domínio vem no topo do corpo (`code`, D56), e a troca de senha só lia os itens de `message`; sair sem sessão
+  responde `204` sem cookie (o simulador dava 401). Códigos novos tratados: `TOO_MANY_ATTEMPTS`, `PASSWORD_TOO_LONG`
+  (mensagem da política) e `CURRENT_PASSWORD_ATTEMPTS_EXCEEDED` (429 que encerra a sessão).
+- **e2e contra a API real** (`npm run e2e:api`, Chromium): passam o login com credencial inválida (mensagem genérica,
+  nenhum `__Host-sid`), a tela interna sem sessão (vai ao login sem mensagem) e a proteção por origem (outra origem
+  recusada com 403; a mesma escrita pela página passa). Os fluxos com usuário estão escritos e esperam uma conta de
+  teste; o `create-admin` da API só aceita a senha em terminal interativo.
+- **Não verificado ainda**: se o Chromium aceita o cookie `Secure` (`__Host-sid`) em `http://backoffice:8080` tratado
+  como origem segura; só o fluxo com usuário mostra isso.

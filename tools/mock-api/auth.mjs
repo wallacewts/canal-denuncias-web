@@ -205,10 +205,19 @@ const strict = (body, keys) =>
   Object.keys(body).every((k) => keys.includes(k)) &&
   Object.values(body).every((v) => typeof v === 'string');
 
-const fieldError = (code, path, message) => ({
+/** Erro de domínio no formato da API (D56): `code` no topo do corpo e `message` em texto. `path` não vai na resposta. */
+const fieldError = (code, _path, message) => ({
   statusCode: 422,
   error: 'Unprocessable Entity',
-  message: [{ code, path, message }],
+  message,
+  code,
+  requestId: randomUUID(),
+});
+const coded = (status, error, message, code) => ({ ...apiErrorBody(status, error, message), code });
+const apiErrorBody = (statusCode, error, message) => ({
+  statusCode,
+  error,
+  message,
   requestId: randomUUID(),
 });
 
@@ -302,7 +311,10 @@ export async function handleAuth(req, res, url, auth, helpers) {
 
   if (path === `${ADMIN}/auth/sign-in` && req.method === 'POST') {
     if (scenario.signIn === 'rate-limited') {
-      return (json(res, 429, apiError(429, 'Too Many Requests', 'Muitas tentativas.')), true);
+      return (
+        json(res, 429, coded(429, 'Too Many Requests', 'Muitas tentativas.', 'TOO_MANY_ATTEMPTS')),
+        true
+      );
     }
     const body = await readJson(req, readBody);
     if (!strict(body, ['email', 'password'])) return (unauthorized(), true);
@@ -327,7 +339,8 @@ export async function handleAuth(req, res, url, auth, helpers) {
   const cur = currentSession(req, auth);
 
   if (path === `${ADMIN}/auth/sign-out` && req.method === 'POST') {
-    if (!cur) return (unauthorized(), true);
+    // Igual à API: sem sessão, 204 sem cookie (sair é idempotente).
+    if (!cur) return (res.writeHead(204), res.end(), true);
     auth.sessions.delete(cur.sid);
     res.writeHead(204, { 'Set-Cookie': clearCookie() });
     res.end();
@@ -340,10 +353,21 @@ export async function handleAuth(req, res, url, auth, helpers) {
   if (path === `${ADMIN}/auth/mfa/challenge` && req.method === 'POST') {
     if (stepOf(acc, s) !== 'MFA_REQUIRED') return (stepNotAllowed(), true);
     if (scenario.challenge === 'rate-limited') {
-      return (json(res, 429, apiError(429, 'Too Many Requests', 'Muitas tentativas.'), noStore), true);
+      return (
+        json(
+          res,
+          429,
+          coded(429, 'Too Many Requests', 'Muitas tentativas.', 'TOO_MANY_ATTEMPTS'),
+          noStore,
+        ),
+        true
+      );
     }
     if (scenario.challenge === 'locked') {
-      return (json(res, 423, apiError(423, 'Locked', 'Bloqueado temporariamente.'), noStore), true);
+      return (
+        json(res, 423, coded(423, 'Locked', 'Bloqueado temporariamente.', 'MFA_LOCKED'), noStore),
+        true
+      );
     }
     const body = await readJson(req, readBody);
     const ok =
@@ -425,10 +449,17 @@ export async function handleAuth(req, res, url, auth, helpers) {
       if (s.currentPasswordErrors >= MAX_CURRENT_PASSWORD_ERRORS) {
         auth.sessions.delete(sid);
         return (
-          json(res, 429, apiError(429, 'Too Many Requests', 'Sessão encerrada.'), {
-            ...noStore,
-            'Set-Cookie': clearCookie(),
-          }),
+          json(
+            res,
+            429,
+            coded(
+              429,
+              'Too Many Requests',
+              'Sessão encerrada.',
+              'CURRENT_PASSWORD_ATTEMPTS_EXCEEDED',
+            ),
+            { ...noStore, 'Set-Cookie': clearCookie() },
+          ),
           true
         );
       }

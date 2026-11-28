@@ -1,5 +1,6 @@
 import {
   InvalidAuthResponseError,
+  errorCodes,
   fieldErrorCodes,
   toCurrentUser,
   toEnrollment,
@@ -82,5 +83,22 @@ describe('auth.types (tipos provisórios, R10)', () => {
     expect(fieldErrorCodes(body)).toEqual(['CURRENT_PASSWORD_INVALID']);
     expect(fieldErrorCodes({ message: 'texto' })).toEqual([]);
     expect(fieldErrorCodes(null)).toEqual([]);
+  });
+
+  it('errorCodes lê o código de domínio no topo do corpo (D56) e os de validação em message', () => {
+    expect(
+      errorCodes({
+        statusCode: 422,
+        error: 'x',
+        message: 'm',
+        code: 'PASSWORD_TOO_LONG',
+        requestId: 'r',
+      }),
+    ).toEqual(['PASSWORD_TOO_LONG']);
+    expect(
+      errorCodes({ message: [{ code: 'MFA_CODE_INVALID', path: 'code', message: 'm' }] }),
+    ).toEqual(['MFA_CODE_INVALID']);
+    expect(errorCodes({ code: 42 })).toEqual([]);
+    expect(errorCodes('texto')).toEqual([]);
   });
 });

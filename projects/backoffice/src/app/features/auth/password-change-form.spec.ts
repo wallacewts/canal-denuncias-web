@@ -6,15 +6,11 @@ import { AuthApi } from './auth.api';
 import { PasswordChangeForm } from './password-change-form';
 import { StaffSession } from './staff-session';
 
+/** Formato da API (D56): código de domínio no topo do corpo, `message` em texto. */
 const unprocessable = (code: string) =>
   new HttpErrorResponse({
     status: 422,
-    error: {
-      statusCode: 422,
-      error: 'x',
-      message: [{ code, path: 'p', message: 'm' }],
-      requestId: 'r',
-    },
+    error: { statusCode: 422, error: 'Unprocessable Entity', message: 'm', code, requestId: 'r' },
   });
 
 describe('PasswordChangeForm (BAUTH-04, BPRF-02)', () => {
@@ -104,6 +100,16 @@ describe('PasswordChangeForm (BAUTH-04, BPRF-02)', () => {
     fill('atual', 'senhasenha1234');
     await submit();
     expect(el.textContent).toContain('A nova senha precisa ter pelo menos 12 caracteres.');
+  });
+
+  it('422 PASSWORD_TOO_LONG cai na mensagem da política de senha', async () => {
+    const { el, fill, submit } = setup();
+    changePassword.mockReturnValue(throwError(() => unprocessable('PASSWORD_TOO_LONG')));
+    fill('senha-atual-longa', 'x'.repeat(40));
+    await submit();
+    expect(el.textContent).toContain(
+      'A nova senha é longa demais. Use uma senha mais curta, com pelo menos 12 caracteres.',
+    );
   });
 
   it('422 PASSWORD_SAME_AS_CURRENT tem mensagem própria no campo da nova senha', async () => {

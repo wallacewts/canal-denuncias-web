@@ -43,7 +43,8 @@ lib e do Material ligado ao bundle inicial pela sessão, guards e Shell (347,0 �
 `@angular/common` (+11,6 kB), que o esbuild põe no bundle inicial porque o arquivo dele já é alcançado pelo `main`; ele
 entra pelo `staffDateTime` de "Meu perfil" e seria pago de qualquer forma pelas próximas telas da equipe com datas
 (D25). Portal 417,36 kB (era 417,19 kB; +0,17 kB do `onForbidden` no `errorInterceptor` da lib; a extração do
-`downloadTextFile` da T018 não mudou o tamanho).
+`downloadTextFile` da T018 não mudou o tamanho). Na integração (T046), o backoffice foi a 388,19 kB (+6,4 kB): as
+funções do cliente gerado entram no bundle inicial junto com o `AuthApi`, que os guards usam.
 
 ## Constitution Check
 
@@ -61,7 +62,7 @@ Antes do design e depois dele (research, data model e contratos):
 - [x] IV. Acessibilidade: WCAG 2.1 AA nas telas novas, foco no título por etapa, avisos sem roubar o foco, axe nos e2e
       (o princípio fala do portal; o backoffice segue o mesmo padrão por FR-028)
 - [x] V. Padrões Angular: standalone, signals, zoneless, `loadComponent` em todas as telas novas; código compartilhado na
-      lib (função do `.txt` em `@canal/shared/files`, R7); cliente gerado — exceção provisória (ver Complexity Tracking)
+      lib (função do `.txt` em `@canal/shared/files`, R7); cliente gerado de `openapi/admin.json` desde a T046
 - [x] VI. Testes: cada regra de privacidade com teste que falha (nada em storage/URL/console pelos `privacyGuards`;
       segredo e códigos somem ao sair; memória limpa em cada encerramento; escrita de outra origem recusada); e2e dos
       fluxos de entrada e primeiro acesso
@@ -152,6 +153,6 @@ código `423` do bloqueio do desafio, os erros da troca de senha (`422` com cód
 
 ## Complexity Tracking
 
-| Violation                                                                     | Why Needed                                                                                                                          | Simpler Alternative Rejected Because                                                                                             |
-| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Tipos provisórios escritos à mão (`features/auth/auth.types.ts`), princípio V | As rotas de autenticação ainda não existem no `openapi/admin.json`; a feature roda contra o simulador (decisão do usuário, opção A) | Esperar o contrato atrasaria o backoffice inteiro; mesmo padrão aprovado nas features 001 a 003, com remoção em tarefa bloqueada |
+| Violation                                                                                                                                                                                                                                                                                           | Why Needed | Simpler Alternative Rejected Because |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------ |
+| ~~Tipos provisórios escritos à mão (`features/auth/auth.types.ts`), princípio V~~ **Resolvido na T046 (2026-11-28):** os tipos vêm do cliente gerado de `openapi/admin.json` (API `21df70c`); o arquivo guarda só a validação em tempo de execução e o modelo com `Date` derivado dos tipos gerados | —          | —                                    |

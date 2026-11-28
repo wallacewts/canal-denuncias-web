@@ -3,8 +3,11 @@
 Formato usado pelo simulador (`tools/mock-api`) e pelos tipos provisórios (`features/auth/auth.types.ts`) até AUTH-01 a
 AUTH-07 e USERS-07 saírem no `canal-denuncias-api/openapi/admin.json`. Base: premissas de contrato já registradas pelo
 backend em `docs/tarefas/04-auth.md` (AUTH-01 a AUTH-05) e `03-users.md` (USERS-07), e o fluxo descrito no ADR 0053.
-Itens marcados **(a confirmar)** ainda não estão fixados no backlog da API; a integração (tarefas bloqueadas) confere
-cada um contra o contrato real.
+**Integrado (T046 e T047, 2026-11-28):** o front usa o cliente gerado de `openapi/admin.json` (API `21df70c`). Conferido
+contra a API real: códigos de domínio no topo do corpo (`code`, D56, não em `message`); `423 MFA_LOCKED`; `429
+TOO_MANY_ATTEMPTS` no login e no desafio; `429 CURRENT_PASSWORD_ATTEMPTS_EXCEEDED` na 5ª senha atual errada;
+`422 PASSWORD_TOO_LONG` (mensagem da política de senha); sair sem sessão responde `204` sem cookie. O simulador segue
+esse formato.
 
 Todas as rotas: prefixo `/api/admin/v1`, chamadas na mesma origem (proxy `/api`), com credenciais. Sessão só pelo cookie
 `HttpOnly` da API (`__Host-sid` em produção; `sid` sem `Secure` no simulador e no desenvolvimento por HTTP). O front não

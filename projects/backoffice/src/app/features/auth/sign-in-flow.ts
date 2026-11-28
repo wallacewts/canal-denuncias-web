@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { type CanActivateFn, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthApi, type Timed } from './auth.api';
-import type { NextStep, PendingStep, ProvisionalStepResponse } from './auth.types';
+import type { NextStep, PendingStep, StepResponse } from './auth.types';
 import { StaffSession } from './staff-session';
 
 const STEP_ROUTES: Record<NextStep, string> = {
@@ -43,7 +43,7 @@ export class SignInFlow {
   private readonly api = inject(AuthApi);
   private readonly router = inject(Router);
 
-  async advance({ value, serverNow }: Timed<ProvisionalStepResponse>): Promise<void> {
+  async advance({ value, serverNow }: Timed<StepResponse>): Promise<void> {
     if (value.nextStep === 'DONE') return this.finish();
     this.session.startPending(value.nextStep, value, serverNow);
     await this.router.navigateByUrl(stepRoute(value.nextStep), { replaceUrl: true });

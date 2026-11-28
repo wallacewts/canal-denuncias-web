@@ -6,6 +6,18 @@
  * Corpo de toda resposta de erro. Nunca contém valores recebidos na requisição.
  */
 export interface ApiError {
+
+  /**
+   * Código estável de regra de negócio (D56), só em erros de domínio.
+   */
+  code?: string;
+
+  /**
+   * Detalhes do erro de domínio (D56): só inteiros não negativos e códigos em maiúsculas.
+   */
+  details?: {
+[key: string]: (number | string);
+};
   error: string;
   message: (string | Array<{
 'code': string;

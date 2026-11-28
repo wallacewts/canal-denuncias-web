@@ -3,12 +3,12 @@ import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthApi } from './auth.api';
-import type { ProvisionalCurrentUser } from './auth.types';
+import type { CurrentUser } from './auth.types';
 import { SESSION_CHANNEL, StaffSession } from './staff-session';
 
 const MIN = 60_000;
 
-function user(now: number, idleMs = 15 * MIN, absoluteMs = 8 * 60 * MIN): ProvisionalCurrentUser {
+function user(now: number, idleMs = 15 * MIN, absoluteMs = 8 * 60 * MIN): CurrentUser {
   return {
     id: 'u',
     name: 'Pessoa',

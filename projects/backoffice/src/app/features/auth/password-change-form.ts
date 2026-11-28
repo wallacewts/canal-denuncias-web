@@ -14,7 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FieldErrorLink, FormFieldError, SensitiveInput } from '@canal/shared';
 import { finalize } from 'rxjs';
 import { AuthApi, type Timed } from './auth.api';
-import { type ProvisionalStepResponse, fieldErrorCodes } from './auth.types';
+import { type StepResponse, errorCodes } from './auth.types';
 import { StaffSession } from './staff-session';
 
 /** Mínimo da política (AUTH-05). Só tamanho e confirmação são conferidos na tela; senha comum é decidida pela API. */
@@ -91,6 +91,8 @@ const sameAsNew = (group: AbstractControl): ValidationErrors | null => {
           tooShort: 'A nova senha precisa ter pelo menos 12 caracteres.',
           common: 'Essa senha é comum demais. Escolha outra.',
           same: 'A nova senha precisa ser diferente da atual.',
+          tooLong:
+            'A nova senha é longa demais. Use uma senha mais curta, com pelo menos 12 caracteres.',
         }"
       />
       <mat-form-field appearance="outline">
@@ -134,7 +136,7 @@ export class PasswordChangeForm {
   private readonly api = inject(AuthApi);
   private readonly session = inject(StaffSession);
 
-  readonly changed = output<Timed<ProvisionalStepResponse>>();
+  readonly changed = output<Timed<StepResponse>>();
   /** Envio válido começou (a tela que usa o formulário limpa avisos do envio anterior). */
   readonly started = output<void>();
 
@@ -175,7 +177,7 @@ export class PasswordChangeForm {
           if (!(error instanceof HttpErrorResponse)) return;
           if (error.status === 429) return this.session.end('unauthenticated');
           if (error.status !== 422) return;
-          const codes = fieldErrorCodes(error.error);
+          const codes = errorCodes(error.error);
           const mark = (control: AbstractControl, key: string) => {
             control.setErrors({ [key]: true });
             control.markAsTouched();
@@ -184,6 +186,7 @@ export class PasswordChangeForm {
             mark(this.form.controls.currentPassword, 'currentInvalid');
           if (codes.includes('PASSWORD_TOO_SHORT'))
             mark(this.form.controls.newPassword, 'tooShort');
+          if (codes.includes('PASSWORD_TOO_LONG')) mark(this.form.controls.newPassword, 'tooLong');
           if (codes.includes('PASSWORD_COMMON')) mark(this.form.controls.newPassword, 'common');
           if (codes.includes('PASSWORD_SAME_AS_CURRENT'))
             mark(this.form.controls.newPassword, 'same');

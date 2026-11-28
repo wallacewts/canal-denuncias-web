@@ -69,6 +69,7 @@ de produção. Tudo fica no mesmo endereço, sem CORS, e o cookie de sessão da 
 | `npm run api:check`                         | Regera sem rede e falha se o cliente estiver desatualizado                                                |
 | `npm run test:scripts`                      | Testes dos scripts (`api:sync`, `check:build`) e do simulador                                             |
 | `npm run e2e`                               | Testes de ponta a ponta no container do Playwright                                                        |
+| `npm run e2e:api`                           | e2e do backoffice contra a API real (`e2e/backoffice-api/`)                                               |
 
 ## Testes de ponta a ponta
 
@@ -81,6 +82,11 @@ seguras). O host não precisa suportar o Playwright. Pré-requisito: `npm ci`.
 (local e CI). A variável `E2E_BROWSERS` escolhe os navegadores (padrão `chromium`); para incluir o Firefox:
 `E2E_BROWSERS=chromium,firefox npm run e2e`. Motivo, lacunas de cobertura e o que é preciso para reativar:
 `docs/validacoes/navegadores-e2e.md`.
+
+**Contra a API real:** com a API do `canal-denuncias-api` rodando no host (`docker compose --profile app up -d`, porta
+3000), `npm run e2e:api` roda só `e2e/backoffice-api/`, com o proxy `/api` do backoffice apontando para ela e o cookie
+real `__Host-sid`. Os fluxos com usuário pedem uma conta de teste em `E2E_API_EMAIL` e `E2E_API_PASSWORD` (e
+`E2E_API_TOTP_SECRET` se o autenticador já estiver cadastrado).
 
 ```text
 e2e/

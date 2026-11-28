@@ -1,7 +1,7 @@
 import { type AfterViewInit, Component, inject, viewChild } from '@angular/core';
 import { PageHeader } from '@canal/shared';
 import type { Timed } from './auth.api';
-import type { ProvisionalStepResponse } from './auth.types';
+import type { StepResponse } from './auth.types';
 import { PasswordChangeForm } from './password-change-form';
 import { SignInFlow } from './sign-in-flow';
 
@@ -28,7 +28,7 @@ export class PasswordChangePage implements AfterViewInit {
     this.header().focus();
   }
 
-  protected next(step: Timed<ProvisionalStepResponse>): void {
+  protected next(step: Timed<StepResponse>): void {
     void this.flow.advance(step);
   }
 }

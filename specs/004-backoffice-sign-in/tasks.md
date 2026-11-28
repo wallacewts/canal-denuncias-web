@@ -245,13 +245,17 @@ mostra o aviso de sessão renovada e outras sessões encerradas.
 
 ## Phase 8: Integração com a API (bloqueada)
 
-- [ ] T046 ⛔ AUTH-01 a AUTH-07, USERS-07. `npm run api:sync && npm run api:generate`; trocar `AUTH/auth.types.ts`
+- [x] T046 AUTH-01 a AUTH-07, USERS-07. `npm run api:sync && npm run api:generate`; trocar `AUTH/auth.types.ts`
       pelo cliente gerado `@canal/shared/api/admin`, remover a linha do Complexity Tracking e a do `AGENTS.md`
-- [ ] T047 ⛔ Conferir o simulador contra `openapi/admin.json`: `nextStep`, horários, `abilities` (formato), 423 do
+- [x] T047 Conferir o simulador contra `openapi/admin.json`: `nextStep`, horários, `abilities` (formato), 423 do
       desafio, 422 da troca de senha (`CURRENT_PASSWORD_INVALID` e códigos da política), formato `recurso.ação` das
       abilities, QR code PNG, cookie e proteção por origem
 - [ ] T048 ⛔ Rodar os e2e desta feature contra a API real (compose com a API), com o cookie `__Host-sid` por HTTPS
-- [ ] T049 ⛔ AUTH-07. Atualizar a T058 da feature 001 em `specs/001-shared-foundation/tasks.md`: em vez do cabeçalho
+      — **Parcial (2026-11-28):** `npm run e2e:api` roda `e2e/backoffice-api/` com o proxy apontando para a API real.
+      Passam os testes sem usuário (login com credencial inválida, tela interna sem sessão, proteção por origem). Os
+      fluxos com usuário estão escritos e esperam uma conta de teste (`E2E_API_EMAIL`, `E2E_API_PASSWORD` e, com
+      autenticador, `E2E_API_TOTP_SECRET`): o `create-admin` da API só aceita senha em terminal interativo.
+- [x] T049 AUTH-07. Atualizar a T058 da feature 001 em `specs/001-shared-foundation/tasks.md`: em vez do cabeçalho
       `X-XSRF-TOKEN`, provar contra a API real que escrita administrativa de outra origem é recusada e a da interface
       passa; avaliar a remoção do `withXsrfConfiguration` inerte com decisão registrada
 

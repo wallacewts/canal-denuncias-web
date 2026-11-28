@@ -6,11 +6,18 @@ import { defineConfig, devices } from '@playwright/test';
  *
  * Nunca use bypassCSP: a CSP real dos apps é justamente o que está sendo testado.
  */
-const areas = {
-  fixture: { testDir: './fixtures', baseURL: 'http://e2e-api:3000' },
-  portal: { testDir: './portal', baseURL: 'http://portal:8080' },
-  backoffice: { testDir: './backoffice', baseURL: 'http://backoffice:8080' },
-} as const;
+/**
+ * Áreas. Por padrão, tudo contra o servidor simulado. Com `E2E_TARGET=api` (npm run e2e:api), só os testes de
+ * `backoffice-api/`, com o backoffice apontando para a API real (docker-compose.e2e-api.yml).
+ */
+const againstRealApi = process.env['E2E_TARGET'] === 'api';
+const areas: Record<string, { testDir: string; baseURL: string }> = againstRealApi
+  ? { 'backoffice-api': { testDir: './backoffice-api', baseURL: 'http://backoffice:8080' } }
+  : {
+      fixture: { testDir: './fixtures', baseURL: 'http://e2e-api:3000' },
+      portal: { testDir: './portal', baseURL: 'http://portal:8080' },
+      backoffice: { testDir: './backoffice', baseURL: 'http://backoffice:8080' },
+    };
 
 /**
  * Em produção os apps rodam em HTTPS. Na rede do e2e as origens são http://portal:8080 e http://backoffice:8080, e o

@@ -4,11 +4,11 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AuthApi } from '../auth/auth.api';
-import type { ProvisionalCurrentUser } from '../auth/auth.types';
+import type { CurrentUser } from '../auth/auth.types';
 import { StaffSession } from '../auth/staff-session';
 import { ProfilePage } from './profile-page';
 
-const USER: ProvisionalCurrentUser = {
+const USER: CurrentUser = {
   id: 'u',
   name: 'Ana',
   email: 'a@x.test',
@@ -34,7 +34,7 @@ describe('ProfilePage (BPRF-01, BPRF-02)', () => {
   const changePassword = vi.fn();
   const end = vi.fn();
 
-  function setup(user: ProvisionalCurrentUser | null = USER) {
+  function setup(user: CurrentUser | null = USER) {
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),

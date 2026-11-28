@@ -5,6 +5,27 @@
         "additionalProperties": false,
         "description": "Corpo de toda resposta de erro. Nunca contém valores recebidos na requisição.",
         "properties": {
+          "code": {
+            "description": "Código estável de regra de negócio (D56), só em erros de domínio.",
+            "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+            "type": "string"
+          },
+          "details": {
+            "additionalProperties": {
+              "oneOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "pattern": "^[A-Z][A-Z0-9_]{1,63}$",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Detalhes do erro de domínio (D56): só inteiros não negativos e códigos em maiúsculas.",
+            "type": "object"
+          },
           "error": {
             "type": "string"
           },

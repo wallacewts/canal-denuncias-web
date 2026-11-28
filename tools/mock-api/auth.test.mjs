@@ -85,6 +85,9 @@ test('etapa fora de hora: 403 STEP_NOT_ALLOWED (sessão mantida); sem sessão co
   }
   assert.equal((await call('GET', `${ADMIN}/me`, { sid })).status, 200, 'sessão mantida');
   assert.equal((await call('POST', `${ADMIN}/auth/mfa/enrollment`)).status, 401);
+  const out = await call('POST', `${ADMIN}/auth/sign-out`);
+  assert.equal(out.status, 204);
+  assert.equal(out.res.headers.get('set-cookie'), null);
 });
 
 test('desafio: excesso de tentativas é 429 (cenário rate-limited)', async () => {
@@ -95,6 +98,7 @@ test('desafio: excesso de tentativas é 429 (cenário rate-limited)', async () =
     sid: first.sid,
   });
   assert.equal(r.status, 429);
+  assert.equal(r.body.code, 'TOO_MANY_ATTEMPTS');
 });
 
 test('login: excesso de tentativas é 429 (cenário rate-limited)', async () => {
@@ -151,7 +155,7 @@ test('desafio: código inválido 422 MFA_CODE_INVALID (sessão mantida), bloquei
     sid: first.sid,
   });
   assert.equal(wrong.status, 422);
-  assert.equal(wrong.body.message[0].code, 'MFA_CODE_INVALID');
+  assert.equal(wrong.body.code, 'MFA_CODE_INVALID');
   assert.ok(!wrong.text.includes('12345'));
   await scenario({ challenge: 'locked' });
   assert.equal(
@@ -175,7 +179,7 @@ test('desafio: código inválido 422 MFA_CODE_INVALID (sessão mantida), bloquei
     sid: first.sid,
   });
   assert.equal(again.status, 422);
-  assert.equal(again.body.message[0].code, 'MFA_CODE_INVALID');
+  assert.equal(again.body.code, 'MFA_CODE_INVALID');
   // 401 só para sessão ausente ou expirada.
   assert.equal(
     (await call('POST', `${ADMIN}/auth/mfa/challenge`, { body: { code: VALID_TOTP } })).status,
@@ -204,7 +208,10 @@ test('quem já tem autenticador e precisa trocar a senha: segundo fator primeiro
     sid: mfa.sid,
   });
   assert.equal(pwd.body.nextStep, 'DONE');
-  assert.equal((await call('GET', `${ADMIN}/me`, { sid: pwd.sid })).body.passwordChangeRequired, false);
+  assert.equal(
+    (await call('GET', `${ADMIN}/me`, { sid: pwd.sid })).body.passwordChangeRequired,
+    false,
+  );
   assert.notEqual((await call('GET', `${ADMIN}/reports`, { sid: pwd.sid })).status, 403);
 });
 
@@ -232,7 +239,7 @@ test('primeiro acesso: senha, cadastro com QR code PNG, 10 códigos e acesso lib
     sid: pwd.sid,
   });
   assert.equal(wrong.status, 422);
-  assert.equal(wrong.body.message[0].code, 'MFA_CODE_INVALID');
+  assert.equal(wrong.body.code, 'MFA_CODE_INVALID');
   const ok = await call('POST', `${ADMIN}/auth/mfa/enrollment/confirmation`, {
     body: { code: VALID_TOTP },
     sid: pwd.sid,
@@ -249,21 +256,20 @@ test('troca de senha: 422 com código (senha atual, curta, comum) e 429 na 5ª s
     call('PUT', `${ADMIN}/me/password`, { body: { currentPassword, newPassword }, sid });
   const short = await put(DEFAULT_PASSWORD, 'XQZ');
   assert.equal(short.status, 422);
-  assert.equal(short.body.message[0].code, 'PASSWORD_TOO_SHORT');
+  assert.equal(short.body.code, 'PASSWORD_TOO_SHORT');
   assert.ok(!short.text.includes('XQZ'));
-  assert.equal(
-    (await put(DEFAULT_PASSWORD, 'senhasenha123')).body.message[0].code,
-    'PASSWORD_COMMON',
-  );
+  assert.equal((await put(DEFAULT_PASSWORD, 'senhasenha123')).body.code, 'PASSWORD_COMMON');
   const same = await put(DEFAULT_PASSWORD, DEFAULT_PASSWORD);
   assert.equal(same.status, 422);
-  assert.equal(same.body.message[0].code, 'PASSWORD_SAME_AS_CURRENT');
+  assert.equal(same.body.code, 'PASSWORD_SAME_AS_CURRENT');
   for (let i = 1; i <= 4; i++) {
     const wrong = await put('XQZ', 'nova-senha-bem-longa');
     assert.equal(wrong.status, 422);
-    assert.equal(wrong.body.message[0].code, 'CURRENT_PASSWORD_INVALID');
+    assert.equal(wrong.body.code, 'CURRENT_PASSWORD_INVALID');
   }
-  assert.equal((await put('XQZ', 'nova-senha-bem-longa')).status, 429);
+  const exceeded = await put('XQZ', 'nova-senha-bem-longa');
+  assert.equal(exceeded.status, 429);
+  assert.equal(exceeded.body.code, 'CURRENT_PASSWORD_ATTEMPTS_EXCEEDED');
   assert.equal(
     (await call('GET', `${ADMIN}/me`, { sid })).status,
     401,
@@ -323,7 +329,7 @@ test('proteção por origem: escrita de outra origem é 403, mesma origem passa'
   const same = await call('POST', `${ADMIN}/auth/sign-out`, {
     headers: { 'Sec-Fetch-Site': 'same-origin' },
   });
-  assert.equal(same.status, 401, 'passa pela proteção e cai na falta de sessão');
+  assert.equal(same.status, 204, 'passa pela proteção; sem sessão, sair responde 204 como a API');
   const read = await call('GET', `${ADMIN}/me`, { headers: { 'Sec-Fetch-Site': 'cross-site' } });
   assert.equal(read.status, 401, 'leitura não é barrada pela origem');
   const stats = await call('GET', '/__mock/auth/stats');

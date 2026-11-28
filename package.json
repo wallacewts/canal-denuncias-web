@@ -14,6 +14,7 @@
     "format:check": "prettier --check .",
     "prepare": "husky",
     "e2e": "sh scripts/e2e.sh",
+    "e2e:api": "sh scripts/e2e-api.sh",
     "lint:rules": "node scripts/check-lint-rules.mjs",
     "check:build": "node scripts/check-build-output.mjs",
     "api:sync": "node scripts/api-sync.mjs",

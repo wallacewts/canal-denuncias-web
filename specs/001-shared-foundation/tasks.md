@@ -178,7 +178,7 @@ com o IP repassado.
 
 - [x] T056 [P] [US4] E2E do proxy do portal em `e2e/portal/proxy.spec.ts`: uma chamada a `/api/public/v1/eco` pelo portal chega ao `e2e-api` sem `X-Forwarded-For`, `X-Real-IP`, `Forwarded` e `Cookie`; a CSP da página traz `connect-src 'self'`
 - [x] T057 [P] [US4] E2E do proxy do backoffice em `e2e/backoffice/proxy.spec.ts`: a chamada chega com `X-Forwarded-For` preenchido e com o cookie emitido pelo `e2e-api`
-- [ ] T058 [US4] ⛔ Bloqueada: AUTH-07 e a primeira ação administrativa do backoffice (BAUTH-01). E2E em `e2e/backoffice/xsrf.spec.ts`: um `POST` administrativo feito pela interface leva o cabeçalho `X-XSRF-TOKEN` igual ao cookie `XSRF-TOKEN` e é aceito pela API
+- [x] T058 [US4] ~~Bloqueada: AUTH-07 e a primeira ação administrativa do backoffice (BAUTH-01). E2E em `e2e/backoffice/xsrf.spec.ts`: um `POST` administrativo feito pela interface leva o cabeçalho `X-XSRF-TOKEN` igual ao cookie `XSRF-TOKEN` e é aceito pela API~~ **Atualizada pela T049 da feature 004 (2026-11-28):** a API não usa token XSRF; a proteção é por origem (AUTH-07). Provado contra a API real em `e2e/backoffice-api/real-api.spec.ts` (`npm run e2e:api`): escrita administrativa de outra origem (`Sec-Fetch-Site: cross-site` ou `Origin` diferente do `Host`) é recusada com 403, e a mesma escrita feita pela página, pelo proxy, passa
 
 ### Implementation for User Story 4
 

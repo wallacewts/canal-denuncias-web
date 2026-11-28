@@ -26,14 +26,16 @@ gera em vez de assumir APIs antigas (zoneless e componentes standalone são o pa
 - O proxy `/api` do portal remove IP e cookies; não mude isso sem registrar decisão.
 - Testes de ponta a ponta: `npm run e2e` (Playwright no container oficial). Todo teste usa a fixture `privacyGuards` de
   `e2e/fixtures/privacy-guards.ts`. Nunca use `bypassCSP`. Por enquanto só no Chromium (`E2E_BROWSERS`, padrão
-  `chromium`; o Firefox está desativado temporariamente, ver `docs/validacoes/navegadores-e2e.md`).
+  `chromium`; o Firefox está desativado temporariamente, ver `docs/validacoes/navegadores-e2e.md`). Contra a API real
+  (com ela rodando no host): `npm run e2e:api`, só os testes de `e2e/backoffice-api/`.
+- Códigos de erro da API ficam no topo do corpo (`code`, D56); leia com `errorCodes` (`features/auth/auth.types.ts`).
 - O servidor simulado da API fica em `tools/mock-api` (e2e e `npm run dev:mock-api`). Os apps nunca importam `tools/` nem
   `e2e/` (o lint reprova), e o `check:build` reprova sentinelas do simulador (`DV-SIMUL`, `SIMULADA`, `__mock`) no build.
 - O envio de denúncia usa tipos provisórios (`report-submission.types.ts`) até CAT-01 e REP-02 saírem no contrato da API;
   a troca pelo cliente gerado é a T048 da feature 002. O acompanhamento usa a mesma exceção provisória em
   `features/tracking/tracking.types.ts` (até PUB-01, PUB-03, MSG-01 e MSG-02; remoção na T037 da feature 003). O acesso
-  da equipe usa `projects/backoffice/src/app/features/auth/auth.types.ts` (até AUTH-01 a AUTH-05 e USERS-07; remoção na
-  T046 da feature 004). Não crie outros tipos de resposta da API escritos à mão.
+  da equipe já usa o cliente gerado (`@canal/shared/api/admin`); `features/auth/auth.types.ts` só valida as respostas e
+  deriva o modelo dos tipos gerados. Não crie outros tipos de resposta da API escritos à mão.
 - O bundle inicial do portal tem aviso em 440 kB (D52). Código de tela novo vai em rota com `loadComponent`.
 - Em código carregado sob demanda, nunca importe do barril `@canal/shared` um símbolo que já está no bundle inicial
   (interceptors, políticas, tokens de HTTP): o build levaria a lib inteira para o bundle inicial (+100 kB na feature

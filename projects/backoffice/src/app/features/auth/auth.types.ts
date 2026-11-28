@@ -1,25 +1,43 @@
+import type {
+  authControllerConfirmEnrollment,
+  authControllerEnroll,
+  authControllerSignIn,
+  meControllerMe,
+} from '@canal/shared/api/admin';
+import type { Observable } from 'rxjs';
+
 /**
- * PROVISÓRIO (research.md R10, Complexity Tracking do plano): tipos escritos à mão porque AUTH-01 a AUTH-05 e USERS-07
- * ainda não existem no contrato da API. A integração (tarefa bloqueada) troca tudo pelo cliente gerado de
- * `openapi/admin.json` e apaga este arquivo. Toda resposta é validada em tempo de execução, com as chaves exatas do
- * contrato (specs/004-backoffice-sign-in/contracts/auth-api.md): uma resposta inesperada vira erro, nunca dado na tela.
- * Nenhum token aparece aqui: a sessão é só o cookie HttpOnly da API (D53).
+ * Modelo das respostas de autenticação, derivado do cliente gerado de `openapi/admin.json` (AUTH-01 a AUTH-05,
+ * USERS-07): nenhum formato de resposta é escrito à mão. A tela usa horários como `Date`, por isso cada resposta passa
+ * pela validação em tempo de execução abaixo (R10), com as chaves exatas do contrato: uma resposta inesperada vira
+ * erro, nunca dado na tela. Nenhum token aparece aqui: a sessão é só o cookie HttpOnly da API (D53).
  */
+type BodyOf<F> = F extends (...args: never[]) => Observable<{ body: infer B }> ? B : never;
+type StepBody = BodyOf<typeof authControllerSignIn>;
+type MeBody = BodyOf<typeof meControllerMe>;
+type EnrollBody = BodyOf<typeof authControllerEnroll>;
+type ConfirmationBody = BodyOf<typeof authControllerConfirmEnrollment>;
+type ExpiryKeys = 'idleExpiresAt' | 'absoluteExpiresAt';
 
-export type NextStep =
-  'MFA_REQUIRED' | 'MFA_ENROLLMENT_REQUIRED' | 'PASSWORD_CHANGE_REQUIRED' | 'DONE';
+export type NextStep = StepBody['nextStep'];
 export type PendingStep = Exclude<NextStep, 'DONE'>;
+export type Role = MeBody['roles'][number];
 
-const NEXT_STEPS: readonly NextStep[] = [
+const NEXT_STEPS = [
   'MFA_REQUIRED',
   'MFA_ENROLLMENT_REQUIRED',
   'PASSWORD_CHANGE_REQUIRED',
   'DONE',
-];
-const ROLES = ['ADMIN', 'COMPLIANCE_MANAGER', 'ANALYST', 'DPO', 'AUDITOR'] as const;
-export type Role = (typeof ROLES)[number];
+] as const satisfies readonly NextStep[];
+const ROLES = [
+  'ADMIN',
+  'COMPLIANCE_MANAGER',
+  'ANALYST',
+  'DPO',
+  'AUDITOR',
+] as const satisfies readonly Role[];
 
-/** Código de permissão `recurso.ação` (USERS-07). */
+/** Código de permissão `recurso.ação` (USERS-07). Lido como texto: uma permissão nova da API não quebra a tela. */
 const ABILITY = /^[a-z][a-z-]*\.[a-z][a-z-]*$/;
 const PNG_DATA_URI = /^data:image\/png;base64,[A-Za-z0-9+/]+=*$/;
 
@@ -29,32 +47,26 @@ export interface SessionExpiry {
 }
 
 /** Resposta do login, do desafio e da troca de senha: próxima etapa e horários de expiração. */
-export interface ProvisionalStepResponse extends SessionExpiry {
-  readonly nextStep: NextStep;
-}
+export type StepResponse = Readonly<Omit<StepBody, ExpiryKeys>> & SessionExpiry;
 
-/** Resposta de `GET /api/admin/v1/me` (USERS-07). `roles` só para exibição; menu e rotas usam `abilities`. */
-export interface ProvisionalCurrentUser extends SessionExpiry {
-  readonly id: string;
-  readonly name: string;
-  readonly email: string;
-  readonly roles: readonly Role[];
-  readonly mfaEnabledAt: Date | null;
-  readonly passwordChangeRequired: boolean;
-  readonly abilities: readonly string[];
-}
+/** Resposta de `GET /api/admin/v1/me`. `roles` só para exibição; menu e rotas usam `abilities`. */
+export type CurrentUser = Readonly<
+  Omit<MeBody, ExpiryKeys | 'mfaEnabledAt' | 'roles' | 'abilities'>
+> &
+  SessionExpiry & {
+    readonly mfaEnabledAt: Date | null;
+    readonly roles: readonly Role[];
+    readonly abilities: readonly string[];
+  };
 
-/** Resposta de `POST /auth/mfa/enrollment` (AUTH-03). Existe só enquanto a tela de cadastro está aberta. */
-export interface ProvisionalEnrollment {
-  readonly otpauthUri: string;
-  readonly qrCodeDataUri: string;
-  readonly secret: string;
-}
+/** Resposta de `POST /auth/mfa/enrollment`. Existe só enquanto a tela de cadastro está aberta. */
+export type Enrollment = Readonly<EnrollBody>;
 
 /** Resposta da confirmação do cadastro: os 10 códigos de recuperação, exibidos uma única vez. */
-export interface ProvisionalEnrollmentConfirmation extends ProvisionalStepResponse {
-  readonly recoveryCodes: readonly string[];
-}
+export type EnrollmentConfirmation = Readonly<
+  Omit<ConfirmationBody, ExpiryKeys | 'recoveryCodes'>
+> &
+  SessionExpiry & { readonly recoveryCodes: readonly string[] };
 
 export class InvalidAuthResponseError extends Error {
   constructor() {
@@ -94,18 +106,18 @@ function expiry(record: Json): SessionExpiry {
 }
 
 function step(value: unknown): NextStep {
-  if (!NEXT_STEPS.includes(value as NextStep)) throw new InvalidAuthResponseError();
+  if (!(NEXT_STEPS as readonly unknown[]).includes(value)) throw new InvalidAuthResponseError();
   return value as NextStep;
 }
 
 const EXPIRY_KEYS = ['idleExpiresAt', 'absoluteExpiresAt'] as const;
 
-export function toStepResponse(body: unknown): ProvisionalStepResponse {
+export function toStepResponse(body: unknown): StepResponse {
   const r = exact(body, ['nextStep', ...EXPIRY_KEYS]);
   return { nextStep: step(r['nextStep']), ...expiry(r) };
 }
 
-export function toCurrentUser(body: unknown): ProvisionalCurrentUser {
+export function toCurrentUser(body: unknown): CurrentUser {
   const r = exact(body, [
     'id',
     'name',
@@ -118,7 +130,10 @@ export function toCurrentUser(body: unknown): ProvisionalCurrentUser {
   ]);
   const roles = r['roles'];
   const abilities = r['abilities'];
-  if (!Array.isArray(roles) || !roles.every((role) => ROLES.includes(role as Role))) {
+  if (
+    !Array.isArray(roles) ||
+    !roles.every((role) => (ROLES as readonly unknown[]).includes(role))
+  ) {
     throw new InvalidAuthResponseError();
   }
   if (
@@ -140,7 +155,7 @@ export function toCurrentUser(body: unknown): ProvisionalCurrentUser {
   };
 }
 
-export function toEnrollment(body: unknown): ProvisionalEnrollment {
+export function toEnrollment(body: unknown): Enrollment {
   const r = exact(body, ['otpauthUri', 'qrCodeDataUri', 'secret']);
   const qr = text(r['qrCodeDataUri']);
   // Só PNG embutido: o sanitizador do Angular recusa SVG embutido, e contorná-lo exigiria bypassSecurityTrust* (R6).
@@ -148,7 +163,7 @@ export function toEnrollment(body: unknown): ProvisionalEnrollment {
   return { otpauthUri: text(r['otpauthUri']), qrCodeDataUri: qr, secret: text(r['secret']) };
 }
 
-export function toEnrollmentConfirmation(body: unknown): ProvisionalEnrollmentConfirmation {
+export function toEnrollmentConfirmation(body: unknown): EnrollmentConfirmation {
   const r = exact(body, ['recoveryCodes', 'nextStep', ...EXPIRY_KEYS]);
   const codes = r['recoveryCodes'];
   if (
@@ -165,7 +180,10 @@ export function toEnrollmentConfirmation(body: unknown): ProvisionalEnrollmentCo
  * Códigos de erro de campo de uma resposta 422 (formato `ApiError` da API: `message` com `{ code, path }`). Só os
  * códigos: nunca o texto da API nem o que a pessoa enviou.
  */
-/** Códigos de erro de qualquer resposta: `code` no corpo ou nos itens de `message` (formato a conferir na T047). */
+/**
+ * Códigos de erro de uma resposta: `code` no topo do corpo (formato da API, D56) ou nos itens de `message` (erros de
+ * validação). Só os códigos: nunca o texto da API nem o que a pessoa enviou.
+ */
 export function errorCodes(body: unknown): string[] {
   const top = typeof body === 'object' && body !== null ? (body as Json)['code'] : null;
   return [...(typeof top === 'string' ? [top] : []), ...fieldErrorCodes(body)];

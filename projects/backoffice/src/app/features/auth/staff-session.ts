@@ -9,7 +9,7 @@ import {
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthApi } from './auth.api';
-import type { PendingStep, ProvisionalCurrentUser, SessionExpiry } from './auth.types';
+import type { PendingStep, CurrentUser, SessionExpiry } from './auth.types';
 
 export type EndReason = 'signed-out' | 'idle' | 'absolute' | 'unauthenticated' | 'other-tab';
 export type SessionWarning = 'idle' | 'absolute';
@@ -59,7 +59,7 @@ export class StaffSession implements OnDestroy {
   private readonly api = inject(AuthApi);
   private readonly channel = inject(SESSION_CHANNEL);
 
-  private readonly userState = signal<ProvisionalCurrentUser | null>(null);
+  private readonly userState = signal<CurrentUser | null>(null);
   private readonly pendingState = signal<{ step: PendingStep; expiresAtLocal: number } | null>(
     null,
   );
@@ -112,7 +112,7 @@ export class StaffSession implements OnDestroy {
   }
 
   /** Sessão verificada: usuário e horários vindos de `/me`. */
-  establish(user: ProvisionalCurrentUser, serverNow: number | null): void {
+  establish(user: CurrentUser, serverNow: number | null): void {
     this.live = true;
     this.endReason = null;
     this.pendingState.set(null);

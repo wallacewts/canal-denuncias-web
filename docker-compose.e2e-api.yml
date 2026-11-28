@@ -1,0 +1,17 @@
+# e2e do backoffice contra a API real (T048 da feature 004). Use: npm run e2e:api (scripts/e2e-api.sh), com a API do
+# repositório canal-denuncias-api rodando no host (docker compose --profile app up, porta 3000).
+# Aplicado por cima de docker-compose.yml e docker-compose.e2e.yml: só o proxy /api do backoffice muda de destino.
+services:
+  backoffice:
+    environment:
+      APP_API_UPSTREAM: http://host.docker.internal:3000
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  e2e:
+    environment:
+      E2E_TARGET: api
+      # Conta de teste da API real (opcional). Sem ela, rodam só os testes que não precisam de usuário.
+      E2E_API_EMAIL: ${E2E_API_EMAIL:-}
+      E2E_API_PASSWORD: ${E2E_API_PASSWORD:-}
+      E2E_API_TOTP_SECRET: ${E2E_API_TOTP_SECRET:-}
