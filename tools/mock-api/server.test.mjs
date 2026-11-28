@@ -139,6 +139,19 @@ test('contador de envios e reset', async () => {
   assert.equal((await (await fetch(`${base}/__mock/stats`)).json()).submissions, 0);
 });
 
+test('cenário e contador são isolados por sessão (x-mock-session)', async () => {
+  const headers = { 'Content-Type': 'application/json', 'x-mock-session': 'outra' };
+  await fetch(`${base}/__mock/scenario`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ categories: 'empty' }),
+  });
+  const other = await fetch(`${base}/api/public/v1/categories`, { headers });
+  assert.deepEqual(await other.json(), []);
+  // A sessão padrão não foi afetada.
+  assert.equal((await (await fetch(`${base}/api/public/v1/categories`)).json()).length, 3);
+});
+
 test('rotas /fixture/* e eco continuam respondendo como na feature 001', async () => {
   assert.equal((await fetch(`${base}/fixture/clean`)).status, 200);
   const echo = await (await fetch(`${base}/api/qualquer`)).json();

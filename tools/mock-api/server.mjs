@@ -88,8 +88,17 @@ const ALLOWED_FIELDS = new Set([
 ]);
 
 const DEFAULT_SCENARIO = { categories: 'ok', submit: 'ok' };
-let scenario = { ...DEFAULT_SCENARIO };
-let submissions = 0;
+
+/**
+ * Cenário e contador por sessão de teste (cabeçalho x-mock-session), para os testes em paralelo (Chromium e Firefox)
+ * não interferirem uns nos outros. Sem o cabeçalho, vale a sessão "default" (desenvolvimento local).
+ */
+const sessions = new Map();
+const sessionOf = (req) => {
+  const id = String(req.headers['x-mock-session'] ?? 'default');
+  if (!sessions.has(id)) sessions.set(id, { scenario: { ...DEFAULT_SCENARIO }, submissions: 0 });
+  return sessions.get(id);
+};
 
 const json = (res, status, body, headers = {}) => {
   res.writeHead(status, { 'Content-Type': 'application/json', ...headers });
@@ -165,9 +174,10 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 /** Trata as rotas da API simulada e de controle. Devolve false se a rota não for dela. */
 async function handleApi(req, res, url) {
+  const session = sessionOf(req);
   if (url.pathname === '/__mock/reset' && req.method === 'POST') {
-    scenario = { ...DEFAULT_SCENARIO };
-    submissions = 0;
+    session.scenario = { ...DEFAULT_SCENARIO };
+    session.submissions = 0;
     res.writeHead(204);
     res.end();
     return true;
@@ -175,40 +185,40 @@ async function handleApi(req, res, url) {
   if (url.pathname === '/__mock/scenario' && req.method === 'POST') {
     try {
       const body = JSON.parse(await readBody(req));
-      scenario = { ...scenario, ...body };
+      session.scenario = { ...session.scenario, ...body };
     } catch {
       return (json(res, 400, { error: 'cenário inválido' }), true);
     }
-    return (json(res, 200, scenario), true);
+    return (json(res, 200, session.scenario), true);
   }
   if (url.pathname === '/__mock/stats' && req.method === 'GET') {
-    return (json(res, 200, { submissions }), true);
+    return (json(res, 200, { submissions: session.submissions }), true);
   }
 
   if (url.pathname === '/api/public/v1/categories' && req.method === 'GET') {
-    if (scenario.categories === 'error')
+    if (session.scenario.categories === 'error')
       return (json(res, 500, apiError(500, 'Internal Server Error', 'Erro interno.')), true);
-    if (scenario.categories === 'empty') return (json(res, 200, []), true);
+    if (session.scenario.categories === 'empty') return (json(res, 200, []), true);
     return (json(res, 200, CATEGORIES, { 'Cache-Control': 'public, max-age=60' }), true);
   }
 
   if (url.pathname === '/api/public/v1/reports' && req.method === 'POST') {
     const raw = await readBody(req); // nunca registrado em log
-    submissions += 1;
+    session.submissions += 1;
     let body;
     try {
       body = JSON.parse(raw);
     } catch {
       return (json(res, 400, apiError(400, 'Bad Request', 'Corpo da requisição inválido.')), true);
     }
-    if (scenario.submit === 'error')
+    if (session.scenario.submit === 'error')
       return (json(res, 500, apiError(500, 'Internal Server Error', 'Erro interno.')), true);
     const issues =
-      scenario.submit === 'invalid'
+      session.scenario.submit === 'invalid'
         ? [{ path: 'description', code: 'invalid_length', message: 'Campo inválido: description' }]
         : validateSubmission(body);
     if (issues.length) return (json(res, 400, apiError(400, 'Bad Request', issues)), true);
-    if (scenario.submit === 'slow') await new Promise((r) => setTimeout(r, 2_000));
+    if (session.scenario.submit === 'slow') await new Promise((r) => setTimeout(r, 2_000));
     return (
       json(res, 201, { ...RECEIPT, receivedOn: today() }, { 'Cache-Control': 'no-store' }),
       true

@@ -29,6 +29,10 @@ e REP-02 do backlog da API até eles existirem no contrato OpenAPI.
 
 ## Controle
 
+- Cenário e contador ficam separados por sessão de teste, pelo cabeçalho `x-mock-session` (o proxy `/api` do portal o
+  repassa). Os testes em paralelo (Chromium e Firefox) não interferem uns nos outros; sem o cabeçalho, vale a sessão
+  `default` (desenvolvimento local). O e2e usa `e2e/support/mock-api.ts`.
+
 - `POST /__mock/scenario` com `{ "categories": "...", "submit": "..." }`: troca o cenário. `POST /__mock/reset`: volta
   ao padrão e zera os contadores.
 - As rotas `/fixture/*` e o eco de qualquer outra rota continuam como no servidor de eco da feature 001.

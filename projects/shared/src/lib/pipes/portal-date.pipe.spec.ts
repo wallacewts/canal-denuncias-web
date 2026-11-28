@@ -19,3 +19,10 @@ describe('portalDate', () => {
     expect(pipe.transform('não é data')).toBe('');
   });
 });
+
+describe('PortalDatePipe com data sem hora (AAAA-MM-DD)', () => {
+  it('mostra o mesmo dia em qualquer fuso, sem voltar um dia por causa do UTC', () => {
+    expect(new PortalDatePipe().transform('2026-11-28')).toBe('28/11/2026');
+    expect(new PortalDatePipe().transform('2026-01-01')).toBe('01/01/2026');
+  });
+});

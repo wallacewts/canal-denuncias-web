@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
-import { PagePlaceholder } from '@canal/shared';
+import { PageHeader } from '@canal/shared';
+import { PrivacyNoticeContent } from './privacy-notice-content';
 
 @Component({
   selector: 'app-privacy-notice-page',
-  imports: [PagePlaceholder],
-  template: `<lib-page-placeholder
-    title="Aviso de privacidade"
-    description="Finalidade do tratamento, base legal, prazos de retenção e direitos do titular, conforme a LGPD."
-  />`,
+  imports: [PageHeader, PrivacyNoticeContent],
+  template: `
+    <lib-page-header title="Aviso de privacidade" />
+    <app-privacy-notice-content />
+  `,
 })
 export class PrivacyNoticePage {}

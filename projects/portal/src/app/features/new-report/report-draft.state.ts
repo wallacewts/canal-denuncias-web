@@ -1,4 +1,4 @@
-import { Injectable, type OnDestroy, inject } from '@angular/core';
+import { Injectable, type OnDestroy, inject, signal } from '@angular/core';
 import {
   type AbstractControl,
   type FormArray,
@@ -133,6 +133,9 @@ export class ReportDraftState implements OnDestroy {
     involved: this.fb.array<InvolvedGroup>([], Validators.maxLength(MAX_INVOLVED)),
   });
 
+  /** Nome da categoria escolhida, para a revisão (o rascunho guarda só o código, que é o que vai para a API). */
+  readonly categoryName = signal<string | null>(null);
+
   private readonly initial = JSON.stringify(emptyDraftValue());
 
   /** A etapa está completa quando o seu subgrupo é válido. */
@@ -173,6 +176,7 @@ export class ReportDraftState implements OnDestroy {
   clear(): void {
     this.involved.clear();
     this.form.reset();
+    this.categoryName.set(null);
   }
 
   ngOnDestroy(): void {

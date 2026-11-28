@@ -97,45 +97,45 @@ do protocolo, a cópia e o download.
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T020 [P] [US1] `e2e/portal/new-report.spec.ts`: fluxo feliz com `privacyGuards`; URL só com o nome da etapa;
+- [x] T020 [P] [US1] `e2e/portal/new-report.spec.ts`: fluxo feliz com `privacyGuards`; URL só com o nome da etapa;
       título sem protocolo, chave ou trecho do relato; tela do protocolo com os valores simulados e a data só com o
       dia; download `comprovante-denuncia.txt` com protocolo, chave e data no conteúdo; cópia testada nos dois caminhos da
       research R11 (sucesso com retorno anunciado no Chromium, onde a origem de teste é segura; orientação de fallback
       com o valor selecionável no Firefox, onde a área de transferência não existe nessa origem); em cada etapa, o foco
       está no `h1` e `aria-current="step"` aponta a etapa certa;
       "Concluir" só depois de marcar "Guardei" e volta para `/`
-- [ ] T021 [P] [US1] No mesmo arquivo: cenário `slow` com clique duplo gera um envio só (`/__mock/stats`); categorias
+- [x] T021 [P] [US1] No mesmo arquivo: cenário `slow` com clique duplo gera um envio só (`/__mock/stats`); categorias
       `error` com "Tentar de novo" e `empty` sem permitir avançar; uma variante percorre o fluxo inteiro só com o teclado (Tab, Espaço e Enter), do
       início até "Concluir" (SC-007)
-- [ ] T022 [P] [US1] Testes das etapas em `FLOW/steps/*.spec.ts`: tipo (códigos enviados, obrigatório, texto sobre não
+- [x] T022 [P] [US1] Testes das etapas em `FLOW/steps/*.spec.ts`: tipo (códigos enviados, obrigatório, texto sobre não
       identificar); categoria (carregando, erro, vazio, ordem da API); relato (contador anunciado, limites, data exata
       ou mês e ano, tipos de dados, orientação, campos sem preenchimento automático); envolvidos (até 20, foco na linha
       nova; ao remover, foco no primeiro campo da linha seguinte, senão da anterior, senão no botão "Adicionar
       envolvido"; teclado)
-- [ ] T023 [P] [US1] Testes `FLOW/review-page.spec.ts`: mostra tudo o que será enviado, links de edição por etapa,
+- [x] T023 [P] [US1] Testes `FLOW/review-page.spec.ts`: mostra tudo o que será enviado, links de edição por etapa,
       link do aviso de privacidade antes do botão, botão desabilitado durante o envio, sucesso grava o comprovante,
       limpa o rascunho e navega
-- [ ] T024 [P] [US1] Testes `FLOW/protocol-issued-page.spec.ts` e `FLOW/receipt-file.spec.ts`: exibição a partir da
+- [x] T024 [P] [US1] Testes `FLOW/protocol-issued-page.spec.ts` e `FLOW/receipt-file.spec.ts`: exibição a partir da
       memória; "Concluir" exige a marcação; ao concluir, apaga; `Blob` `text/plain`, nome fixo sem protocolo nem chave,
       `revokeObjectURL` chamado; cópia negada mostra a orientação e o valor continua selecionável
-- [ ] T025 [P] [US1] `e2e/portal/a11y.spec.ts` e `e2e/portal/layout.spec.ts` (novo, se não existir): axe em cada
+- [x] T025 [P] [US1] `e2e/portal/a11y.spec.ts` e `e2e/portal/layout.spec.ts` (novo, se não existir): axe em cada
       etapa, na revisão (com o diálogo do aviso aberto) e no protocolo com o fluxo preenchido; 320 px e zoom de 200%
 
 ### Implementação
 
-- [ ] T026 [US1] `FLOW/wizard-progress.ts` ("Etapa N de 5 · Nome", `aria-current="step"`) e foco no título a cada
+- [x] T026 [US1] `FLOW/wizard-progress.ts` ("Etapa N de 5 · Nome", `aria-current="step"`) e foco no título a cada
       troca de etapa em `FLOW/new-report-flow.ts`
-- [ ] T027 [P] [US1] `FLOW/steps/reporter-type-step.ts`
-- [ ] T028 [P] [US1] `FLOW/steps/category-step.ts` com `LoadingState`, `EmptyState` e "Tentar de novo"
-- [ ] T029 [P] [US1] `FLOW/steps/description-step.ts`: contador, "quando aconteceu" com controles nativos (research R9),
+- [x] T027 [P] [US1] `FLOW/steps/reporter-type-step.ts`
+- [x] T028 [P] [US1] `FLOW/steps/category-step.ts` com `LoadingState`, `EmptyState` e "Tentar de novo"
+- [x] T029 [P] [US1] `FLOW/steps/description-step.ts`: contador, "quando aconteceu" com controles nativos (research R9),
       tipos de dados, orientação, `FormFieldError` e `sensitive-input`
-- [ ] T030 [P] [US1] `FLOW/steps/involved-step.ts`
-- [ ] T031 [P] [US1] Extrair `projects/portal/src/app/features/privacy/privacy-notice-content.ts` de
+- [x] T030 [P] [US1] `FLOW/steps/involved-step.ts`
+- [x] T031 [P] [US1] Extrair `projects/portal/src/app/features/privacy/privacy-notice-content.ts` de
       `privacy-notice-page.ts` e criar o diálogo do aviso usado pela revisão
-- [ ] T032 [US1] `FLOW/review-page.ts`: resumo, links de edição, diálogo do aviso, envio com botão desabilitado e, no
+- [x] T032 [US1] `FLOW/review-page.ts`: resumo, links de edição, diálogo do aviso, envio com botão desabilitado e, no
       sucesso, `ReceiptState`, limpeza do rascunho e navegação para `protocolo`
-- [ ] T033 [P] [US1] `FLOW/receipt-file.ts` (research R7)
-- [ ] T034 [US1] `FLOW/protocol-issued-page.ts`: exibição, copiar com região `aria-live` e orientação de falha
+- [x] T033 [P] [US1] `FLOW/receipt-file.ts` (research R7)
+- [x] T034 [US1] `FLOW/protocol-issued-page.ts`: exibição, copiar com região `aria-live` e orientação de falha
       (research R11), baixar, aviso de que não há recuperação, marcação e "Concluir"
 
 **Checkpoint**: envio completo funcionando contra o simulador.

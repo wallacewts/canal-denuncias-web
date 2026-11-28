@@ -22,3 +22,4 @@ export * from './lib/ui/confirm-dialog';
 export * from './lib/ui/status-chip';
 export * from './lib/ui/form-field-error';
 export * from './lib/state/screen-state';
+export * from './lib/pipes/format-date';
