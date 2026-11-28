@@ -3,3 +3,8 @@ coverage/
 .angular/
 node_modules/
 package-lock.json
+# Código gerado do contrato OpenAPI
+projects/shared/src/lib/api/generated/
+# Saídas do Playwright
+e2e/report/
+e2e/test-results/

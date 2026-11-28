@@ -9,3 +9,10 @@ coverage
 docker/config
 *.md
 .husky
+# Não fazem parte da imagem dos apps
+e2e
+specs
+openapi
+scripts
+.specify
+.claude

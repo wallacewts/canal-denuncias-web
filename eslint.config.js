@@ -5,7 +5,18 @@ const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
 
 module.exports = defineConfig([
-  { ignores: ['dist/', 'coverage/', '.angular/', 'node_modules/'] },
+  {
+    ignores: [
+      'dist/',
+      'coverage/',
+      '.angular/',
+      'node_modules/',
+      // Código gerado do contrato OpenAPI: nunca editado à mão.
+      'projects/shared/src/lib/api/generated/',
+      'e2e/report/',
+      'e2e/test-results/',
+    ],
+  },
   {
     files: ['**/*.ts'],
     extends: [
