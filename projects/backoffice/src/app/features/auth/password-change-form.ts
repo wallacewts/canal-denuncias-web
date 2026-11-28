@@ -134,6 +134,8 @@ export class PasswordChangeForm {
   private readonly session = inject(StaffSession);
 
   readonly changed = output<Timed<ProvisionalStepResponse>>();
+  /** Envio válido começou (a tela que usa o formulário limpa avisos do envio anterior). */
+  readonly started = output<void>();
 
   protected readonly submitting = signal(false);
   protected readonly form = new FormGroup(
@@ -161,6 +163,7 @@ export class PasswordChangeForm {
     if (this.form.invalid) return;
     const { currentPassword, newPassword } = this.form.getRawValue();
     this.form.reset();
+    this.started.emit();
     this.submitting.set(true);
     this.api
       .changePassword(currentPassword, newPassword)

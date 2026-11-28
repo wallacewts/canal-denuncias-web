@@ -229,16 +229,16 @@ mostra o aviso de sessão renovada e outras sessões encerradas.
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T043 [P] [US5] Unitário de `projects/backoffice/src/app/features/profile/profile-page.spec.ts`: dados do
+- [x] T043 [P] [US5] Unitário de `projects/backoffice/src/app/features/profile/profile-page.spec.ts`: dados do
       `StaffSession`; sucesso com aviso; 422 `CURRENT_PASSWORD_INVALID` como erro no campo com a sessão mantida; 429 leva ao
       login com a mensagem de sessão encerrada; falha com campos limpos
-- [ ] T044 [P] [US5] E2E em `e2e/backoffice/profile.spec.ts`: dados e troca de senha (sucesso, senha comum e senha
+- [x] T044 [P] [US5] E2E em `e2e/backoffice/profile.spec.ts`: dados e troca de senha (sucesso, senha comum e senha
       atual errada, que mostra o erro no campo e não volta ao login; 5ª senha atual errada com 429, que volta ao login
       com a mensagem de sessão encerrada e nenhum dado na memória)
 
 ### Implementação
 
-- [ ] T045 [US5] `projects/backoffice/src/app/features/profile/profile-page.ts` (substitui o placeholder) com o
+- [x] T045 [US5] `projects/backoffice/src/app/features/profile/profile-page.ts` (substitui o placeholder) com o
       `password-change-form`
 
 ---
