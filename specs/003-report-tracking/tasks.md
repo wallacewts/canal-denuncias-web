@@ -171,19 +171,19 @@ nenhum dado.
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T032 [P] [US3] e2e `e2e/portal/tracking-session.spec.ts` (saída): "Sair" no topo e no fim; sair mostra "Você saiu
+- [x] T032 [P] [US3] e2e `e2e/portal/tracking-session.spec.ts` (saída): "Sair" no topo e no fim; sair mostra "Você saiu
       do acompanhamento." e o voltar do navegador continua na consulta sem dados; `page.clock` até 15 min volta para a
       consulta com "Seu acesso terminou…" e apaga o texto em digitação; `me: unauthorized` faz o mesmo; uma única
       mensagem em cada caso; envio `slow` com o relógio avançado até a expiração não mostra a mensagem enviada nem volta para o
       acompanhamento (analyze C1)
-- [ ] T033 [P] [US3] e2e `e2e/portal/tracking-session.spec.ts`: orientações para computador compartilhado nas duas telas; duas abas com acessos
+- [x] T033 [P] [US3] e2e `e2e/portal/tracking-session.spec.ts`: orientações para computador compartilhado nas duas telas; duas abas com acessos
       independentes (sair numa não afeta a outra)
 
 ### Implementação
 
-- [ ] T034 [US3] Botões "Sair" no topo e no fim de `TRK/tracking-page.ts`, ligados a `ReporterAccess.end('logout')`,
+- [x] T034 [US3] Botões "Sair" no topo e no fim de `TRK/tracking-page.ts`, ligados a `ReporterAccess.end('logout')`,
       e bloco de orientações (contracts/tracking-routes.md)
-- [ ] T035 [US3] Mensagens de encerramento na `TRK/tracking-access-page.ts` em `role="status"`, lidas de
+- [x] T035 [US3] Mensagens de encerramento na `TRK/tracking-access-page.ts` em `role="status"`, lidas de
       `ReporterAccess.endReason` (único mecanismo, sem snackbar)
 
 **Checkpoint**: as três histórias funcionando e testadas.

@@ -62,3 +62,98 @@ test.describe('aviso de expiração', () => {
     await expect(field).toBeFocused();
   });
 });
+
+test.describe('saída segura', () => {
+  test.beforeEach(({ privacyGuards }) => {
+    privacyGuards.trackSensitive(MOCK_RECEIPT.protocol);
+    privacyGuards.trackSensitive(MOCK_RECEIPT.accessKey);
+    privacyGuards.trackSensitive('SIMULADA.');
+    privacyGuards.trackSensitive('texto em digitação XQZ');
+  });
+
+  const ended = 'Seu acesso terminou. Informe o protocolo e a chave de novo.';
+
+  test('"Sair" no topo e no fim; sair apaga tudo e o voltar do navegador não mostra a denúncia', async ({
+    page,
+    request,
+  }) => {
+    await openTracking(page, request);
+    const exits = page.getByRole('button', { name: 'Sair', exact: true });
+    await expect(exits).toHaveCount(2);
+    await exits.first().click();
+    await expect(page).toHaveURL(/\/consultar$/);
+    await expect(page.getByTestId('end-reason')).toHaveText('Você saiu do acompanhamento.');
+    await page.goBack();
+    await expect(page).toHaveURL(/\/consultar$/);
+    await expect(page.getByTestId('status')).toHaveCount(0);
+    await expect(page.getByTestId('messages')).toHaveCount(0);
+  });
+
+  test('aos 15 minutos o acesso termina, o texto em digitação some e aparece uma única mensagem', async ({
+    page,
+    request,
+  }) => {
+    await page.clock.install();
+    await openTracking(page, request);
+    await page.getByLabel('Sua mensagem').fill('texto em digitação XQZ');
+    await page.clock.runFor(15 * 60_000);
+    await expect(page).toHaveURL(/\/consultar$/);
+    await expect(page.getByTestId('end-reason')).toHaveText(ended);
+    await expect(page.getByText(ended)).toHaveCount(1);
+    await expect(page.locator('mat-snack-bar-container')).toHaveCount(0);
+    await expect(page.getByLabel('Sua mensagem')).toHaveCount(0);
+  });
+
+  test('401 da API encerra com a mesma mensagem, sem a mensagem padrão', async ({
+    page,
+    request,
+  }) => {
+    const mock = await openTracking(page, request);
+    await mock.setScenario({ me: 'unauthorized' });
+    await page.getByRole('button', { name: 'Atualizar' }).click();
+    await expect(page).toHaveURL(/\/consultar$/);
+    await expect(page.getByTestId('end-reason')).toHaveText(ended);
+    await expect(page.getByText(ended)).toHaveCount(1);
+    await expect(page.locator('mat-snack-bar-container')).toHaveCount(0);
+  });
+
+  test('envio lento com o acesso expirando no meio: a resposta é descartada e nada volta à tela', async ({
+    page,
+    request,
+  }) => {
+    await page.clock.install();
+    await openTracking(page, request, { send: 'slow' });
+    await page.getByLabel('Sua mensagem').fill('texto em digitação XQZ');
+    await page.getByRole('button', { name: 'Enviar mensagem' }).click();
+    await page.clock.runFor(15 * 60_000);
+    await expect(page).toHaveURL(/\/consultar$/);
+    // A resposta do simulador chega 2 s depois (tempo real); a tela continua na consulta, sem dados.
+    await page.waitForTimeout(2_500);
+    await expect(page).toHaveURL(/\/consultar$/);
+    await expect(page.getByTestId('messages')).toHaveCount(0);
+    await expect(page.getByTestId('status')).toHaveCount(0);
+  });
+
+  test('orientações para computador compartilhado nas duas telas', async ({ page, request }) => {
+    await useMockSession(page, request);
+    await page.goto('/consultar');
+    await expect(page.getByText('Não salve a chave no navegador.')).toBeVisible();
+    await openTracking(page, request);
+    await expect(page.getByText('Não salve a chave no navegador.')).toBeVisible();
+    await expect(page.getByText('feche a aba')).toBeVisible();
+  });
+
+  test('duas abas têm acessos independentes: sair numa não afeta a outra', async ({
+    page,
+    request,
+    context,
+  }) => {
+    await openTracking(page, request);
+    const other = await context.newPage();
+    await openTracking(other, request);
+    await page.getByRole('button', { name: 'Sair', exact: true }).first().click();
+    await expect(page).toHaveURL(/\/consultar$/);
+    await expect(other.getByTestId('status')).toBeVisible();
+    await other.close();
+  });
+});
