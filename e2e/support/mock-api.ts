@@ -7,6 +7,28 @@ const MOCK = 'http://e2e-api:3000';
 export interface MockScenario {
   categories?: 'ok' | 'empty' | 'error';
   submit?: 'ok' | 'invalid' | 'error' | 'slow';
+  access?: 'ok' | 'invalid' | 'rate-limited' | 'error' | 'slow';
+  me?: 'ok' | 'unauthorized';
+  report?:
+    | 'received'
+    | 'in-review'
+    | 'awaiting'
+    | 'awaiting-overdue'
+    | 'concluded-substantiated'
+    | 'concluded-partial'
+    | 'concluded-unsubstantiated'
+    | 'closed'
+    | 'error';
+  messages?: 'some' | 'empty' | 'error';
+  send?: 'ok' | 'closed' | 'invalid' | 'error' | 'slow';
+}
+
+/** Contadores do simulador (contracts/mock-api-tracking.md). */
+export interface MockStats {
+  submissions: number;
+  sessions: number;
+  messages: number;
+  messageReads: number;
 }
 
 /** Valores que o simulador devolve (contracts/mock-api.md). */
@@ -31,14 +53,14 @@ export async function useMockSession(
   if (Object.keys(scenario).length) {
     await request.post(`${MOCK}/__mock/scenario`, { headers, data: scenario });
   }
+  const stats = async () =>
+    (await (await request.get(`${MOCK}/__mock/stats`, { headers })).json()) as MockStats;
   return {
     setScenario: (next: MockScenario) =>
       request.post(`${MOCK}/__mock/scenario`, { headers, data: next }),
-    submissions: async () =>
-      (
-        (await (await request.get(`${MOCK}/__mock/stats`, { headers })).json()) as {
-          submissions: number;
-        }
-      ).submissions,
+    submissions: async () => (await stats()).submissions,
+    stats,
+    /** A próxima leitura de mensagens traz uma mensagem nova da equipe. */
+    newTeamMessage: () => request.post(`${MOCK}/__mock/new-team-message`, { headers }),
   };
 }

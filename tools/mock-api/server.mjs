@@ -1,6 +1,7 @@
 // Servidor simulado da API, usado SÓ nos testes e2e (serviço e2e-api do docker-compose.e2e.yml) e no desenvolvimento
 // local (npm run dev:mock-api). Nunca é importado pelos apps (regra de lint) e nada dele pode aparecer no build
-// (scripts/check-build-output.mjs). Contrato: specs/002-report-submission-wizard/contracts/mock-api.md.
+// (scripts/check-build-output.mjs). Contratos: specs/002-report-submission-wizard/contracts/mock-api.md e
+// specs/003-report-tracking/contracts/mock-api-tracking.md.
 // - /fixture/*: páginas que violam cada guarda de privacidade, para testar a própria fixture.
 // - qualquer outra rota: devolve método, caminho, cabeçalhos e cookies recebidos (testes do proxy /api)
 //   e emite um cookie XSRF-TOKEN de teste.
@@ -87,7 +88,28 @@ const ALLOWED_FIELDS = new Set([
   ...OPTIONAL_TEXTS,
 ]);
 
-const DEFAULT_SCENARIO = { categories: 'ok', submit: 'ok' };
+const DEFAULT_SCENARIO = {
+  categories: 'ok',
+  submit: 'ok',
+  access: 'ok',
+  me: 'ok',
+  report: 'received',
+  messages: 'some',
+  send: 'ok',
+};
+
+const daysFromToday = (n) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
+
+/** Estado de acompanhamento de uma sessão de teste (PUB-01 a PUB-03, MSG-01 e MSG-02 simulados). */
+const newTracking = () => ({
+  tokens: new Map(),
+  seq: 0,
+  sessions: 0,
+  messages: 0,
+  messageReads: 0,
+  report: null, // cenário forçado pelo envio (in-review depois de responder, closed depois de 409)
+  extra: [], // mensagens criadas durante a sessão
+});
 
 /**
  * Cenário e contador por sessão de teste (cabeçalho x-mock-session), para os testes em paralelo (Chromium e Firefox)
@@ -96,7 +118,13 @@ const DEFAULT_SCENARIO = { categories: 'ok', submit: 'ok' };
 const sessions = new Map();
 const sessionOf = (req) => {
   const id = String(req.headers['x-mock-session'] ?? 'default');
-  if (!sessions.has(id)) sessions.set(id, { scenario: { ...DEFAULT_SCENARIO }, submissions: 0 });
+  if (!sessions.has(id))
+    sessions.set(id, {
+      id,
+      scenario: { ...DEFAULT_SCENARIO },
+      submissions: 0,
+      tracking: newTracking(),
+    });
   return sessions.get(id);
 };
 
@@ -178,6 +206,7 @@ async function handleApi(req, res, url) {
   if (url.pathname === '/__mock/reset' && req.method === 'POST') {
     session.scenario = { ...DEFAULT_SCENARIO };
     session.submissions = 0;
+    session.tracking = newTracking();
     res.writeHead(204);
     res.end();
     return true;
@@ -186,13 +215,32 @@ async function handleApi(req, res, url) {
     try {
       const body = JSON.parse(await readBody(req));
       session.scenario = { ...session.scenario, ...body };
+      if ('report' in body || 'messages' in body) {
+        session.tracking.report = null;
+        session.tracking.extra = [];
+      }
     } catch {
       return (json(res, 400, { error: 'cenário inválido' }), true);
     }
     return (json(res, 200, session.scenario), true);
   }
   if (url.pathname === '/__mock/stats' && req.method === 'GET') {
-    return (json(res, 200, { submissions: session.submissions }), true);
+    const t = session.tracking;
+    return (
+      json(res, 200, {
+        submissions: session.submissions,
+        sessions: t.sessions,
+        messages: t.messages,
+        messageReads: t.messageReads,
+      }),
+      true
+    );
+  }
+  if (url.pathname === '/__mock/new-team-message' && req.method === 'POST') {
+    session.tracking.extra.push(teamMessage('Mensagem nova SIMULADA da equipe.', 0));
+    res.writeHead(204);
+    res.end();
+    return true;
   }
 
   if (url.pathname === '/api/public/v1/categories' && req.method === 'GET') {
@@ -223,6 +271,173 @@ async function handleApi(req, res, url) {
       json(res, 201, { ...RECEIPT, receivedOn: today() }, { 'Cache-Control': 'no-store' }),
       true
     );
+  }
+  if (await handleTracking(req, res, url, session)) return true;
+  return false;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// Acompanhamento simulado. Protocolo, chave, token e textos nunca vão para log.
+// ---------------------------------------------------------------------------------------------------------------
+
+const ACCESS_KEY_PREFIX = 'SIMULADA';
+const TOKEN_TTL_MS = 15 * 60_000;
+const CLOSED_STATUSES = new Set(['CLOSED', 'CONCLUDED']);
+
+let messageSeq = 0;
+const message = (author, body, daysAgo) => ({
+  id: `SIMULADA-MSG-${++messageSeq}`,
+  author,
+  body,
+  sentOn: daysFromToday(-daysAgo),
+});
+const teamMessage = (body, daysAgo) => message('TEAM', body, daysAgo);
+
+const REPORTS = {
+  received: { status: 'RECEIVED' },
+  'in-review': { status: 'IN_REVIEW' },
+  awaiting: { status: 'AWAITING_REPORTER', replyDeadline: () => daysFromToday(5) },
+  'awaiting-overdue': { status: 'AWAITING_REPORTER', replyDeadline: () => daysFromToday(-1) },
+  'concluded-substantiated': { status: 'CONCLUDED', outcome: 'SUBSTANTIATED' },
+  'concluded-partial': { status: 'CONCLUDED', outcome: 'PARTIALLY_SUBSTANTIATED' },
+  'concluded-unsubstantiated': { status: 'CONCLUDED', outcome: 'UNSUBSTANTIATED' },
+  closed: { status: 'CLOSED' },
+};
+
+function buildReport(session) {
+  const key = session.tracking.report ?? session.scenario.report;
+  const base = REPORTS[key] ?? REPORTS.received;
+  const timeline = [{ on: daysFromToday(-10), status: 'RECEIVED' }];
+  if (base.status !== 'RECEIVED') timeline.push({ on: daysFromToday(-3), status: base.status });
+  return {
+    status: base.status,
+    outcome: base.outcome ?? null,
+    replyDeadline: base.replyDeadline ? base.replyDeadline() : null,
+    category: { code: 'SIMULADA_VAZAMENTO', name: 'Vazamento de dados (SIMULADA)' },
+    receivedOn: daysFromToday(-10),
+    timeline,
+    canReply: !CLOSED_STATUSES.has(base.status),
+  };
+}
+
+function baseMessages(session) {
+  if (session.scenario.messages === 'empty') return [];
+  return [
+    teamMessage('Recebemos sua denúncia SIMULADA e vamos analisar.', 9),
+    message('REPORTER', 'Obrigado. Fico no aguardo (SIMULADA).', 8),
+    teamMessage('Pode informar qual sistema foi afetado? (SIMULADA)', 3),
+  ];
+}
+
+/** Objeto JSON com exatamente as chaves permitidas; nunca devolve o valor recebido. */
+function strictBody(raw, allowed) {
+  let body;
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) return null;
+  if (Object.keys(body).some((k) => !allowed.includes(k))) return null;
+  return body;
+}
+
+const unauthorized = (res) =>
+  json(res, 401, apiError(401, 'Unauthorized', 'Acesso não autorizado.'), {
+    'Cache-Control': 'no-store',
+  });
+
+/** Token simulado: SIMULADA.<sessão>.<n>, válido só na própria sessão e até expirar. */
+function authorize(req, session) {
+  const header = String(req.headers.authorization ?? '');
+  const token = header.startsWith('Bearer ') ? header.slice(7) : '';
+  const expiresAt = session.tracking.tokens.get(token);
+  return Boolean(expiresAt && expiresAt > Date.now() && session.scenario.me !== 'unauthorized');
+}
+
+async function handleTracking(req, res, url, session) {
+  const t = session.tracking;
+  const noStore = { 'Cache-Control': 'no-store' };
+
+  if (url.pathname === '/api/public/v1/tracking/sessions' && req.method === 'POST') {
+    const body = strictBody(await readBody(req), ['protocol', 'accessKey']);
+    t.sessions += 1;
+    if (!body || typeof body.protocol !== 'string' || typeof body.accessKey !== 'string')
+      return (json(res, 400, apiError(400, 'Bad Request', 'Corpo da requisição inválido.')), true);
+    const scenario = session.scenario.access;
+    if (scenario === 'error')
+      return (json(res, 500, apiError(500, 'Internal Server Error', 'Erro interno.')), true);
+    if (scenario === 'rate-limited')
+      return (json(res, 429, apiError(429, 'Too Many Requests', 'Muitas tentativas.')), true);
+    if (scenario === 'slow') await new Promise((r) => setTimeout(r, 2_000));
+    const valid =
+      scenario !== 'invalid' &&
+      body.protocol === RECEIPT.protocol &&
+      body.accessKey.startsWith(ACCESS_KEY_PREFIX);
+    if (!valid) return (unauthorized(res), true);
+    const token = `SIMULADA.${session.id}.${++t.seq}`;
+    const expiresAt = Date.now() + TOKEN_TTL_MS;
+    t.tokens.set(token, expiresAt);
+    return (json(res, 200, { token, expiresAt: new Date(expiresAt).toISOString() }, noStore), true);
+  }
+
+  if (!url.pathname.startsWith('/api/public/v1/me/')) return false;
+  if (!authorize(req, session)) return (unauthorized(res), true);
+
+  if (url.pathname === '/api/public/v1/me/report' && req.method === 'GET') {
+    if (session.scenario.report === 'error' && !t.report)
+      return (json(res, 500, apiError(500, 'Internal Server Error', 'Erro interno.')), true);
+    return (json(res, 200, buildReport(session), noStore), true);
+  }
+
+  if (url.pathname === '/api/public/v1/me/messages' && req.method === 'GET') {
+    t.messageReads += 1;
+    if (session.scenario.messages === 'error')
+      return (json(res, 500, apiError(500, 'Internal Server Error', 'Erro interno.')), true);
+    return (json(res, 200, { items: [...baseMessages(session), ...t.extra] }, noStore), true);
+  }
+
+  if (url.pathname === '/api/public/v1/me/messages' && req.method === 'POST') {
+    const body = strictBody(await readBody(req), ['body']); // nunca registrado em log
+    t.messages += 1;
+    if (!body || typeof body.body !== 'string' || body.body.length < 1 || body.body.length > 5_000)
+      return (
+        json(
+          res,
+          400,
+          apiError(400, 'Bad Request', [
+            { path: 'body', code: 'invalid_length', message: 'Campo inválido: body' },
+          ]),
+        ),
+        true
+      );
+    const scenario = session.scenario.send;
+    if (scenario === 'error')
+      return (json(res, 500, apiError(500, 'Internal Server Error', 'Erro interno.')), true);
+    if (scenario === 'invalid')
+      return (
+        json(
+          res,
+          400,
+          apiError(400, 'Bad Request', [
+            { path: 'body', code: 'invalid_length', message: 'Campo inválido: body' },
+          ]),
+        ),
+        true
+      );
+    const current = buildReport(session);
+    if (scenario === 'closed' || CLOSED_STATUSES.has(current.status)) {
+      t.report = 'closed';
+      return (
+        json(res, 409, apiError(409, 'Conflict', 'A denúncia não aceita novas mensagens.')),
+        true
+      );
+    }
+    if (scenario === 'slow') await new Promise((r) => setTimeout(r, 2_000));
+    const created = message('REPORTER', body.body, 0);
+    t.extra.push(created);
+    if (current.status === 'AWAITING_REPORTER') t.report = 'in-review';
+    return (json(res, 201, created, noStore), true);
   }
   return false;
 }
