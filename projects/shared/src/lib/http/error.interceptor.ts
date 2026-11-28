@@ -1,4 +1,4 @@
-import { HttpErrorResponse, type HttpInterceptorFn } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, type HttpInterceptorFn } from '@angular/common/http';
 import { EnvironmentInjector, inject, runInInjectionContext } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '../notifications/notification.service';
@@ -6,6 +6,12 @@ import { API_PREFIX } from './api.interceptor';
 import { API_POLICY } from './api-policy';
 import { toApiError } from './api-error';
 import { errorMessageFor, withSupportCode } from './error-messages';
+
+/**
+ * Status que quem chama trata sozinho: para eles, o interceptor não mostra mensagem nem roda a ação de não
+ * autenticado; só repassa o erro. Ex.: a consulta do denunciante trata 400, 401 e 429 com a mesma mensagem genérica.
+ */
+export const API_CALLER_HANDLES = new HttpContextToken<readonly number[]>(() => []);
 
 /**
  * Tratamento único de erros das chamadas `api:` (FTRV-02): mostra a mensagem da tabela, com o código para o suporte
@@ -24,10 +30,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((response: unknown) => {
       if (response instanceof HttpErrorResponse) {
         const error = toApiError(response.status, response.error);
-        notifications.error(
-          withSupportCode(errorMessageFor(error.statusCode, policy.audience), error.requestId),
-          error.requestId,
-        );
+        if (req.context.get(API_CALLER_HANDLES).includes(error.statusCode)) {
+          return throwError(() => response);
+        }
+        const silent = error.statusCode === 401 && policy.silentUnauthenticated === true;
+        if (!silent)
+          notifications.error(
+            withSupportCode(errorMessageFor(error.statusCode, policy.audience), error.requestId),
+            error.requestId,
+          );
         if (error.statusCode === 401) {
           runInInjectionContext(injector, policy.onUnauthenticated);
         }

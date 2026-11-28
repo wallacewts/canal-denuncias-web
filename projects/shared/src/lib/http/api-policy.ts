@@ -19,6 +19,11 @@ export interface ApiPolicy {
    * Portal: limpar a sessão do denunciante e ir para `/consultar`. Backoffice: ir para `/login`.
    */
   readonly onUnauthenticated: () => void;
+  /**
+   * Quando verdadeiro, o 401 roda `onUnauthenticated` sem a mensagem padrão: o próprio app avisa a pessoa (o portal
+   * mostra o motivo do encerramento na tela de consulta, feature 003). Padrão: falso.
+   */
+  readonly silentUnauthenticated?: boolean;
 }
 
 export const API_POLICY = new InjectionToken<ApiPolicy>('API_POLICY');

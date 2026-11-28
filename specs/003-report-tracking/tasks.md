@@ -52,36 +52,36 @@ impedem as outras.
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T004 [P] Testes de `normalizeProtocol` em `TRK/normalize-protocol.spec.ts`: minúsculas, sem hífens, espaços nas
+- [x] T004 [P] Testes de `normalizeProtocol` em `TRK/normalize-protocol.spec.ts`: minúsculas, sem hífens, espaços nas
       pontas e no meio, hífens fora do lugar, texto curto e texto sem o prefixo (devolve limpo, sem lançar)
-- [ ] T005 [P] Testes de validação dos tipos provisórios em `TRK/tracking.types.spec.ts`: as quatro respostas válidas
+- [x] T005 [P] Testes de validação dos tipos provisórios em `TRK/tracking.types.spec.ts`: as quatro respostas válidas
       passam; campo faltando, tipo errado, status ou desfecho desconhecido e campo extra com nome de pessoa viram erro
       tratado, sem repetir o valor recebido
-- [ ] T006 [P] Testes de `TRK/tracking.api.spec.ts` com `HttpTestingController`: protocolo e chave só no corpo do
+- [x] T006 [P] Testes de `TRK/tracking.api.spec.ts` com `HttpTestingController`: protocolo e chave só no corpo do
       `POST`, nunca na URL; `/me/*` com Bearer e a consulta sem Bearer; nenhum `withCredentials`
-- [ ] T007 [P] Testes de `ReporterAccess` em `TRK/reporter-access.spec.ts` com timers falsos: abrir guarda token e
+- [x] T007 [P] Testes de `ReporterAccess` em `TRK/reporter-access.spec.ts` com timers falsos: abrir guarda token e
       expiração na `ReporterSession`; `expiringSoon` liga em `expiresAt − 2 min` e na hora se faltar menos;
       encerramento aos 15 min, por 401 e por "Sair" limpa a sessão, cancela os temporizadores, navega para
       `/consultar` com `replaceUrl` e emite uma única mensagem; dois encerramentos seguidos não repetem a mensagem;
       `pageshow` com `persisted` encerra; `endReason` lido uma vez; resposta que chega depois do encerramento (outra
       geração de acesso) é descartada
-- [ ] T008 [P] Testes do guard em `TRK/reporter-access.guard.spec.ts`: sem credencial devolve a árvore de
+- [x] T008 [P] Testes do guard em `TRK/reporter-access.guard.spec.ts`: sem credencial devolve a árvore de
       `/consultar`; com credencial permite
 
 ### Implementação
 
-- [ ] T009 [P] `TRK/normalize-protocol.ts` (research R7)
-- [ ] T010 [P] `TRK/tracking.types.ts`: tipos provisórios de `data-model.md` e validação em tempo de execução,
+- [x] T009 [P] `TRK/normalize-protocol.ts` (research R7)
+- [x] T010 [P] `TRK/tracking.types.ts`: tipos provisórios de `data-model.md` e validação em tempo de execução,
       marcados como provisórios até a T037 (research R2), e registrar no `AGENTS.md` que `tracking.types.ts` é exceção
       provisória à regra de tipos escritos à mão, a remover na T037 (analyze D1)
-- [ ] T011 [P] `TRK/tracking-labels.ts`: tabela código → texto de status e desfecho, com o padrão para código
+- [x] T011 [P] `TRK/tracking-labels.ts`: tabela código → texto de status e desfecho, com o padrão para código
       desconhecido (research R10)
-- [ ] T012 `TRK/tracking.api.ts`: as quatro chamadas com o prefixo `api:` e os tipos da T010 (depende de T010)
-- [ ] T013 `TRK/reporter-access.ts`: abrir, aviso, expirar, 401, sair, `pageshow`, `endReason` e geração de acesso
+- [x] T012 `TRK/tracking.api.ts`: as quatro chamadas com o prefixo `api:` e os tipos da T010 (depende de T010)
+- [x] T013 `TRK/reporter-access.ts`: abrir, aviso, expirar, 401, sair, `pageshow`, `endReason` e geração de acesso
       (research R3, R5)
-- [ ] T014 `TRK/reporter-access.guard.ts` e `canActivate` de `/acompanhamento` em
+- [x] T014 `TRK/reporter-access.guard.ts` e `canActivate` de `/acompanhamento` em
       `projects/portal/src/app/app.routes.ts` (depende de T013)
-- [ ] T015 `projects/portal/src/app/api-policy.ts`: `onUnauthenticated` passa a chamar
+- [x] T015 `projects/portal/src/app/api-policy.ts`: `onUnauthenticated` passa a chamar
       `ReporterAccess.end('expired')`, mantendo a regra de nunca navegar com dados na URL (depende de T013)
 
 **Checkpoint**: base pronta; as histórias podem começar.

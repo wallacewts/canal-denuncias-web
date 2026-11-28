@@ -1,4 +1,5 @@
 import type { Routes } from '@angular/router';
+import { reporterAccessGuard } from './features/tracking/reporter-access.guard';
 import { leaveFlowGuard, leaveProtocolGuard } from './features/new-report/new-report-flow.guards';
 
 const suffix = ' | Canal de Denúncias';
@@ -73,6 +74,7 @@ export const routes: Routes = [
   {
     path: 'acompanhamento',
     title: 'Acompanhamento' + suffix,
+    canActivate: [reporterAccessGuard],
     loadComponent: () => import('./features/tracking/tracking-page').then((m) => m.TrackingPage),
   },
   {

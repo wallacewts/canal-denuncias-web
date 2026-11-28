@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { NotificationService } from '../notifications/notification.service';
 import type { ApiPolicy } from './api-policy';
+import { API_CALLER_HANDLES } from './error.interceptor';
 import { provideApi } from './provide-api';
 
 const SUPPORT = (id: string) => ` Código para o suporte: ${id}`;
@@ -149,6 +150,79 @@ describe('errorInterceptor (contracts/error-messages.md)', () => {
     const { http, httpTesting, notifications } = setup('portal');
     http.get('/config.json').subscribe({ error: () => undefined });
     httpTesting.expectOne('/config.json').flush(null, { status: 500, statusText: 'Erro' });
+    expect(notifications.error).not.toHaveBeenCalled();
+  });
+});
+
+describe('errorInterceptor: erros tratados por quem chama (feature 003)', () => {
+  afterEach(() => {
+    TestBed.inject(HttpTestingController).verify();
+    vi.restoreAllMocks();
+  });
+
+  it('status listado em API_CALLER_HANDLES não mostra mensagem nem roda a ação de não autenticado', () => {
+    const ctx = setup('portal');
+    const errors: unknown[] = [];
+    ctx.http
+      .post(
+        'api:/public/v1/tracking/sessions',
+        {},
+        {
+          context: new HttpContext().set(API_CALLER_HANDLES, [400, 401, 429]),
+        },
+      )
+      .subscribe({ error: (e: unknown) => errors.push(e) });
+    ctx.httpTesting
+      .expectOne('/api/public/v1/tracking/sessions')
+      .flush(null, { status: 401, statusText: 'Erro' });
+    expect(ctx.notifications.error).not.toHaveBeenCalled();
+    expect(ctx.onUnauthenticated).not.toHaveBeenCalled();
+    expect(errors).toHaveLength(1);
+  });
+
+  it('status fora da lista continua com a mensagem padrão', () => {
+    const ctx = setup('portal');
+    ctx.http
+      .post(
+        'api:/public/v1/tracking/sessions',
+        {},
+        {
+          context: new HttpContext().set(API_CALLER_HANDLES, [401]),
+        },
+      )
+      .subscribe({ error: () => undefined });
+    ctx.httpTesting
+      .expectOne('/api/public/v1/tracking/sessions')
+      .flush(null, { status: 500, statusText: 'Erro' });
+    expect(ctx.notifications.error).toHaveBeenCalledTimes(1);
+  });
+
+  it('política com silentUnauthenticated roda a ação no 401 sem mostrar mensagem', () => {
+    const onUnauthenticated = vi.fn();
+    const notifications = { error: vi.fn(), success: vi.fn() };
+    TestBed.configureTestingModule({
+      providers: [
+        provideApi(
+          { apiBaseUrl: '/api' },
+          {
+            audience: 'portal',
+            withCredentials: false,
+            bearerFor: '/public/v1/me/',
+            onUnauthenticated,
+            silentUnauthenticated: true,
+          },
+        ),
+        provideHttpClientTesting(),
+        { provide: NotificationService, useValue: notifications },
+      ],
+    });
+    TestBed.inject(HttpClient)
+      .get('api:/public/v1/me/report')
+      .subscribe({ error: () => undefined });
+    TestBed.inject(HttpTestingController)
+      .expectOne('/api/public/v1/me/report')
+      .flush(null, { status: 401, statusText: 'Erro' });
+    expect(onUnauthenticated).toHaveBeenCalledTimes(1);
     expect(notifications.error).not.toHaveBeenCalled();
   });
 });

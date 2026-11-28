@@ -29,7 +29,9 @@ gera em vez de assumir APIs antigas (zoneless e componentes standalone são o pa
 - O servidor simulado da API fica em `tools/mock-api` (e2e e `npm run dev:mock-api`). Os apps nunca importam `tools/` nem
   `e2e/` (o lint reprova), e o `check:build` reprova sentinelas do simulador (`DV-SIMUL`, `SIMULADA`, `__mock`) no build.
 - O envio de denúncia usa tipos provisórios (`report-submission.types.ts`) até CAT-01 e REP-02 saírem no contrato da API;
-  a troca pelo cliente gerado é a T048 da feature 002. Não crie outros tipos de resposta da API escritos à mão.
+  a troca pelo cliente gerado é a T048 da feature 002. O acompanhamento usa a mesma exceção provisória em
+  `features/tracking/tracking.types.ts` (até PUB-01, PUB-03, MSG-01 e MSG-02; remoção na T037 da feature 003). Não crie
+  outros tipos de resposta da API escritos à mão.
 - O bundle inicial do portal tem aviso em 440 kB (D52). Código de tela novo vai em rota com `loadComponent`.
 - Textos de interface em português; nomes de código em inglês.
 
