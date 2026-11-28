@@ -53,8 +53,9 @@ gera em vez de assumir APIs antigas (zoneless e componentes standalone são o pa
   no front); a correção de relógio usa o `Date` da API, que o nginx do backoffice repassa. Menu e rotas usam só as
   permissões (`abilities`) do `/me`. No backoffice, 403 `PASSWORD_CHANGE_REQUIRED` leva à troca de senha e 403
   `STEP_NOT_ALLOWED` à etapa certa (`onForbidden` da política), sem a mensagem de acesso negado.
-- Proteção contra falsificação de requisição: a da API por origem (AUTH-07), sem token XSRF. O proxy do backoffice
-  repassa o `Host` original com a porta.
+- Proteção contra falsificação de requisição: a da API por origem (AUTH-07), sem token XSRF (D63: o `provideApi` usa
+  `withNoXsrfProtection()`; não volte a ligar a proteção XSRF do Angular). O proxy do backoffice repassa o `Host`
+  original com a porta.
 - Arquivo de texto baixado no navegador: `downloadTextFile` de `@canal/shared/files`.
 - O simulador tem contas da equipe (`STAFF` em `e2e/support/mock-api.ts`), cenários `signIn` e `challenge`, relógio
   (`advanceClock`) e revogação de sessões. Recarregar no e2e: `reloadWhenSettled` (`e2e/support/reload.ts`).

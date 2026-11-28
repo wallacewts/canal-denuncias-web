@@ -257,7 +257,8 @@ mostra o aviso de sessão renovada e outras sessões encerradas.
       autenticador, `E2E_API_TOTP_SECRET`): o `create-admin` da API só aceita senha em terminal interativo.
 - [x] T049 AUTH-07. Atualizar a T058 da feature 001 em `specs/001-shared-foundation/tasks.md`: em vez do cabeçalho
       `X-XSRF-TOKEN`, provar contra a API real que escrita administrativa de outra origem é recusada e a da interface
-      passa; avaliar a remoção do `withXsrfConfiguration` inerte com decisão registrada
+      passa; avaliar a remoção do `withXsrfConfiguration` inerte com decisão registrada — **removido (D63)**: o
+      `provideApi` usa `withNoXsrfProtection()`
 
 ---
 

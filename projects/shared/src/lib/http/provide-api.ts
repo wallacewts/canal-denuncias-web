@@ -3,7 +3,7 @@ import {
   provideHttpClient,
   withFetch,
   withInterceptors,
-  withXsrfConfiguration,
+  withNoXsrfProtection,
 } from '@angular/common/http';
 import type { EnvironmentProviders, Provider } from '@angular/core';
 import { provideApiConfiguration as providePublicApiConfiguration } from '../api/generated/public/api-configuration';
@@ -15,8 +15,9 @@ import { errorInterceptor } from './error.interceptor';
 
 /**
  * HttpClient configurado para a API do canal, com a política de credenciais do app.
- * A API protege a área administrativa contra escrita de outra origem pela verificação de origem (AUTH-07); o
- * withXsrfConfiguration fica inerte enquanto a API não emitir o cookie XSRF-TOKEN (feature 004, research R9).
+ * A API protege a área administrativa contra escrita de outra origem pela verificação de origem (AUTH-07), sem token.
+ * Por isso o HttpClient não usa a proteção XSRF do Angular (D63), que por padrão leria um cookie `XSRF-TOKEN` e
+ * mandaria o cabeçalho `X-XSRF-TOKEN`.
  */
 export function provideApi(
   config: AppConfig,
@@ -38,7 +39,7 @@ export function provideApi(
         ...extraInterceptors,
         apiInterceptor,
       ]),
-      withXsrfConfiguration({ cookieName: 'XSRF-TOKEN', headerName: 'X-XSRF-TOKEN' }),
+      withNoXsrfProtection(),
     ),
   ];
 }

@@ -4,7 +4,7 @@
 // specs/003-report-tracking/contracts/mock-api-tracking.md.
 // - /fixture/*: páginas que violam cada guarda de privacidade, para testar a própria fixture.
 // - qualquer outra rota: devolve método, caminho, cabeçalhos e cookies recebidos (testes do proxy /api)
-//   e emite um cookie XSRF-TOKEN de teste.
+//   e emite um cookie de teste (cookie-de-teste), para provar o repasse de cookies pelo proxy do backoffice.
 import { randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import { handleAuth, newAuthState } from './auth.mjs';
@@ -479,7 +479,7 @@ async function handle(req, res) {
 
   res.writeHead(200, {
     'Content-Type': 'application/json',
-    'Set-Cookie': 'XSRF-TOKEN=token-de-teste; Path=/; SameSite=Strict',
+    'Set-Cookie': 'cookie-de-teste=valor-de-teste; Path=/; SameSite=Strict',
   });
   res.end(
     JSON.stringify({

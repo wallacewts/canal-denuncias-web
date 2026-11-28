@@ -362,6 +362,8 @@ outras sessões dela foram encerradas.
   mesma origem, pelo proxy `/api` (D38). O token de cabeçalho configurado na feature 001 fica inerte (a API não o
   emite). A T058 da feature 001 (e2e do XSRF contra a API real) continua bloqueada pelo AUTH-07 e passa a provar a
   recusa por origem; contra o simulador, esta feature prova o mesmo comportamento (FR-026).
+  **Atualização (2026-11-28, D63):** a configuração de token XSRF foi removida da lib (`withNoXsrfProtection()` no
+  `provideApi`), e a T058 foi provada contra a API real pela T049.
 - **Sem recuperação de senha por e-mail:** não há "esqueci minha senha" no backlog; senha perdida é redefinida pelo
   administrador (feature de usuários). Fora do escopo.
 - **Bloqueio na etapa da senha:** conta com bloqueio temporário por falhas de senha e excesso de tentativas (429 da API)

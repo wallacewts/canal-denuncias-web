@@ -151,6 +151,12 @@ próprio, QR code embutido e segredo, códigos de recuperação na confirmação
 backlog da API (`04-auth.md`, `03-users.md`). Faltam, em `contracts/auth-api.md`: o formato da lista de `abilities`, o
 código `423` do bloqueio do desafio, os erros da troca de senha (`422` com código, inclusive `CURRENT_PASSWORD_INVALID`) e o QR code em PNG.
 
+## Decisões depois do implement
+
+- **D63 (2026-11-28):** sem token XSRF no front. O `provideApi` usa `withNoXsrfProtection()`; a proteção contra
+  falsificação de requisição é a da API por origem (AUTH-07), provada contra a API real na T049. Detalhes na revisão da
+  R9 (`research.md`).
+
 ## Complexity Tracking
 
 | Violation                                                                                                                                                                                                                                                                                           | Why Needed | Simpler Alternative Rejected Because |

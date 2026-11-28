@@ -1,3 +1,5 @@
+import { HttpClient, HttpXsrfTokenExtractor } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ApiConfiguration as PublicApiConfiguration } from '../api/generated/public/api-configuration';
 import { APP_CONFIG } from '../config/app-config';
@@ -17,5 +19,27 @@ describe('provideApi', () => {
     expect(TestBed.inject(APP_CONFIG)).toEqual({ apiBaseUrl: '/api' });
     expect(TestBed.inject(API_POLICY)).toBe(policy);
     expect(TestBed.inject(PublicApiConfiguration).rootUrl).toBe('api:');
+  });
+
+  it('não usa token XSRF (D63): escrita sem X-XSRF-TOKEN mesmo com um token disponível', () => {
+    const policy: ApiPolicy = {
+      audience: 'backoffice',
+      withCredentials: true,
+      bearerFor: null,
+      onUnauthenticated: () => undefined,
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        provideApi({ apiBaseUrl: '/api' }, policy),
+        provideHttpClientTesting(),
+        // Simula um token XSRF disponível (o que um cookie XSRF-TOKEN daria ao Angular por padrão).
+        { provide: HttpXsrfTokenExtractor, useValue: { getToken: () => 'token-de-teste' } },
+      ],
+    });
+    // URL relativa da mesma origem: é o caso em que o Angular, por padrão, mandaria o cabeçalho.
+    TestBed.inject(HttpClient).post('/qualquer-escrita', {}).subscribe();
+    const req = TestBed.inject(HttpTestingController).expectOne('/qualquer-escrita');
+    expect(req.request.headers.has('X-XSRF-TOKEN')).toBe(false);
+    req.flush({});
   });
 });

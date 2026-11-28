@@ -146,6 +146,11 @@ o código da proteção nativa contra escrita de outra origem em `@nestjs/core/s
   comparação de origem funcione mesmo sem `Sec-Fetch-Site`. A configuração `withXsrfConfiguration` da feature 001 fica
   inerte (nenhum cookie `XSRF-TOKEN` é emitido) e não é removida nesta feature, para não mexer no portal sem
   necessidade; o `AGENTS.md` passa a dizer que a proteção é por origem.
+- **Revisão (2026-11-28, decisão do usuário, D63 no ADR README da API):** depois da integração (T049 provou a proteção
+  por origem contra a API real), a configuração XSRF foi removida. O `provideApi` usa `withNoXsrfProtection()`: só tirar
+  o `withXsrfConfiguration` não bastaria, porque o `provideHttpClient` liga a proteção XSRF por padrão, com os mesmos
+  nomes de cookie e cabeçalho. Na prática ela já não agia nas chamadas `api:` (o interceptor do Angular roda antes da
+  troca do prefixo e vê outra origem), mas ficaria ativa para qualquer escrita relativa. Teste em `provide-api.spec.ts`.
 - **Constituição, princípio II:** a redação 1.0.1 (emenda aprovada em 2026-11-28) pede proteção contra falsificação de
   requisição por token ou verificação de origem pela API; a proteção por origem da API, somada a `SameSite=Strict`,
   atende.

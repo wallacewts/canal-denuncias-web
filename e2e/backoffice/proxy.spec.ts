@@ -29,7 +29,7 @@ test('backoffice: o cookie emitido pela API volta nas chamadas seguintes', async
   await page.goto('/login');
   await callApiThroughApp(page, '/api/admin/v1/eco');
   const second = await callApiThroughApp(page, '/api/admin/v1/eco');
-  expect(second.cookies['XSRF-TOKEN']).toBe('token-de-teste');
+  expect(second.cookies['cookie-de-teste']).toBe('valor-de-teste');
 });
 
 test('backoffice: Host original e a origem da escrita chegam à API (proteção por origem, AUTH-07)', async ({

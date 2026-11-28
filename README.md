@@ -110,7 +110,8 @@ Cada app lê `/config.json` antes de iniciar. A mesma imagem serve todos os ambi
 
 - **Produção:** `"/api"`, com o proxy reverso levando `/api` para a API no mesmo domínio. É o desenho recomendado:
   o cookie de sessão da equipe (`HttpOnly`, `Secure`, `SameSite=Strict`) só funciona assim. A proteção contra
-  falsificação de requisição é a da API por origem (`Sec-Fetch-Site`/`Origin` contra o `Host`, AUTH-07), sem token.
+  falsificação de requisição é a da API por origem (`Sec-Fetch-Site`/`Origin` contra o `Host`, AUTH-07), sem token:
+  o `HttpClient` não usa a proteção XSRF do Angular (D63).
 - **docker compose local:** também `"/api"` (arquivos em `docker/config/`), pelo proxy do nginx de cada app.
 
 Chamadas à API usam o prefixo `api:`, que o interceptor troca pela URL base. A política de cada app decide as
