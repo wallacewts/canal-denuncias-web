@@ -1,6 +1,7 @@
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { API_CALLER_HANDLES } from '@canal/shared';
+// Entrada secundária: importar o token pelo barril colocaria a lib inteira no bundle inicial (ver src/http.ts).
+import { API_CALLER_HANDLES } from '@canal/shared/http';
 import { map, type Observable } from 'rxjs';
 import {
   type ProvisionalAccessGrant,

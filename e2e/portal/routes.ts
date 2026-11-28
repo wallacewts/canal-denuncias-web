@@ -1,4 +1,7 @@
-/** Rotas que existem hoje no portal (projects/portal/src/app/app.routes.ts). */
+/**
+ * Rotas que existem hoje no portal (projects/portal/src/app/app.routes.ts). Sem acesso aberto, `/acompanhamento` leva
+ * para `/consultar` (guard da feature 003); com acesso, ela é testada em `routes.spec.ts` e nos specs de acompanhamento.
+ */
 export const PORTAL_ROUTES = [
   '/',
   '/privacidade',

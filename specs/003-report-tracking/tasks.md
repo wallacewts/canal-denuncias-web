@@ -98,28 +98,28 @@ cenário de `report`; recarregar e conferir a volta para a consulta. Guardas de 
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T016 [P] [US1] e2e `e2e/portal/tracking-access.spec.ts`: protocolo `dv simul ado00` normalizado; chave oculta
+- [x] T016 [P] [US1] e2e `e2e/portal/tracking-access.spec.ts`: protocolo `dv simul ado00` normalizado; chave oculta
       com botão de mostrar (`aria-pressed`); mensagem genérica idêntica para chave errada, `invalid` e `rate-limited`,
       anunciada e com os campos mantidos; clique duplo em "Consultar" faz uma só abertura (`stats.sessions`); sucesso
       leva a `/acompanhamento` com o foco no `h1`; nada na URL, no título ou no armazenamento
-- [ ] T017 [P] [US1] e2e `e2e/portal/tracking.spec.ts` (andamento): rótulo de cada cenário de `report`; desfecho dos
+- [x] T017 [P] [US1] e2e `e2e/portal/tracking.spec.ts` (andamento): rótulo de cada cenário de `report`; desfecho dos
       três `concluded-*`; prazo em `awaiting` e "Prazo vencido" em `awaiting-overdue`; "Responder agora" move o foco
       para o campo de mensagem; linha do tempo só com datas; categoria e data de recebimento; nenhum texto de relato
-- [ ] T018 [P] [US1] Testes de componente em `TRK/tracking-access-page.spec.ts` e `TRK/tracking-status.spec.ts`: campos
+- [x] T018 [P] [US1] Testes de componente em `TRK/tracking-access-page.spec.ts` e `TRK/tracking-status.spec.ts`: campos
       limpos depois do sucesso; status em texto (não só cor); desfecho ausente quando não concluída
-- [ ] T019 [P] [US1] Teste de `e2e/portal/tracking-session.spec.ts` (parte US1): recarregar `/acompanhamento` e abrir
+- [x] T019 [P] [US1] Teste de `e2e/portal/tracking-session.spec.ts` (parte US1): recarregar `/acompanhamento` e abrir
       a rota direto sem acesso levam para a consulta, sem dados; URL colada com dados é ignorada
 
 ### Implementação
 
-- [ ] T020 [US1] `TRK/tracking-access-page.ts` substituindo o placeholder: formulário tipado, `ScreenState` da
+- [x] T020 [US1] `TRK/tracking-access-page.ts` substituindo o placeholder: formulário tipado, `ScreenState` da
       consulta, região de status, mensagem genérica, orientação de dispositivo pessoal (contracts/tracking-routes.md)
-- [ ] T021 [P] [US1] `TRK/tracking-status.ts`: status, desfecho, categoria, data de recebimento e bloco do prazo com
+- [x] T021 [P] [US1] `TRK/tracking-status.ts`: status, desfecho, categoria, data de recebimento e bloco do prazo com
       "Responder agora"
-- [ ] T022 [P] [US1] `TRK/tracking-timeline.ts`: lista com data e status público
-- [ ] T023 [US1] `TRK/tracking-page.ts` substituindo o placeholder: `ScreenState<TrackingView>`, carregamento do
+- [x] T022 [P] [US1] `TRK/tracking-timeline.ts`: lista com data e status público
+- [x] T023 [US1] `TRK/tracking-page.ts` substituindo o placeholder: `ScreenState<TrackingView>`, carregamento do
       andamento, `h1` com foco, composição de T021 e T022 (depende de T021, T022)
-- [ ] T024 [US1] Atualizar `e2e/portal/routes.ts` para abrir `/acompanhamento` com acesso simulado e incluir as duas
+- [x] T024 [US1] Atualizar `e2e/portal/routes.ts` para abrir `/acompanhamento` com acesso simulado e incluir as duas
       telas nos testes de rota, título e console existentes
 
 **Checkpoint**: US1 funcionando e testada sozinha.
