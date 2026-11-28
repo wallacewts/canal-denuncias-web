@@ -23,3 +23,19 @@ export const WIZARD_STEPS: readonly WizardStep[] = [
 ];
 
 export const PROTOCOL_PATH = 'protocolo';
+
+/**
+ * Primeira etapa obrigatória incompleta antes da etapa pedida, ou null se a pessoa pode ficar onde está (FR-003).
+ * A tela do protocolo nunca redireciona: sem comprovante, ela mostra o aviso.
+ */
+export function firstPendingStep(
+  isComplete: (key: string) => boolean,
+  target: string,
+): string | null {
+  const index = WIZARD_STEPS.findIndex((s) => s.path === target);
+  if (index <= 0) return null;
+  const pending = WIZARD_STEPS.slice(0, index).find(
+    (s) => s.required && s.groupKey && !isComplete(s.groupKey),
+  );
+  return pending?.path ?? null;
+}

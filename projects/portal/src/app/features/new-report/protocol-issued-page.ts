@@ -2,7 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router, RouterLink } from '@angular/router';
-import { PageHeader, PortalDatePipe } from '@canal/shared';
+import { ConfirmDialog, PageHeader, PortalDatePipe } from '@canal/shared';
+import { type Observable, tap } from 'rxjs';
 import { ReceiptState } from './receipt.state';
 import { downloadReceipt } from './receipt-file';
 
@@ -103,6 +104,7 @@ const COPY_LABELS: Record<CopyTarget, string> = { protocol: 'Protocolo', accessK
 })
 export class ProtocolIssuedPage {
   private readonly router = inject(Router);
+  private readonly confirm = inject(ConfirmDialog);
   protected readonly receipt = inject(ReceiptState);
   protected readonly copyStatus = signal('');
 
@@ -124,6 +126,23 @@ export class ProtocolIssuedPage {
   protected download(): void {
     const r = this.receipt.receipt();
     if (r) downloadReceipt(r);
+  }
+
+  /**
+   * Usado pelo `leaveProtocolGuard`. Sem comprovante (já concluído, recarregado ou apagado por inatividade), sai sem
+   * perguntar. Com comprovante, pede confirmação e, se a pessoa sair, apaga protocolo e chave.
+   */
+  canLeave(): boolean | Observable<boolean> {
+    if (!this.receipt.hasReceipt()) return true;
+    return this.confirm
+      .open({
+        title: 'Sair sem guardar?',
+        message:
+          'O protocolo e a chave não poderão ser exibidos de novo. Confira se você os guardou.',
+        confirmLabel: 'Sair',
+        cancelLabel: 'Ficar',
+      })
+      .pipe(tap((leave) => leave && this.receipt.clear()));
   }
 
   protected finish(): void {

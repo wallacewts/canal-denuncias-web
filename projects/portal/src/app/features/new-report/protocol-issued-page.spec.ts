@@ -1,3 +1,5 @@
+import { ConfirmDialog } from '@canal/shared';
+import { type Observable, firstValueFrom, of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { ProtocolIssuedPage } from './protocol-issued-page';
@@ -79,5 +81,31 @@ describe('ProtocolIssuedPage', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(el.querySelector('[role=status]')?.textContent).toContain('selecione o texto e copie');
+  });
+});
+
+describe('ProtocolIssuedPage.canLeave', () => {
+  it('sem comprovante, sai sem perguntar', async () => {
+    const { fixture } = setup(false);
+    const result = fixture.componentInstance.canLeave();
+    expect(result).toBe(true);
+  });
+
+  it('com comprovante, pergunta; confirmar apaga o comprovante', async () => {
+    const { fixture, receipt } = setup();
+    const confirm = TestBed.inject(ConfirmDialog);
+    vi.spyOn(confirm, 'open').mockReturnValue(of(true));
+    const result = fixture.componentInstance.canLeave();
+    expect(await firstValueFrom(result as Observable<boolean>)).toBe(true);
+    expect(receipt.receipt()).toBeNull();
+  });
+
+  it('com comprovante, cancelar mantém', async () => {
+    const { fixture, receipt } = setup();
+    vi.spyOn(TestBed.inject(ConfirmDialog), 'open').mockReturnValue(of(false));
+    expect(await firstValueFrom(fixture.componentInstance.canLeave() as Observable<boolean>)).toBe(
+      false,
+    );
+    expect(receipt.receipt()).not.toBeNull();
   });
 });

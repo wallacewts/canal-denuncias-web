@@ -1,4 +1,5 @@
 import type { Routes } from '@angular/router';
+import { leaveFlowGuard, leaveProtocolGuard } from './features/new-report/new-report-flow.guards';
 
 const suffix = ' | Canal de Denúncias';
 
@@ -22,6 +23,7 @@ export const routes: Routes = [
     path: 'nova-denuncia',
     loadComponent: () =>
       import('./features/new-report/new-report-flow').then((m) => m.NewReportFlow),
+    canDeactivate: [leaveFlowGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'tipo' },
       {
@@ -56,6 +58,7 @@ export const routes: Routes = [
       {
         path: 'protocolo',
         title: 'Protocolo gerado' + suffix,
+        canDeactivate: [leaveProtocolGuard],
         loadComponent: () =>
           import('./features/new-report/protocol-issued-page').then((m) => m.ProtocolIssuedPage),
       },

@@ -155,29 +155,29 @@ a US1.
 
 ### Testes (escrever antes e ver falhar)
 
-- [ ] T035 [P] [US2] `e2e/portal/new-report-draft.spec.ts`: endereço de etapa posterior volta para a primeira pendente;
+- [x] T035 [P] [US2] `e2e/portal/new-report-draft.spec.ts`: endereço de etapa posterior volta para a primeira pendente;
       dados mantidos ao navegar; diálogo do aviso de privacidade mantém o rascunho; envio `invalid` e `error` mantêm o
       rascunho idêntico e permitem tentar de novo; recarregar o protocolo e abri-lo direto mostram só o aviso;
       armazenamento do navegador vazio o tempo todo
-- [ ] T036 [P] [US2] No mesmo arquivo: `beforeunload` ao recarregar com dados (evento de diálogo do Playwright); sair
+- [x] T036 [P] [US2] No mesmo arquivo: `beforeunload` ao recarregar com dados (evento de diálogo do Playwright); sair
       para `/ajuda` pede confirmação (cancelar mantém, confirmar apaga); voltar do navegador na tela do protocolo pede
       confirmação
-- [ ] T037 [P] [US2] No mesmo arquivo, com `page.clock`: aviso aos 25 min e "Continuar" reiniciando a contagem;
+- [x] T037 [P] [US2] No mesmo arquivo, com `page.clock`: aviso aos 25 min e "Continuar" reiniciando a contagem;
       descarte aos 30 min no wizard (volta para `tipo` com aviso) e na tela do protocolo (só o aviso, sem a chave)
-- [ ] T038 [P] [US2] Testes `FLOW/inactivity-timer.spec.ts` com timers falsos: aviso aos 25, continuar reinicia, descarte
+- [x] T038 [P] [US2] Testes `FLOW/inactivity-timer.spec.ts` com timers falsos: aviso aos 25, continuar reinicia, descarte
       aos 30, atividade por teclado, ponteiro e navegação, timers limpos ao destruir
-- [ ] T039 [P] [US2] Testes `FLOW/new-report-flow.spec.ts` e `FLOW/new-report-flow.guards.spec.ts`: primeira etapa
+- [x] T039 [P] [US2] Testes `FLOW/new-report-flow.spec.ts` e `FLOW/new-report-flow.guards.spec.ts`: primeira etapa
       pendente; `canDeactivate` dentro e fora do fluxo; protocolo sem marcação; `beforeunload` só com dados ou
       comprovante
 
 ### Implementação
 
-- [ ] T040 [US2] Controle de etapas puladas em `FLOW/new-report-flow.ts` (research R5)
-- [ ] T041 [US2] `beforeunload` em `FLOW/new-report-flow.ts` só com rascunho preenchido ou comprovante
-- [ ] T042 [US2] `FLOW/new-report-flow.guards.ts` (saída do fluxo e da tela do protocolo, com `ConfirmDialog`)
+- [x] T040 [US2] Controle de etapas puladas em `FLOW/new-report-flow.ts` (research R5)
+- [x] T041 [US2] `beforeunload` em `FLOW/new-report-flow.ts` só com rascunho preenchido ou comprovante
+- [x] T042 [US2] `FLOW/new-report-flow.guards.ts` (saída do fluxo e da tela do protocolo, com `ConfirmDialog`)
       registrados em `projects/portal/src/app/app.routes.ts`
-- [ ] T043 [US2] `FLOW/inactivity-timer.ts` com aviso e descarte, ligado ao fluxo e à tela do protocolo
-- [ ] T044 [US2] Erro de envio mantém o rascunho e oferece "Tentar de novo" em `FLOW/review-page.ts`; aviso de
+- [x] T043 [US2] `FLOW/inactivity-timer.ts` com aviso e descarte, ligado ao fluxo e à tela do protocolo
+- [x] T044 [US2] Erro de envio mantém o rascunho e oferece "Tentar de novo" em `FLOW/review-page.ts`; aviso de
       comprovante indisponível em `FLOW/protocol-issued-page.ts`
 
 **Checkpoint**: US1 e US2 completas, o MVP do envio.
@@ -288,7 +288,7 @@ Depois: T031 diálogo do aviso, T033 receipt-file; em seguida T032 review-page e
 Achados de baixa severidade do analyze de 2026-11-28, a resolver durante o implement:
 
 - **C3**: incluir a página inicial (`/`) no teste de zoom de 200% e 320 px (T025 ou T045).
-- **C4**: asserção na T035 de que `/nova-denuncia/anexos` e `/nova-denuncia/identificacao` não exibem a etapa.
+- **C4** (resolvida na T035): asserção de que `/nova-denuncia/anexos` e `/nova-denuncia/identificacao` não exibem a etapa.
 - **C5**: SC-001 (menos de 5 minutos, sem ajuda) fica como validação manual no `quickstart.md`.
 - **U2**: caminho do diálogo da T031 (`projects/portal/src/app/features/privacy/privacy-notice-dialog.ts`) e os arquivos de
   teste novos na árvore do `plan.md`.
