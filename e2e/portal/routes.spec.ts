@@ -1,25 +1,11 @@
 import { expect, test } from '../fixtures/privacy-guards';
+import { PORTAL_ROUTES as ROUTES } from './routes';
 
 /**
  * Todas as rotas que existem hoje no portal (projects/portal/src/app/app.routes.ts), com as guardas de privacidade:
  * nenhuma requisição externa, nenhuma violação de CSP ou Trusted Types, nada no armazenamento e nada no console.
  * Os fluxos completos entram com as features de tela (opção A).
  */
-const ROUTES = [
-  '/',
-  '/privacidade',
-  '/nova-denuncia/tipo',
-  '/nova-denuncia/categoria',
-  '/nova-denuncia/relato',
-  '/nova-denuncia/envolvidos',
-  '/nova-denuncia/anexos',
-  '/nova-denuncia/identificacao',
-  '/nova-denuncia/revisao',
-  '/nova-denuncia/protocolo',
-  '/consultar',
-  '/acompanhamento',
-  '/ajuda',
-];
 
 for (const route of ROUTES) {
   test(`portal ${route} carrega sem rastros`, async ({ page }) => {

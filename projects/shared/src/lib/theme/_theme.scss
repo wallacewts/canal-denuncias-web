@@ -1,0 +1,43 @@
+// Tema compartilhado dos dois apps (FTRV-09). Material 3 com tokens próprios.
+// O contraste de texto vem dos pares de tokens do Material (on-surface sobre surface, etc.), que atendem 4,5:1, e é
+// conferido pelo axe nos testes e2e (FTRV-07).
+@use '@angular/material' as mat;
+
+@mixin app-theme($palette: mat.$azure-palette) {
+  html {
+    color-scheme: light dark;
+    @include mat.theme(
+      (
+        color: $palette,
+        typography: Roboto,
+        density: 0,
+      )
+    );
+
+    // Tokens próprios do canal.
+    --canal-focus-ring: 2px solid var(--mat-sys-primary);
+    --canal-content-max-width: 72ch;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: Roboto, system-ui, sans-serif;
+    background: var(--mat-sys-surface);
+    color: var(--mat-sys-on-surface);
+  }
+
+  a {
+    color: var(--mat-sys-primary);
+  }
+
+  // Foco sempre visível para quem navega por teclado (WCAG 2.4.7).
+  :focus-visible {
+    outline: var(--canal-focus-ring);
+    outline-offset: 2px;
+  }
+}

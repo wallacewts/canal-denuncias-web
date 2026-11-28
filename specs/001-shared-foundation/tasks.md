@@ -141,25 +141,25 @@ por teclado e largura de 320 px.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T040 [P] [US3] Testes de `PageHeader` em `projects/shared/src/lib/ui/page-header.spec.ts`: renderiza `h1`, `focus()` move o foco para o título
-- [ ] T041 [P] [US3] Testes de `EmptyState` e `LoadingState` em `projects/shared/src/lib/ui/empty-state.spec.ts` e `loading-state.spec.ts`: texto visível; `aria-busy="true"` e rótulo para leitor de tela no carregamento
-- [ ] T042 [P] [US3] Testes de `ConfirmDialog` em `projects/shared/src/lib/ui/confirm-dialog.spec.ts`: `open()` resolve `true` ao confirmar e `false` ao cancelar ou fechar com Esc, e `window.confirm` nunca é chamado
-- [ ] T043 [P] [US3] Testes de `StatusChip` em `projects/shared/src/lib/ui/status-chip.spec.ts`: o texto está sempre presente em todos os `tone`
-- [ ] T044 [P] [US3] Testes dos pipes em `projects/shared/src/lib/pipes/portal-date.pipe.spec.ts` e `staff-date-time.pipe.spec.ts`: `dd/MM/yyyy` sem hora no portal e `dd/MM/yyyy HH:mm:ss` no backoffice, em `pt-BR`
-- [ ] T045 [P] [US3] E2E de acessibilidade em `e2e/portal/a11y.spec.ts`: axe sem violação `serious` ou `critical` em todas as rotas do portal, uso só com teclado com foco visível, `lang="pt-BR"` e nenhuma rolagem horizontal em 320 px e em viewport equivalente a zoom de 200%; e, em `e2e/backoffice/layout.spec.ts`, as mesmas verificações de 320 px e zoom de 200% em todas as rotas do backoffice (FR-025). Se o axe conflitar com Trusted Types, criar o projeto `a11y` separado em `e2e/playwright.config.ts` (research.md, R3)
-- [ ] T046 [P] [US3] Testes do padrão de erro de formulário em `projects/shared/src/lib/ui/form-field-error.spec.ts`: a mensagem de erro fica ligada ao campo por `aria-describedby`, é anunciada por região `aria-live="polite"` ao aparecer, e o vínculo é removido quando o campo é corrigido
+- [x] T040 [P] [US3] Testes de `PageHeader` em `projects/shared/src/lib/ui/page-header.spec.ts`: renderiza `h1`, `focus()` move o foco para o título
+- [x] T041 [P] [US3] Testes de `EmptyState` e `LoadingState` em `projects/shared/src/lib/ui/empty-state.spec.ts` e `loading-state.spec.ts`: texto visível; `aria-busy="true"` e rótulo para leitor de tela no carregamento
+- [x] T042 [P] [US3] Testes de `ConfirmDialog` em `projects/shared/src/lib/ui/confirm-dialog.spec.ts`: `open()` resolve `true` ao confirmar e `false` ao cancelar ou fechar com Esc, e `window.confirm` nunca é chamado
+- [x] T043 [P] [US3] Testes de `StatusChip` em `projects/shared/src/lib/ui/status-chip.spec.ts`: o texto está sempre presente em todos os `tone`
+- [x] T044 [P] [US3] Testes dos pipes em `projects/shared/src/lib/pipes/portal-date.pipe.spec.ts` e `staff-date-time.pipe.spec.ts`: `dd/MM/yyyy` sem hora no portal e `dd/MM/yyyy HH:mm:ss` no backoffice, em `pt-BR`
+- [x] T045 [P] [US3] E2E de acessibilidade em `e2e/portal/a11y.spec.ts`: axe sem violação `serious` ou `critical` em todas as rotas do portal, uso só com teclado com foco visível, `lang="pt-BR"` e nenhuma rolagem horizontal em 320 px e em viewport equivalente a zoom de 200%; e, em `e2e/backoffice/layout.spec.ts`, as mesmas verificações de 320 px e zoom de 200% em todas as rotas do backoffice (FR-025). Se o axe conflitar com Trusted Types, criar o projeto `a11y` separado em `e2e/playwright.config.ts` (research.md, R3)
+- [x] T046 [P] [US3] Testes do padrão de erro de formulário em `projects/shared/src/lib/ui/form-field-error.spec.ts`: a mensagem de erro fica ligada ao campo por `aria-describedby`, é anunciada por região `aria-live="polite"` ao aparecer, e o vínculo é removido quando o campo é corrigido
 
 ### Implementation for User Story 3
 
-- [ ] T047 [US3] Criar o tema Material 3 compartilhado em `projects/shared/src/lib/theme/_theme.scss`, com tokens próprios e contraste de 4,5:1, e usá-lo em `projects/portal/src/styles.scss` e `projects/backoffice/src/styles.scss`
-- [ ] T048 [US3] Registrar o locale `pt-BR` (`registerLocaleData` e `LOCALE_ID`) num `provideLocale()` em `projects/shared/src/lib/i18n/provide-locale.ts` e usá-lo nos dois `app.config.ts`
-- [ ] T049 [P] [US3] Implementar `PageHeader` em `projects/shared/src/lib/ui/page-header.ts`
-- [ ] T050 [P] [US3] Implementar `EmptyState` e `LoadingState` em `projects/shared/src/lib/ui/empty-state.ts` e `projects/shared/src/lib/ui/loading-state.ts`
-- [ ] T051 [P] [US3] Implementar `ConfirmDialog` (sobre `MatDialog`) em `projects/shared/src/lib/ui/confirm-dialog.ts`
-- [ ] T052 [P] [US3] Implementar `StatusChip` em `projects/shared/src/lib/ui/status-chip.ts`, sem `[style]` com string crua
-- [ ] T053 [P] [US3] Implementar os pipes `portalDate` e `staffDateTime` em `projects/shared/src/lib/pipes/portal-date.pipe.ts` e `projects/shared/src/lib/pipes/staff-date-time.pipe.ts`
-- [ ] T054 [P] [US3] Implementar o padrão de erro de formulário acessível (componente `FormFieldError` e diretiva que liga o campo à mensagem por `aria-describedby`, com região `aria-live`) em `projects/shared/src/lib/ui/form-field-error.ts` e exportá-lo em `projects/shared/src/public-api.ts`
-- [ ] T055 [US3] Exportar os componentes, os pipes, `provideLocale` e o tema em `projects/shared/src/public-api.ts` e documentar o uso em `projects/shared/README.md`
+- [x] T047 [US3] Criar o tema Material 3 compartilhado em `projects/shared/src/lib/theme/_theme.scss`, com tokens próprios e contraste de 4,5:1, e usá-lo em `projects/portal/src/styles.scss` e `projects/backoffice/src/styles.scss`
+- [x] T048 [US3] Registrar o locale `pt-BR` (`registerLocaleData` e `LOCALE_ID`) num `provideLocale()` em `projects/shared/src/lib/i18n/provide-locale.ts` e usá-lo nos dois `app.config.ts`
+- [x] T049 [P] [US3] Implementar `PageHeader` em `projects/shared/src/lib/ui/page-header.ts`
+- [x] T050 [P] [US3] Implementar `EmptyState` e `LoadingState` em `projects/shared/src/lib/ui/empty-state.ts` e `projects/shared/src/lib/ui/loading-state.ts`
+- [x] T051 [P] [US3] Implementar `ConfirmDialog` (sobre `MatDialog`) em `projects/shared/src/lib/ui/confirm-dialog.ts`
+- [x] T052 [P] [US3] Implementar `StatusChip` em `projects/shared/src/lib/ui/status-chip.ts`, sem `[style]` com string crua
+- [x] T053 [P] [US3] Implementar os pipes `portalDate` e `staffDateTime` em `projects/shared/src/lib/pipes/portal-date.pipe.ts` e `projects/shared/src/lib/pipes/staff-date-time.pipe.ts`
+- [x] T054 [P] [US3] Implementar o padrão de erro de formulário acessível (componente `FormFieldError` e diretiva que liga o campo à mensagem por `aria-describedby`, com região `aria-live`) em `projects/shared/src/lib/ui/form-field-error.ts` e exportá-lo em `projects/shared/src/public-api.ts`
+- [x] T055 [US3] Exportar os componentes, os pipes, `provideLocale` e o tema em `projects/shared/src/public-api.ts` e documentar o uso em `projects/shared/README.md`
 
 **Checkpoint**: componentes base disponíveis e portal sem violações de acessibilidade nas rotas existentes.
 

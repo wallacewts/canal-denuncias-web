@@ -122,6 +122,7 @@
               "node_modules/@fontsource/roboto/400.css",
               "node_modules/@fontsource/roboto/500.css",
               "node_modules/@fontsource/roboto/700.css",
+              "node_modules/material-symbols/outlined.css",
               "projects/backoffice/src/styles.scss"
             ]
           },

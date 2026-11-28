@@ -7,7 +7,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
   selector: 'app-root',
   imports: [MatButtonModule, MatToolbarModule, RouterLink, RouterOutlet],
   template: `
-    <mat-toolbar>
+    <mat-toolbar class="toolbar">
       <a class="brand" routerLink="/">Canal de Denúncias</a>
       <span class="spacer"></span>
       <nav aria-label="Principal" class="nav">
@@ -29,6 +29,15 @@ import { RouterLink, RouterOutlet } from '@angular/router';
       display: flex;
       flex-direction: column;
       min-height: 100dvh;
+    }
+    /* Em telas estreitas (320 px, zoom de 200%) a barra quebra linha em vez de rolar na horizontal. */
+    .toolbar {
+      flex-wrap: wrap;
+      height: auto;
+      min-height: var(--mat-toolbar-standard-height, 64px);
+      white-space: normal;
+      row-gap: 0.25rem;
+      padding-block: 0.5rem;
     }
     .brand {
       color: inherit;
